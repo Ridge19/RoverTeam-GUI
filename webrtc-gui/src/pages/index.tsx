@@ -1,10 +1,51 @@
 
 
 import Head from "next/head";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("Extraction");
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  async function connectToRover() {
+  const pc = new window.RTCPeerConnection();
+  // Add a video transceiver so the SDP includes a video track
+  pc.addTransceiver("video", { direction: "recvonly" });
+
+    pc.ontrack = (event) => {
+      if (videoRef.current) {
+        videoRef.current.srcObject = event.streams[0];
+      }
+    };
+
+    // ICE candidate handling
+    const iceCandidates = [];
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        iceCandidates.push(event.candidate);
+      }
+    };
+
+    try {
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+
+      // Use window.location.hostname for dynamic local network access
+  const serverHost = window.location.hostname;
+  const response = await fetch(`http://${serverHost}:3001/offer`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sdp: offer.sdp,
+          type: offer.type,
+        }),
+      });
+      const answer = await response.json();
+      await pc.setRemoteDescription(new window.RTCSessionDescription(answer));
+    } catch (err) {
+      alert("Failed to connect to rover camera: " + err);
+    }
+  }
 
   return (
     <>
@@ -47,6 +88,8 @@ export default function Home() {
             {/* Tab content below */}
             {activeTab === "Extraction" ? (
               <>
+                <button onClick={connectToRover} style={{ marginBottom: 16 }}>Connect to Rover Camera</button>
+                <video ref={videoRef} autoPlay playsInline style={{ width: 640, height: 480, background: "#000", marginBottom: 16 }} />
                 <div className="rover-cameras-label">Cameras</div>
                 <div className="rover-cameras-grid">
                   {[...Array(8)].map((_, i) => (

@@ -90,6 +90,7 @@
   padding: 20px;
   overflow-y: auto;
   min-height: 0;
+  will-change: transform;
 }
 
 .rover-topbar {
@@ -121,11 +122,13 @@
 .rover-camera {
   background: #d3d3d3;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  height: 170px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
+  margin: 0 auto;
+  will-change: transform;
 }
 
 .rover-row {
