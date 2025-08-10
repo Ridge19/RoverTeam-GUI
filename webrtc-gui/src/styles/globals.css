@@ -1,0 +1,224 @@
+.rover-icon-active {
+  background: #bbb;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+/* Rover Navbar Styles */
+.rover-navbar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  background: #222;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+.rover-navbar-left {
+  justify-content: flex-start;
+}
+.rover-navbar-links {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+.rover-navbar-link {
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  transition: background 0.2s;
+  margin-right: 2px;
+}
+.rover-navbar-link:last-child {
+  margin-right: 0;
+}
+.rover-navbar-link:hover {
+  background: #444;
+}
+.rover-tab {
+  background: #ccc;
+  color: #222;
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-right: 2px;
+  font-weight: bold;
+  transition: background 0.2s, color 0.2s;
+}
+.rover-tab.rover-tab-active {
+  background: #fff;
+  color: #222;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Rover GUI Layout Styles */
+.rover-bg {
+  background: #f5f5f5;
+  min-height: 100vh;
+  color: black;
+  font-family: sans-serif;
+}
+
+.rover-layout {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  min-height: 0;
+}
+
+.rover-sidebar {
+  width: 60px;
+  background: #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+}
+
+.rover-icon {
+  margin-bottom: 20px;
+}
+.rover-icon span {
+  font-size: 40px;
+}
+
+.rover-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.rover-topbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.rover-tab {
+  background: #ccc;
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-right: 10px;
+}
+.rover-tab:last-child {
+  margin-right: 0;
+}
+
+.rover-cameras-label {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+.rover-cameras-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.rover-camera {
+  background: #d3d3d3;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.rover-row {
+  display: flex;
+  flex-direction: row;
+  gap: 60px;
+}
+.rover-section {
+  min-width: 180px;
+}
+.rover-section-title {
+  font-weight: bold;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+.rover-control-group {
+  margin-bottom: 10px;
+}
+.rover-control {
+  background: #d3d3d3;
+  width: 100px;
+  height: 24px;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+.rover-motor-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rover-motor {
+  margin-left: 8px;
+}
+.rover-direction {
+  width: 24px;
+  height: 24px;
+  margin-left: 4px;
+}
+.rover-visualizer {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+}
+
+.rover-rightbar {
+  width: 200px;
+  background: #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+.rover-clock {
+  background: #d3d3d3;
+  height: 60px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rover-temperatures {
+  background: #d3d3d3;
+  flex: 1;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
