@@ -5,16 +5,24 @@ import { useState, useRef } from "react";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("Extraction");
+  const [toast, setToast] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   async function connectToRover() {
+    setToast("Connecting to rover camera...");
     const pc = new window.RTCPeerConnection();
     // Add a video transceiver so the SDP includes a video track
     pc.addTransceiver("video", { direction: "recvonly" });
 
+    let connected = false;
     pc.ontrack = (event) => {
       if (videoRef.current) {
         videoRef.current.srcObject = event.streams[0];
+        if (!connected) {
+          setToast("Connected via WebRTC");
+          connected = true;
+          setTimeout(() => setToast(null), 3000);
+        }
       }
     };
 
@@ -43,7 +51,8 @@ export default function Home() {
       const answer = await response.json();
       await pc.setRemoteDescription(new window.RTCSessionDescription(answer));
     } catch (err) {
-      alert("Failed to connect to rover camera: " + err);
+      setToast("Connection failed");
+      setTimeout(() => setToast(null), 3000);
     }
   }
 
@@ -53,6 +62,23 @@ export default function Home() {
         <title>Rover GUI</title>
       </Head>
       <div className="rover-bg">
+        {toast && (
+          <div style={{
+            position: "fixed",
+            top: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "#222",
+            color: "#fff",
+            padding: "12px 32px",
+            borderRadius: 8,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+            zIndex: 9999,
+            fontSize: 18,
+          }}>
+            {toast}
+          </div>
+        )}
         <div className="rover-layout">
           {/* Sidebar */}
           <div className="rover-sidebar">
