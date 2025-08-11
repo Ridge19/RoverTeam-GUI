@@ -118,5 +118,10 @@ if __name__ == "__main__":
     app.router.add_post("/offer", offer)
     app.router.add_route("OPTIONS", "/offer", offer)
 
+    # Add a root endpoint for status check
+    async def root(request):
+        return web.Response(text="Rover WebRTC server is running.")
+    app.router.add_get("/", root)
+
     logging.info(f"Starting rover server at http://{HOST}:{PORT}")
     web.run_app(app, host=HOST, port=PORT)

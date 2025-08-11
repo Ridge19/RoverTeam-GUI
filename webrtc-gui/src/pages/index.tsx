@@ -8,9 +8,9 @@ export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   async function connectToRover() {
-  const pc = new window.RTCPeerConnection();
-  // Add a video transceiver so the SDP includes a video track
-  pc.addTransceiver("video", { direction: "recvonly" });
+    const pc = new window.RTCPeerConnection();
+    // Add a video transceiver so the SDP includes a video track
+    pc.addTransceiver("video", { direction: "recvonly" });
 
     pc.ontrack = (event) => {
       if (videoRef.current) {
@@ -30,9 +30,9 @@ export default function Home() {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      // Use window.location.hostname for dynamic local network access
-  const serverHost = window.location.hostname;
-  const response = await fetch(`http://${serverHost}:3001/offer`, {
+      // Hardcoded rover IP address
+      const roverHost = "192.168.50.1";
+      const response = await fetch(`http://${roverHost}:3001/offer`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
