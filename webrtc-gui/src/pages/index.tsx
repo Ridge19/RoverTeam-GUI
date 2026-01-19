@@ -1,14 +1,19 @@
 import Head from "next/head";
 import { useState, useRef, useEffect, createRef } from "react";
 
+interface Camera {
+  id: string;
+  label: string;
+}
+
 export default function Home() {
   const [roverUrl, setRoverUrl] = useState("");
-  const [availableCameras, setAvailableCameras] = useState([]);
-  const [connectedCameras, setConnectedCameras] = useState([]);
-  const [toast, setToast] = useState(null);
+  const [availableCameras, setAvailableCameras] = useState<Camera[]>([]);
+  const [connectedCameras, setConnectedCameras] = useState<boolean[]>([]);
+  const [toast, setToast] = useState<string | null>(null);
   
-  const videoRefs = useRef([]);
-  const peerConnections = useRef([]);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const peerConnections = useRef<(RTCPeerConnection | null)[]>([]);
 
   useEffect(() => {
     // AUTOMATIC LAN DETECTION
@@ -29,23 +34,23 @@ export default function Home() {
           peerConnections.current = new Array(data.cameras.length).fill(null);
 
           // Auto-connect
-          data.cameras.forEach((_, idx) => connectToCamera(idx, data.cameras[idx].id, url));
+          data.cameras.forEach((_: number, idx: number) => connectToCamera(idx, data.cameras[idx].id, url));
         }
       })
       .catch((err) => showToast(`Error connecting to rover at ${url}: ${err.message}`));
 
     return () => {
-      peerConnections.current.forEach(pc => pc && pc.close());
+      peerConnections.current?.forEach(pc => pc?.close());
     };
   }, []);
 
-  const showToast = (msg) => {
+  const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(null), 3000);
   };
 
-  const connectToCamera = async (idx, cameraId, baseUrl) => {
-    if (peerConnections.current[idx]) return;
+  const connectToCamera = async (idx: number, cameraId: string, baseUrl: string) => {
+    if (peerConnections.current?.[idx]) return;
 
     showToast(`Connecting Camera ${cameraId}...`);
     
@@ -58,7 +63,7 @@ export default function Home() {
     pc.addTransceiver("video", { direction: "recvonly" });
 
     pc.ontrack = (event) => {
-      const vid = videoRefs.current[idx]?.current;
+      const vid = videoRefs.current[idx];
       if (vid) {
         vid.srcObject = event.streams[0];
         vid.play().catch(e => console.warn("Autoplay blocked:", e));
@@ -95,9 +100,9 @@ export default function Home() {
       
       showToast(`Camera ${cameraId} Live`);
 
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-      showToast(`Failed: ${err.message}`);
+      showToast(`Failed: ${err instanceof Error ? err.message : "Unknown error"}`);
       // Clean up failed connection
       pc.close();
       peerConnections.current[idx] = null;
@@ -133,7 +138,7 @@ export default function Home() {
             </div>
             <div style={{ position: "relative", paddingTop: "75%", background: "#000" }}>
               <video
-                ref={videoRefs.current[i]}
+                ref={(el) => {videoRefs.current[i] = el;}}
                 autoPlay
                 playsInline
                 muted // Muted often helps autoplay work reliably
