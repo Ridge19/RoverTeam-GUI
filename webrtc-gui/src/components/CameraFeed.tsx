@@ -16,7 +16,37 @@ export function CameraFeed({ camera, baseUrl }: CameraFeedProps) {
 
   const [status, setStatus] = useState<ConnectionStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showSaved, setShowSaved] = useState(false); // currently unused
 
+  // Photo
+  const captureFrame = useCallback(() => {
+    const video = videoRef.current;
+    if (video == null || video.videoWidth === 0 || video.videoHeight === 0)
+      return null;
+
+    setShowSaved(true);
+    setTimeout(() => setShowSaved(false), 2000);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const imageType = "image/png";
+    const imageData = canvas.toDataURL(imageType);
+
+    const link = document.createElement("a");
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    link.href = imageData;
+    link.download = `rover-${camera.label}-${timestamp}.png`;
+    link.click();
+
+    console.log(`Captured frame from ${camera.label}`);
+  }, [camera.label]);
   const startStream = useCallback(async () => {
     if (pcRef.current) return; // Prevent double connections
 
@@ -126,6 +156,19 @@ export function CameraFeed({ camera, baseUrl }: CameraFeedProps) {
 
         <video ref={videoRef} autoPlay playsInline muted style={styles.video} />
       </div>
+      <div style={styles.footer}>
+        <button
+          onClick={captureFrame}
+          disabled={status !== "live"}
+          style={{
+            ...styles.actionBtn,
+            opacity: status === "live" ? 1 : 0.5,
+            cursor: status === "live" ? "pointer" : "not-allowed",
+          }}
+        >
+          Capture Frame
+        </button>
+      </div>
     </div>
   );
 }
@@ -198,5 +241,22 @@ const styles = {
     padding: "5px 15px",
     cursor: "pointer",
     borderRadius: 4,
+  },
+  footer: {
+    padding: 10,
+    background: "#1a1a1a",
+    display: "flex",
+    justifyContent: "flex-end", // Aligns button to right
+    borderTop: "1px solid #333",
+  },
+  actionBtn: {
+    background: "#333",
+    color: "#fff",
+    border: "1px solid #555",
+    borderRadius: 4,
+    padding: "8px 12px",
+    fontSize: "0.85rem",
+    fontWeight: "bold",
+    transition: "background 0.2s",
   },
 };
