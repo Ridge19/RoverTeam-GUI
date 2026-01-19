@@ -29,6 +29,18 @@ export function CameraFeed({ camera, baseUrl }: CameraFeedProps) {
       const pc = new RTCPeerConnection({ iceServers: [] });
       pcRef.current = pc; // Store immediately for cleanup logic
 
+      pc.oniceconnectionstatechange = () => {
+        if (
+          pc.iceConnectionState === "failed" ||
+          pc.iceConnectionState === "disconnected"
+        ) {
+          setStatus("failed");
+          setErrorMessage("ICE Connection Failed");
+          pc.close();
+          pcRef.current = null;
+        }
+      };
+
       pc.addTransceiver("video", { direction: "recvonly" });
 
       pc.ontrack = (event) => {
