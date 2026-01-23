@@ -1,3 +1,9 @@
 aiohttp
 aiortc
 av
+
+opencv-python
+numpy
+matplotlib
+scipy
+

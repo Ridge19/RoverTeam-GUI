@@ -10,6 +10,10 @@ export default function Home() {
   const videoRefs = useRef([]);
   const peerConnections = useRef([]);
 
+  // spectroscopy
+  const [moisture, setMoisture] = useState<number | null>(null);
+  const [spectrum, setSpectrum] = useState<string | null>(null);
+
   useEffect(() => {
     // AUTOMATIC LAN DETECTION
     // If you visit http://192.168.1.50:3000, this sets the API to http://192.168.1.50:3001
@@ -104,45 +108,146 @@ export default function Home() {
     }
   };
 
+  // spectroscopy useEffect function
+  useEffect(() => {
+  if (!roverUrl) return;        // wait until hostname detected
+  const fetchMeasure = async () => {
+    try {
+      const res = await fetch(`${roverUrl}/measure`, { cache: "no-store" });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      setMoisture(data.moisture_index);
+      setSpectrum(data.spectrum_plot);
+    } catch (err: any) {
+      console.error("measure error:", err);
+    }
+  };
+  fetchMeasure();                           // initial
+  const id = setInterval(fetchMeasure, 5000); // update every 5 s
+  return () => clearInterval(id);
+}, [roverUrl]);
+
   return (
-    <div style={{ background: "#111", minHeight: "100vh", color: "#fff", fontFamily: "sans-serif", padding: 20 }}>
-      <Head>
-        <title>Rover Feed</title>
-      </Head>
+  <div
+    style={{
+      background: "#111",
+      minHeight: "100vh",
+      color: "#fff",
+      fontFamily: "sans-serif",
+      padding: 20,
+    }}
+  >
+    <Head>
+      <title>Rover Feed</title>
+    </Head>
 
-      {toast && (
-        <div style={{
-          position: "fixed", top: 20, left: "50%", transform: "translate(-50%)",
-          background: "#333", padding: "10px 20px", borderRadius: 8, zIndex: 100, boxShadow: "0 2px 10px rgba(0,0,0,0.5)"
-        }}>
-          {toast}
-        </div>
-      )}
-
-      <h1>Rover Camera Feed</h1>
-      <p style={{color: "#888", fontSize: "0.9rem"}}>Connected to Rover at: {roverUrl}</p>
-      
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: 20 }}>
-        {availableCameras.map((cam, i) => (
-          <div key={cam.id} style={{ background: "#222", padding: 10, borderRadius: 8 }}>
-            <div style={{ marginBottom: 5, fontWeight: "bold", display:"flex", justifyContent:"space-between" }}>
-              <span>{cam.label}</span>
-              <span style={{color: connectedCameras[i] ? "#4f4" : "#f44"}}>
-                ● {connectedCameras[i] ? "LIVE" : "OFFLINE"}
-              </span>
-            </div>
-            <div style={{ position: "relative", paddingTop: "75%", background: "#000" }}>
-              <video
-                ref={videoRefs.current[i]}
-                autoPlay
-                playsInline
-                muted // Muted often helps autoplay work reliably
-                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            </div>
-          </div>
-        ))}
+    {toast && (
+      <div
+        style={{
+          position: "fixed",
+          top: 20,
+          left: "50%",
+          transform: "translate(-50%)",
+          background: "#333",
+          padding: "10px 20px",
+          borderRadius: 8,
+          zIndex: 100,
+          boxShadow: "0 2px 10px rgba(0,0,0,0.5)",
+        }}
+      >
+        {toast}
       </div>
+    )}
+
+    <h1>Rover Camera Feed</h1>
+    <p style={{ color: "#888", fontSize: "0.9rem" }}>
+      Connected to Rover at: {roverUrl}
+    </p>
+
+    {/* --- Camera grid --- */}
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+        gap: 20,
+      }}
+    >
+      {availableCameras.map((cam, i) => (
+        <div
+          key={cam.id}
+          style={{ background: "#222", padding: 10, borderRadius: 8 }}
+        >
+          <div
+            style={{
+              marginBottom: 5,
+              fontWeight: "bold",
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <span>{cam.label}</span>
+            <span style={{ color: connectedCameras[i] ? "#4f4" : "#f44" }}>
+              ● {connectedCameras[i] ? "LIVE" : "OFFLINE"}
+            </span>
+          </div>
+
+          <div
+            style={{
+              position: "relative",
+              paddingTop: "75%",
+              background: "#000",
+            }}
+          >
+            <video
+              ref={videoRefs.current[i]}
+              autoPlay
+              playsInline
+              muted
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </div>
+        </div>
+      ))}
     </div>
-  );
+
+    {/* --- Spectroscopy / Moisture section --- */}
+    {moisture != null && (
+      <div
+        style={{
+          background: "#222",
+          marginTop: 40,
+          padding: 20,
+          borderRadius: 8,
+          textAlign: "center",
+        }}
+      >
+        <h2>Spectroscopy Reading</h2>
+        <p style={{ fontSize: "1.2rem", marginBottom: 10 }}>
+          Moisture: {(moisture * 100).toFixed(1)}%
+        </p>
+        {spectrum && (
+          <img
+            src={spectrum}
+            alt="Spectrum"
+            style={{
+              display: "block",
+              margin: "0 auto",
+              maxWidth: "600px",
+              width: "100%",
+              border: "1px solid #333",
+              background: "#111",
+            }}
+          />
+        )}
+      </div>
+    )}
+  </div>
+);
 }

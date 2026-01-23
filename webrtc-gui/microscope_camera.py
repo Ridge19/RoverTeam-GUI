@@ -1,14 +1,21 @@
 import asyncio
 import logging
 import os
+from aiortc import VideoStreamTrack
+from av import VideoFrame
+import numpy as np
 from aiohttp import web
 from aiortc import RTCPeerConnection, RTCSessionDescription
 from aiortc.contrib.media import MediaPlayer
+import shared_state
+from spectroscopy import handle_measure # Import the measurement handler for spectroscopy
 
 # Listen on all interfaces so LAN devices can connect
 HOST = "0.0.0.0"
 PORT = 3001
 
+# Latest camera frame (shared with spectroscopy)
+latest_frame = None
 # Store active peer connections to prevent garbage collection
 pcs = set()
 # Store media players to stop them cleanly
@@ -49,6 +56,24 @@ def list_camera_indices():
     else:
         logging.warning(f"Camera {target_cam} not found at /dev/video{target_cam}")
         return []
+    
+# ---------------------------------------------------------
+# VIDEO STREAM TRACK (Not used in current passthrough setup)
+# ---------------------------------------------------------
+class CameraTapTrack(VideoStreamTrack):
+    """
+    Wraps a MediaPlayer video track and copies frames
+    for spectroscopy without reopening the camera.
+    """
+    def __init__(self, source_track):
+        super().__init__()
+        self.source = source_track
+
+    async def recv(self):
+        frame = await self.source.recv()
+        shared_state.latest_frame = frame.to_ndarray(format="bgr24")
+        return frame
+
 
 # ---------------------------------------------------------
 # CONNECTION HANDLER
@@ -88,7 +113,8 @@ async def handle_offer(request):
 
     # Add the track to the connection
     if player.video:
-        pc.addTrack(player.video)
+        tapped_track = CameraTapTrack(player.video)
+        pc.addTrack(tapped_track)
 
     @pc.on("connectionstatechange")
     async def on_conn_change():
@@ -162,6 +188,7 @@ if __name__ == "__main__":
     
     app.router.add_post("/offer", handle_offer)
     app.router.add_get("/cameras", handle_cameras)
+    app.router.add_get("/measure", handle_measure)
     
     # Handle OPTIONS requests for all routes
     app.router.add_route("*", "/{tail:.*}", lambda request: web.Response(
