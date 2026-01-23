@@ -20,13 +20,29 @@ def setup_logging():
 # ---------------------------------------------------------
 # FAST CAMERA SCAN (Restricted to Camera 0)
 # ---------------------------------------------------------
+# def list_camera_indices():
+#     """Return only Camera 0 if it exists."""
+#     logging.info("[Startup] Checking for Camera 0...")
+    
+#     # We strictly only want Camera 0
+#     target_cam = 0
+    
+#     if os.path.exists(f"/dev/video{target_cam}"):
+#         logging.info(f"Camera {target_cam} found.")
+#         return [target_cam]
+#     else:
+#         logging.warning(f"Camera {target_cam} not found at /dev/video{target_cam}")
+#         return []
+
+
+# ---------------------------------------------------------
+# FAST CAMERA SCAN (Restricted to Microscope Camera /dev/video4) - TESTING RIDGES PC
+# ---------------------------------------------------------
 def list_camera_indices():
-    """Return only Camera 0 if it exists."""
-    logging.info("[Startup] Checking for Camera 0...")
-    
-    # We strictly only want Camera 0
-    target_cam = 0
-    
+    """Return only microscope camera /dev/video4 if it exists."""
+    target_cam = 4
+    logging.info(f"[Startup] Checking for Camera {target_cam} /dev/video{target_cam}...")
+
     if os.path.exists(f"/dev/video{target_cam}"):
         logging.info(f"Camera {target_cam} found.")
         return [target_cam]
@@ -40,7 +56,8 @@ def list_camera_indices():
 async def handle_offer(request):
     params = await request.json()
     # Default to 0, though the client should ideally send 0
-    camera_id = int(params.get("camera_id", 0))
+    # camera_id = int(params.get("camera_id", 0))
+    camera_id = int(params.get("camera_id", 4))  # Changed default to 4 for microscope camera (TESTING RIDGES PC)
     
     # Force check for index 0 specifically if you want to be strict,
     # or just check if the requested ID exists (as per logic below).
