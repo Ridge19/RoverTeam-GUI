@@ -92,7 +92,14 @@ export default function Home() {
         }),
       });
 
-      if (!res.ok) throw new Error(await res.text());
+      if (res.status === 503) {
+        // Camera frame not ready yet — normal during startup
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error(await res.text());
+      }
 
       const answer = await res.json();
       await pc.setRemoteDescription(answer);
@@ -109,23 +116,24 @@ export default function Home() {
   };
 
   // spectroscopy useEffect function
-  useEffect(() => {
-  if (!roverUrl) return;        // wait until hostname detected
-  const fetchMeasure = async () => {
-    try {
-      const res = await fetch(`${roverUrl}/measure`, { cache: "no-store" });
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-      setMoisture(data.moisture_index);
-      setSpectrum(data.spectrum_plot);
-    } catch (err: any) {
-      console.error("measure error:", err);
+const fetchMeasure = async () => {
+  try {
+    const res = await fetch(`${roverUrl}/measure`, { cache: "no-store" });
+
+    // If the rover isn't ready yet, handle it gracefully
+    if (!res.ok) {
+      const text = await res.text();
+      console.warn("Measure not ready:", text);
+      return; // don't throw, just wait for next poll
     }
-  };
-  fetchMeasure();                           // initial
-  const id = setInterval(fetchMeasure, 5000); // update every 5 s
-  return () => clearInterval(id);
-}, [roverUrl]);
+
+    const data = await res.json();
+    setMoisture(data.moisture_index);
+    setSpectrum(data.spectrum_plot);
+  } catch (err: any) {
+    console.error("measure error:", err);
+  }
+};
 
   return (
   <div
