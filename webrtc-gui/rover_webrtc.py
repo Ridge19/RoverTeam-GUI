@@ -25,7 +25,7 @@ def setup_logging():
 def list_camera_indices():
     """Return only known working camera indices."""
     logging.info("[Startup] Returning known camera indices...")
-    cameras = [0, 2, 4, 6, 8, 10, 12, 14]  # Your working cameras
+    cameras = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]  # Your working cameras
     
     # Verify they exist
     for cam in cameras[:]:  # Copy list to iterate
