@@ -67,15 +67,24 @@ You should see:
 - Network:      http://172.24.80.1:3000
 ```
 
-# Connecting cameras
+<a name="HeadingConnectingCameras"></a># Connecting cameras
 
 - Go to the `webrtc-gui` folder, and run the script `rover_webrtc.py` using either:
 
 ```bash
+# On Linux:
 python rover_webrtc.py
 # OR
 python3 rover_webrtc.py
 ```
+
+```bash
+# On Windows:
+python rover_webrtc_windows.py
+# OR
+python3 rover_webrtc_windows.py
+```
+
 - If successful, you should see:
 
 ```text
@@ -126,6 +135,14 @@ You can start editing the page by modifying `pages/index.tsx`. The page auto-upd
 The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
 
 This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Windows Support
+
+Limited backend windows support is available to assist with UI development on Windows platforms. It allows streaming webcam data from a Windows device to the front-end.
+
+To use, ensure [FFmpeg](https://www.ffmpeg.org/) is installed on your device, and is available in the `PATH` directory.
+
+Instead of running `rover_webrtc.py`, run `rover_webrtc_windows.py` instead. *(see ['Connecting Cameras'](#HeadingConnectingCameras) above )*
 
 ## Learn More
 
