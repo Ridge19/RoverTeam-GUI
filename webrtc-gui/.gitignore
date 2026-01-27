@@ -11,7 +11,7 @@
 !.yarn/versions
 
 # server logs 
-\logs
+/logs/
 
 # testing
 /coverage
@@ -46,3 +46,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+#myenv python virtual environment
+/myenv/
