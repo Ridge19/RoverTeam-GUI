@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Camera } from "@/hooks/useCameraList"; // Adjust import path as needed
+import { useRoverWatchdog } from "@/hooks/useRoverWatchdog";
+import StatusChip, {StatusColor} from "./StatusChip";
+import { ArrowsPointingOutIcon, CameraIcon } from "@heroicons/react/24/solid";
 
 interface CameraFeedProps {
   camera: Camera;
@@ -17,6 +20,51 @@ export function CameraFeed({ camera, baseUrl }: CameraFeedProps) {
   const [status, setStatus] = useState<ConnectionStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showSaved, setShowSaved] = useState(false); // currently unused
+
+  // For FPS calculation and Frozen detection
+  const [fps, setFps] = useState<number | null>(null);
+  const frameCountRef = useRef(0);
+  const lastFpsTimeRef = useRef(performance.now());
+  const rafActiveRef = useRef(false);
+
+  // FPS and Frozen detection logic
+  const startFpsCounter = useCallback(() => {
+    const video = videoRef.current;
+    if (!video || rafActiveRef.current) return;
+
+    rafActiveRef.current = true;
+    frameCountRef.current = 0;
+    lastFpsTimeRef.current = performance.now();
+
+    const onFrame = (now: number) => {
+      frameCountRef.current++;
+
+      const elapsed = now - lastFpsTimeRef.current;
+      if (elapsed >= 1000) {
+        const calculatedFps = frameCountRef.current / (elapsed / 1000);
+
+        setFps(calculatedFps >= 1 ? Math.round(calculatedFps) : null);
+
+        frameCountRef.current = 0;
+        lastFpsTimeRef.current = now;
+      }
+
+      if (rafActiveRef.current) {
+        video.requestVideoFrameCallback(onFrame);
+      }
+    };
+
+    video.requestVideoFrameCallback(onFrame);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      rafActiveRef.current = false;
+      setFps(null);
+    };
+  }, []);
+
+
 
   // Photo
   const captureFrame = useCallback(() => {
@@ -47,6 +95,13 @@ export function CameraFeed({ camera, baseUrl }: CameraFeedProps) {
 
     console.log(`Captured frame from ${camera.label}`);
   }, [camera.label]);
+
+  const goFullscreen = useCallback(() => {
+    const video = videoRef.current;
+    if (video == null) return;
+    video.requestFullscreen();
+  }, [baseUrl, camera.id]);
+
   const startStream = useCallback(async () => {
     if (pcRef.current) return; // Prevent double connections
 
@@ -64,6 +119,7 @@ export function CameraFeed({ camera, baseUrl }: CameraFeedProps) {
           pc.iceConnectionState === "failed" ||
           pc.iceConnectionState === "disconnected"
         ) {
+          setFps(null);
           setStatus("failed");
           setErrorMessage("ICE Connection Failed");
           pc.close();
@@ -81,6 +137,7 @@ export function CameraFeed({ camera, baseUrl }: CameraFeedProps) {
             .play()
             .catch((e) => console.warn("Autoplay blocked", e));
           setStatus("live");
+          startFpsCounter();
         }
       };
 
@@ -128,11 +185,23 @@ export function CameraFeed({ camera, baseUrl }: CameraFeedProps) {
     };
   }, [startStream, camera.id]);
 
+  // Reconnect on rover reconnect
+  useRoverWatchdog(() => {
+    console.warn("recovering camera stream")
+    startStream();
+  })
+
   return (
     <div style={styles.card}>
       <div style={styles.header}>
-        <span>{camera.label}</span>
-        <StatusBadge status={status} />
+        <span style={{
+          minWidth: 0,
+          flex: 1,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}>{camera.label}</span>
+        <StatusBadge status={status} fps={fps} />
       </div>
 
       <div style={styles.videoWrapper}>
@@ -157,6 +226,7 @@ export function CameraFeed({ camera, baseUrl }: CameraFeedProps) {
         <video ref={videoRef} autoPlay playsInline muted style={styles.video} />
       </div>
       <div style={styles.footer}>
+        <div style={{marginLeft: 10, marginRight: "auto", lineHeight: 2}}>{fps ?? "--"} FPS</div>
         <button
           onClick={captureFrame}
           disabled={status !== "live"}
@@ -166,7 +236,18 @@ export function CameraFeed({ camera, baseUrl }: CameraFeedProps) {
             cursor: status === "live" ? "pointer" : "not-allowed",
           }}
         >
-          Capture Frame
+          <CameraIcon style={{ width: 24, height: 24 }} />
+        </button>
+        <button
+          onClick={goFullscreen}
+          disabled={status !== "live"}
+          style={{
+            ...styles.actionBtn,
+            opacity: status === "live" ? 1 : 0.5,
+            cursor: status === "live" ? "pointer" : "not-allowed",
+          }}
+        >
+          <ArrowsPointingOutIcon style={{ width: 24, height: 24 }} />
         </button>
       </div>
     </div>
@@ -174,27 +255,19 @@ export function CameraFeed({ camera, baseUrl }: CameraFeedProps) {
 }
 
 // Simple Sub-component for the little status dot
-function StatusBadge({ status }: { status: ConnectionStatus }) {
-  let color = "#888"; // idle
-  let text = "WAITING";
+function StatusBadge({ status, fps }: { status: ConnectionStatus, fps: number | null }) {
+ 
+  const map = {
+    "idle": { color: "disabled" as StatusColor, text: "Buffering", dot: false },
+    "connecting": { color: "warning" as StatusColor, text: "Connecting", dot: false },
+    "live": { color: "error" as StatusColor, text: "LIVE", dot: true },
+    "failed": { color: "disabled" as StatusColor, text: "Error", dot: false },
+  };
 
-  if (status === "connecting") {
-    color = "#ff4";
-    text = "CONNECTING";
-  }
-  if (status === "live") {
-    color = "#4f4";
-    text = "LIVE";
-  }
-  if (status === "failed") {
-    color = "#f44";
-    text = "ERROR";
-  }
+  const item = (fps === null && status === "live") ? map["idle"] : map[status];
 
   return (
-    <span style={{ color, fontSize: "0.8rem", fontWeight: "bold" }}>
-      ● {text}
-    </span>
+    <StatusChip color={item.color} label={item.text} noDot={!item.dot} />
   );
 }
 
@@ -206,12 +279,18 @@ const styles = {
     borderRadius: 8,
     overflow: "hidden",
   },
-  header: { display: "flex", justifyContent: "space-between", marginBottom: 8 },
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginBottom: 8,
+    gap: 8
+  },
   videoWrapper: {
     position: "relative" as const,
     paddingTop: "75%",
     background: "#000",
-    borderRadius: 4,
+    borderRadius: 8,
+    overflow: "hidden",
   },
   video: {
     position: "absolute" as const,
@@ -243,17 +322,13 @@ const styles = {
     borderRadius: 4,
   },
   footer: {
-    padding: 10,
-    background: "#1a1a1a",
+    paddingTop: 10,
     display: "flex",
     justifyContent: "flex-end", // Aligns button to right
-    borderTop: "1px solid #333",
+    gap: 0,
   },
   actionBtn: {
-    background: "#333",
     color: "#fff",
-    border: "1px solid #555",
-    borderRadius: 4,
     padding: "8px 12px",
     fontSize: "0.85rem",
     fontWeight: "bold",

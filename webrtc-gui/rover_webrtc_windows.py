@@ -74,6 +74,9 @@ async def handle_cameras(request):
         ]
     })
 
+async def handle_ping(request):
+    return web.Response(text="pong")
+
 async def handle_offer(request):
     params = await request.json()
     camera_id = int(params.get("camera_id", 0))
@@ -175,6 +178,7 @@ if __name__ == "__main__":
     app = web.Application(middlewares=[cors_middleware])
     app.router.add_get("/cameras", handle_cameras)
     app.router.add_post("/offer", handle_offer)
+    app.router.add_get("/ping", handle_ping)
     app.on_shutdown.append(on_shutdown)
 
     logging.info(f"Rover WebRTC Windows Server running on http://{HOST}:{PORT}")

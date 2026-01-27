@@ -1,9 +1,16 @@
 import Head from "next/head";
-import { useCameraList } from "@/hooks/useCameraList"; // or wherever you put it
+import { Camera, useCameraList } from "@/hooks/useCameraList"; // or wherever you put it
 import { CameraFeed } from "@/components/CameraFeed";
+import { Header } from "@/components/Header";
+import { useRoverUrl } from "@/hooks/useRoverUrl";
 
 export default function Home() {
-  const { roverUrl, cameras, error, loading } = useCameraList();
+  const { cameras, error, loading } = useCameraList();
+  const Roverurl = useRoverUrl();
+
+  const TILE_WIDTH = 340;
+  const GAP = 20;
+
   return (
     <div
       style={{
@@ -11,16 +18,12 @@ export default function Home() {
         minHeight: "100vh",
         color: "#fff",
         fontFamily: "sans-serif",
-        padding: 20,
       }}
     >
-      <Head>
-        <title>Rover Feed</title>
-      </Head>
+      {/* Header Component */}
+      <Header/>
 
-      <h1>Rover Command Center</h1>
       <div style={{ color: "#888", fontSize: "0.9rem", marginBottom: 20 }}>
-        Target: {roverUrl}
         {loading && " (Scanning...)"}
       </div>
 
@@ -40,20 +43,33 @@ export default function Home() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
-          gap: 20,
+          gridTemplateColumns: `repeat(auto-fit, ${TILE_WIDTH}px)`,
+          gap: GAP,
+          margin: 20,
+          justifyContent: "center",   // centers leftover tiles
         }}
       >
-        {cameras.map((cam) => (
-          // KEY CHANGE: The Component handles the logic.
-          // We pass the data down.
-          <CameraFeed key={cam.id} camera={cam} baseUrl={roverUrl} />
-        ))}
+        {cameras
+          .reduce<Camera[]>((acc, item) => {
+            for (let i = 0; i <1; i++) acc.push(item);
+            return acc;
+          }, [])
+          .map((cam, i) => (
+            <div
+              key={`${cam.id}-${i}`}
+              style={{
+                width: TILE_WIDTH,
+              }}
+            >
+              <CameraFeed camera={cam} baseUrl={Roverurl} />
+            </div>
+          ))}
 
         {!loading && cameras.length === 0 && !error && (
           <p>No cameras detected on the rover.</p>
         )}
       </div>
+
     </div>
   );
 }
