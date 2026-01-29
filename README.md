@@ -50,12 +50,6 @@ git clone git@github.com:Ridge19/RoverTeam-GUI.git
 npm i
 ```
 (Make sure you are in the `webrtc-gui` folder)
-- If you receive an error during `npm i`, you may need `node-gyp` installed:
-
-```bash
-npm i --save-dev -g node-gyp
-```
-(This should only need to be installed once per machine)
 - To run the GUI application, use:
 
 ```bash
