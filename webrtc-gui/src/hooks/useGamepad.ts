@@ -10,6 +10,7 @@ export type GamepadInput =
   | "DIR_DOWN"
   | "DIR_LEFT"
   | "DIR_RIGHT"
+  | "TRIG"
   | "TRIG_LEFT"
   | "TRIG_RIGHT"
   | "BUMP_LEFT"
@@ -36,6 +37,7 @@ const gamepadMapping: Record<string, Partial<Record<GamepadInput, number>>> = {
   xbox: {
     LEFT_STICK: 0,
     RIGHT_STICK: 2,
+    TRIG: 6,
     DIR_UP: 12,
     DIR_DOWN: 13,
     DIR_LEFT: 14,
@@ -56,6 +58,7 @@ const gamepadMapping: Record<string, Partial<Record<GamepadInput, number>>> = {
   ps: {
     LEFT_STICK: 0,
     RIGHT_STICK: 2,
+    TRIG: 6,
     DIR_UP: 12,
     DIR_DOWN: 13,
     DIR_LEFT: 14,

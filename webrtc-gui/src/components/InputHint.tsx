@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { GamepadInput, useGamepad } from "@/hooks/useGamepad";
 
 interface InputHintProps {
   type: "text" | "icon";
-  content: string; // text label or image source path
+  content: string | ReactNode; // text label or image source path
   alt?: string; // alt text for images
   inputLabel?: GamepadInput;
 }
@@ -52,7 +52,7 @@ export const InputHint: React.FC<InputHintProps> = ({
         transition: "transform 0.1s, filter 0.1s",
       }}
     >
-      {type === "text" ? <span>{content}</span> : <img src={content} alt={alt} />}
+      {type === "text" || typeof content != "string" ? <span>{content}</span> : <img src={content} alt={alt} />}
     </div>
   );
 };

@@ -2,15 +2,17 @@ import React, { useEffect, useState, CSSProperties } from "react";
 import { useGamepad, GamepadInput } from "@/hooks/useGamepad";
 
 interface ControllerAxisProps {
-  axisLabel: GamepadInput; // e.g., "LEFT_STICK" or "RIGHT_STICK"
+  axisLabel: GamepadInput;
   gamepadIndex?: number;
-  style?: CSSProperties; // override styles for the outer div
+  style?: CSSProperties;
+  label?: string;
 }
 
 export const ControllerAxis: React.FC<ControllerAxisProps> = ({
   axisLabel,
   gamepadIndex,
   style = {},
+  label
 }) => {
   const { getInput, getCurrentIndex } = useGamepad();
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -49,7 +51,7 @@ export const ControllerAxis: React.FC<ControllerAxisProps> = ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    ...style, // <-- merge user styles
+    ...style,
   };
 
   return (
@@ -67,8 +69,13 @@ export const ControllerAxis: React.FC<ControllerAxisProps> = ({
           position: "absolute",
           transform: `translate(${position.x * 0.5}%, ${position.y * 0.5}%)`,
           transition: "transform 0.05s",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          color: "#CCC",
+          fontWeight: "bold"
         }}
-      />
+      >{label ?? ""}</div>
     </div>
   );
 };
