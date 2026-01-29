@@ -13,26 +13,30 @@ export function useCameraList() {
 
   const url = useRoverUrl();
 
-  const fetchCameras = async () => {
+  useEffect(() => {
+    if (!url) return;
+
+    let cancelled = false;
+
+    async function fetchCameras() {
       try {
         const res = await fetch(`${url}/cameras`);
         if (!res.ok) throw new Error(`API Error: ${res.statusText}`);
         const data = await res.json();
-        setCameras(data.cameras || []);
+        if (!cancelled) setCameras(data.cameras ?? []);
       } catch (err) {
-        setError(err instanceof Error ? err.message : String(err));
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : String(err));
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
-  };
-
-  useEffect(() => {
-    // Fetch cameras from that dynamically detected URL
-
-    if(!url)return;
+    }
 
     fetchCameras();
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [url]);
 
   return { cameras, error, loading };
 }

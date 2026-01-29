@@ -42,8 +42,7 @@ const ArmControl: React.FC = () => {
         }}
     >
         <div style={{ width: columnWidth, display: "flex", flexDirection: "column", gap: 20 }}>
-            <CameraFeed camera={cameraToShow} baseUrl={Roverurl} />
-            <CameraFeed camera={cameraToShow} baseUrl={Roverurl} />
+            {cameraToShow && <CameraFeed camera={cameraToShow}/>}
         </div>
 
 {/* Actuator list */}

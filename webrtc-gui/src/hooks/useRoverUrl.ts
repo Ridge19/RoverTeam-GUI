@@ -1,11 +1,21 @@
 import { useState, useEffect } from "react";
 
-export function useRoverUrl() {
+export enum URLType {
+  CAMERAS,
+  TELEMETRY
+}
 
-  const defaultPort = 3001;
+export function useRoverUrl(urlType: URLType = URLType.CAMERAS) {
+
+
+  let port = 0
+  switch(urlType){
+    case URLType.CAMERAS: port = 3001; break;
+    case URLType.TELEMETRY: port = 3002; break;
+  }
 
   const hostname = typeof window === "undefined" ? "localhost" : (window.location.hostname || "localhost");
-  const url = `http://${hostname}:${defaultPort}`;
+  const url = `http://${hostname}:${port}`;
 
   return url;
 }

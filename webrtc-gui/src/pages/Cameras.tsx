@@ -31,7 +31,7 @@ const Cameras: React.FC = () => {
             minWidth: columnWidth,
           }}
         >
-          <CameraFeed camera={cam} baseUrl={Roverurl} />
+          <CameraFeed key={cam.id} camera={cam} />
         </div>
       ))}
 
