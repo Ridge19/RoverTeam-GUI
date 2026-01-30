@@ -67,7 +67,8 @@ You should see:
 - Network:      http://172.24.80.1:3000
 ```
 
-<a name="HeadingConnectingCameras"></a># Connecting cameras
+<a name="HeadingConnectingCameras"></a>
+# Connecting cameras
 
 - Go to the `webrtc-gui` folder, and run the script `rover_webrtc.py` using either:
 
