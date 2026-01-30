@@ -5,7 +5,12 @@ import re
 import platform
 from aiohttp import web
 from aiortc import RTCPeerConnection, RTCSessionDescription
-from aiortc.contrib.media import MediaPlayer
+
+import cv2
+import time
+from aiortc import VideoStreamTrack
+from av import VideoFrame
+
 
 # ------------------------------------------------------------------
 # CONFIG
@@ -74,6 +79,9 @@ async def handle_cameras(request):
         ]
     })
 
+async def handle_ping(request):
+    return web.Response(text="pong")
+
 async def handle_offer(request):
     params = await request.json()
     camera_id = int(params.get("camera_id", 0))
@@ -82,28 +90,18 @@ async def handle_offer(request):
     if camera_id >= len(cameras):
         return web.Response(status=404, text="Camera not found")
 
-    camera_name = cameras[camera_id]
-    logging.info(f"Opening camera: {camera_name}")
+    logging.info(f"Opening camera index {camera_id}: {cameras[camera_id]}")
 
     pc = RTCPeerConnection()
     pcs.add(pc)
 
     try:
-        player = MediaPlayer(
-            f"video={camera_name}",
-            format="dshow",
-            options={
-                "video_size": "640x480",
-                "framerate": "30"
-            }
-        )
-        players[pc] = player
+        track = OpenCVCameraTrack(camera_id)
+        players[pc] = track
+        pc.addTrack(track)
     except Exception as e:
         logging.error(f"Failed to open camera: {e}")
         return web.Response(status=500, text=str(e))
-
-    if player.video:
-        pc.addTrack(player.video)
 
     @pc.on("connectionstatechange")
     async def on_connectionstatechange():
@@ -143,6 +141,53 @@ async def on_shutdown(app):
     await asyncio.gather(*(cleanup_pc(pc) for pc in list(pcs)))
 
 # ------------------------------------------------------------------
+# OPENCV
+# ------------------------------------------------------------------
+class OpenCVCameraTrack(VideoStreamTrack):
+    def __init__(self, index: int, width=640, height=480):
+        super().__init__()
+        self.index = index
+        self.cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
+
+        # Set resolution
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+
+        # Force MJPEG (critical for USB cameras)
+        self.cap.set(
+            cv2.CAP_PROP_FOURCC,
+            cv2.VideoWriter_fourcc(*"MJPG")
+        )
+
+        self.last_ok = time.time()
+
+        if not self.cap.isOpened():
+            raise RuntimeError(f"Failed to open camera index {index}")
+
+    async def recv(self):
+        pts, time_base = await self.next_timestamp()
+
+        ret, frame = self.cap.read()
+        if not ret:
+            # Attempt recovery
+            self.cap.release()
+            await asyncio.sleep(0.2)
+            self.cap.open(self.index)
+            raise RuntimeError("Camera read failed")
+
+        self.last_ok = time.time()
+
+        video = VideoFrame.from_ndarray(frame, format="bgr24")
+        video.pts = pts
+        video.time_base = time_base
+        return video
+
+    def stop(self):
+        if self.cap:
+            self.cap.release()
+        super().stop()
+
+# ------------------------------------------------------------------
 # CORS MIDDLEWARE
 # ------------------------------------------------------------------
 @web.middleware
@@ -175,6 +220,7 @@ if __name__ == "__main__":
     app = web.Application(middlewares=[cors_middleware])
     app.router.add_get("/cameras", handle_cameras)
     app.router.add_post("/offer", handle_offer)
+    app.router.add_get("/ping", handle_ping)
     app.on_shutdown.append(on_shutdown)
 
     logging.info(f"Rover WebRTC Windows Server running on http://{HOST}:{PORT}")

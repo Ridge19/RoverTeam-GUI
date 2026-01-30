@@ -19,6 +19,9 @@ players = {}
 def setup_logging():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
+async def handle_ping(request):
+    return web.Response(text="pong")
+
 # ---------------------------------------------------------
 # FAST CAMERA SCAN (Filesystem based, Non-blocking)
 # ---------------------------------------------------------
@@ -145,6 +148,7 @@ if __name__ == "__main__":
     
     app.router.add_post("/offer", handle_offer)
     app.router.add_get("/cameras", handle_cameras)
+    app.router.add_get("/ping", handle_ping)
     
     # Handle OPTIONS requests for all routes
     app.router.add_route("*", "/{tail:.*}", lambda request: web.Response(

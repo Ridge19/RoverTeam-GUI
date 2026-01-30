@@ -1,59 +1,27 @@
-import Head from "next/head";
-import { useCameraList } from "@/hooks/useCameraList"; // or wherever you put it
-import { CameraFeed } from "@/components/CameraFeed";
+import React from "react";
+import { Header } from "@/components/Header";
+import Cameras from "./Cameras";
+import ArmControl from "./ArmControl";
+import TelemetryConsole from "./Telemetry";
+import SystemVitals from "./SystemVitals";
 
-export default function Home() {
-  const { roverUrl, cameras, error, loading } = useCameraList();
+const IndexPage: React.FC = () => {
+  const [activeTab, setActiveTab] = React.useState("cameras");
+
   return (
-    <div
-      style={{
-        background: "#111",
-        minHeight: "100vh",
-        color: "#fff",
-        fontFamily: "sans-serif",
-        padding: 20,
-      }}
-    >
-      <Head>
-        <title>Rover Feed</title>
-      </Head>
-
-      <h1>Rover Command Center</h1>
-      <div style={{ color: "#888", fontSize: "0.9rem", marginBottom: 20 }}>
-        Target: {roverUrl}
-        {loading && " (Scanning...)"}
-      </div>
-
-      {error && (
-        <div
-          style={{
-            padding: 20,
-            background: "#522",
-            borderRadius: 8,
-            marginBottom: 20,
-          }}
-        >
-          <strong>System Error:</strong> {error}
-        </div>
-      )}
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
-          gap: 20,
-        }}
-      >
-        {cameras.map((cam) => (
-          // KEY CHANGE: The Component handles the logic.
-          // We pass the data down.
-          <CameraFeed key={cam.id} camera={cam} baseUrl={roverUrl} />
-        ))}
-
-        {!loading && cameras.length === 0 && !error && (
-          <p>No cameras detected on the rover.</p>
-        )}
-      </div>
-    </div>
+    <main style={{
+      display: "flex",
+      flexDirection: "column",
+      height: "100vh",
+      overflow: "hidden"
+    }}>
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+      {activeTab === "cameras" && <Cameras />}
+      {activeTab === "arm" && <ArmControl/>}
+      {activeTab === "telemetry" && <TelemetryConsole/>}
+      {activeTab === "vitals" && <SystemVitals/>}
+    </main>
   );
-}
+};
+
+export default IndexPage;

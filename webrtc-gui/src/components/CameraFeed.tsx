@@ -1,28 +1,80 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Camera } from "@/hooks/useCameraList"; // Adjust import path as needed
-
-interface CameraFeedProps {
-  camera: Camera;
-  baseUrl: string;
-}
+import { Camera } from "@/hooks/useCameraList";
+import { useCameraStreams } from "@/contexts/CameraStreamsContext";
+import StatusChip, { StatusColor } from "./StatusChip";
+import { ArrowsPointingOutIcon, CameraIcon } from "@heroicons/react/24/solid";
 
 type ConnectionStatus = "idle" | "connecting" | "live" | "failed";
 
-export function CameraFeed({ camera, baseUrl }: CameraFeedProps) {
-  // STRICT TYPING: Ref is strictly an HTMLVideoElement or null.
+export function CameraFeed({ camera }: { camera: Camera | null }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  // We keep the PC in a ref so it doesn't trigger re-renders, but persists.
-  const pcRef = useRef<RTCPeerConnection | null>(null);
 
-  const [status, setStatus] = useState<ConnectionStatus>("idle");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [showSaved, setShowSaved] = useState(false); // currently unused
+  const { getStream, getStatus, getError, start } = useCameraStreams();
 
-  // Photo
-  const captureFrame = useCallback(() => {
+  const stream = camera ? getStream(camera.id) : null;
+  const status = camera ? getStatus(camera.id) : "failed";
+  const errorMessage = camera ? getError(camera.id) : null;
+
+  const [showSaved, setShowSaved] = useState(false);
+
+  // --- FPS state ---
+  const [fps, setFps] = useState<number | null>(null);
+  const frameCountRef = useRef(0);
+  const lastFpsTimeRef = useRef(performance.now());
+  const rafActiveRef = useRef(false);
+
+  // --- Attach stream to video ---
+  useEffect(() => {
+    if (!videoRef.current || !stream) return;
+
+    videoRef.current.srcObject = stream;
+    videoRef.current.play().catch(() => {});
+    startFpsCounter();
+
+    return () => {
+      rafActiveRef.current = false;
+      setFps(null);
+    };
+  }, [stream]);
+
+  // --- Start stream when camera appears ---
+  useEffect(() => {
+    if (camera) start(camera);
+  }, [camera, start]);
+
+  // --- FPS counter ---
+  const startFpsCounter = useCallback(() => {
     const video = videoRef.current;
-    if (video == null || video.videoWidth === 0 || video.videoHeight === 0)
-      return null;
+    if (!video || rafActiveRef.current) return;
+
+    rafActiveRef.current = true;
+    frameCountRef.current = 0;
+    lastFpsTimeRef.current = performance.now();
+
+    const onFrame = (now: number) => {
+      frameCountRef.current++;
+      const elapsed = now - lastFpsTimeRef.current;
+
+      if (elapsed >= 1000) {
+        const calculated = frameCountRef.current / (elapsed / 1000);
+        setFps(calculated >= 1 ? Math.round(calculated) : null);
+        frameCountRef.current = 0;
+        lastFpsTimeRef.current = now;
+      }
+
+      if (rafActiveRef.current) {
+        video.requestVideoFrameCallback(onFrame);
+      }
+    };
+
+    video.requestVideoFrameCallback(onFrame);
+  }, []);
+
+  // --- Screenshot ---
+  const captureFrame = useCallback(() => {
+    if (!camera) return;
+    const video = videoRef.current;
+    if (!video || video.videoWidth === 0) return;
 
     setShowSaved(true);
     setTimeout(() => setShowSaved(false), 2000);
@@ -32,186 +84,148 @@ export function CameraFeed({ camera, baseUrl }: CameraFeedProps) {
     canvas.height = video.videoHeight;
 
     const ctx = canvas.getContext("2d");
-    if (!ctx) return null;
+    if (!ctx) return;
 
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    const imageType = "image/png";
-    const imageData = canvas.toDataURL(imageType);
+    ctx.drawImage(video, 0, 0);
+    const dataUrl = canvas.toDataURL("image/png");
 
     const link = document.createElement("a");
-    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    link.href = imageData;
-    link.download = `rover-${camera.label}-${timestamp}.png`;
+    const ts = new Date().toISOString().replace(/[:.]/g, "-");
+    link.href = dataUrl;
+    link.download = `rover-${camera.label}-${ts}.png`;
     link.click();
+  }, [camera]);
 
-    console.log(`Captured frame from ${camera.label}`);
-  }, [camera.label]);
-  const startStream = useCallback(async () => {
-    if (pcRef.current) return; // Prevent double connections
+  // --- Fullscreen ---
+  const goFullscreen = useCallback(() => {
+    videoRef.current?.requestFullscreen();
+  }, []);
 
-    setStatus("connecting");
-    setErrorMessage(null);
-
-    try {
-      // LAN CONFIG: No ICE servers needed.
-      // This defaults to Host Candidates (Local IP), which is perfect for LAN.
-      const pc = new RTCPeerConnection({ iceServers: [] });
-      pcRef.current = pc; // Store immediately for cleanup logic
-
-      pc.oniceconnectionstatechange = () => {
-        if (
-          pc.iceConnectionState === "failed" ||
-          pc.iceConnectionState === "disconnected"
-        ) {
-          setStatus("failed");
-          setErrorMessage("ICE Connection Failed");
-          pc.close();
-          pcRef.current = null;
-        }
-      };
-
-      pc.addTransceiver("video", { direction: "recvonly" });
-
-      pc.ontrack = (event) => {
-        // STANDARD NULL CHECK: The video element might not be mounted yet
-        if (videoRef.current) {
-          videoRef.current.srcObject = event.streams[0];
-          videoRef.current
-            .play()
-            .catch((e) => console.warn("Autoplay blocked", e));
-          setStatus("live");
-        }
-      };
-
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      // Use the baseUrl passed in (ensures we don't rely on stale state)
-      const res = await fetch(`${baseUrl}/offer`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sdp: offer.sdp,
-          type: offer.type,
-          camera_id: camera.id,
-        }),
-      });
-
-      if (!res.ok) throw new Error(await res.text());
-
-      const answer = await res.json();
-      // Guard for user leaving page while fetching
-      if (pc.signalingState === "closed") return;
-
-      await pc.setRemoteDescription(answer);
-    } catch (err) {
-      console.error(err);
-      setStatus("failed");
-      setErrorMessage(err instanceof Error ? err.message : "Connection failed");
-      // Cleanup on failure
-      pcRef.current?.close();
-      pcRef.current = null;
-    }
-  }, [baseUrl, camera.id]);
-
-  useEffect(() => {
-    startStream();
-
-    // Runs automatically when this specific camera is removed
-    return () => {
-      if (pcRef.current) {
-        console.log(`Cleaning up camera ${camera.id}`);
-        pcRef.current.close();
-        pcRef.current = null;
-      }
-    };
-  }, [startStream, camera.id]);
+  const isPlaceholder = !camera;
 
   return (
     <div style={styles.card}>
+      {/* Header */}
       <div style={styles.header}>
-        <span>{camera.label}</span>
-        <StatusBadge status={status} />
-      </div>
-
-      <div style={styles.videoWrapper}>
-        {/* Loading Overlay */}
-        {status === "connecting" && (
-          <div style={styles.overlay}>
-            <div className="spinner">Connecting...</div>
-          </div>
-        )}
-
-        {/* Error Overlay with Retry Button */}
-        {status === "failed" && (
-          <div style={styles.overlay}>
-            <p style={{ color: "#f55", marginBottom: 10 }}>OFFLINE</p>
-            <button onClick={() => startStream()} style={styles.retryBtn}>
-              Retry
-            </button>
-            <p style={{ fontSize: 10, marginTop: 5 }}>{errorMessage}</p>
-          </div>
-        )}
-
-        <video ref={videoRef} autoPlay playsInline muted style={styles.video} />
-      </div>
-      <div style={styles.footer}>
-        <button
-          onClick={captureFrame}
-          disabled={status !== "live"}
+        <span
           style={{
-            ...styles.actionBtn,
-            opacity: status === "live" ? 1 : 0.5,
-            cursor: status === "live" ? "pointer" : "not-allowed",
+            flex: 1,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
           }}
         >
-          Capture Frame
-        </button>
+          {camera?.label ?? "No Camera"}
+        </span>
+        <StatusBadge
+          status={isPlaceholder ? "failed" : status}
+          fps={isPlaceholder ? null : fps}
+        />
       </div>
+
+      {/* Video */}
+      <div style={styles.videoWrapper}>
+        {isPlaceholder ? (
+          <div style={styles.placeholder}>No Camera Connected</div>
+        ) : (
+          <>
+            {status === "connecting" && (
+              <div style={styles.overlay}>
+                <div className="spinner">Connecting…</div>
+              </div>
+            )}
+
+            {status === "failed" && (
+              <div style={styles.overlay}>
+                <p style={{ color: "#f55", marginBottom: 10 }}>OFFLINE</p>
+                <button
+                  onClick={() => camera && start(camera)}
+                  style={styles.retryBtn}
+                >
+                  Retry
+                </button>
+                <p style={{ fontSize: 10, marginTop: 5 }}>{errorMessage}</p>
+              </div>
+            )}
+
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              style={styles.video}
+            />
+          </>
+        )}
+      </div>
+
+      {/* Footer */}
+      {!isPlaceholder && (
+        <div style={styles.footer}>
+          <div style={{ marginLeft: 10, marginRight: "auto", lineHeight: 2 }}>
+            {fps ?? "--"} FPS
+          </div>
+
+          <button
+            onClick={captureFrame}
+            disabled={status !== "live"}
+            style={{
+              ...styles.actionBtn,
+              opacity: status === "live" ? 1 : 0.5,
+              cursor: status === "live" ? "pointer" : "not-allowed",
+            }}
+          >
+            <CameraIcon style={{ width: 24, height: 24 }} />
+          </button>
+
+          <button
+            onClick={goFullscreen}
+            disabled={status !== "live"}
+            style={{
+              ...styles.actionBtn,
+              opacity: status === "live" ? 1 : 0.5,
+              cursor: status === "live" ? "pointer" : "not-allowed",
+            }}
+          >
+            <ArrowsPointingOutIcon style={{ width: 24, height: 24 }} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-// Simple Sub-component for the little status dot
-function StatusBadge({ status }: { status: ConnectionStatus }) {
-  let color = "#888"; // idle
-  let text = "WAITING";
+/* ---------- Status Badge ---------- */
 
-  if (status === "connecting") {
-    color = "#ff4";
-    text = "CONNECTING";
-  }
-  if (status === "live") {
-    color = "#4f4";
-    text = "LIVE";
-  }
-  if (status === "failed") {
-    color = "#f44";
-    text = "ERROR";
-  }
+function StatusBadge({
+  status,
+  fps,
+}: {
+  status: ConnectionStatus;
+  fps: number | null;
+}) {
+  const map = {
+    idle: { color: "disabled" as StatusColor, text: "Buffering", dot: false },
+    connecting: { color: "warning" as StatusColor, text: "Connecting", dot: false },
+    live: { color: "error" as StatusColor, text: "LIVE", dot: true },
+    failed: { color: "disabled" as StatusColor, text: "Error", dot: false },
+  };
 
-  return (
-    <span style={{ color, fontSize: "0.8rem", fontWeight: "bold" }}>
-      ● {text}
-    </span>
-  );
+  const item = fps === null && status === "live" ? map.idle : map[status];
+  return <StatusChip color={item.color} label={item.text} noDot={!item.dot} />;
 }
 
-// Inline styles for modularity (You can move this to CSS modules)
+/* ---------- Styles ---------- */
+
 const styles = {
-  card: {
-    background: "#222",
-    padding: 10,
-    borderRadius: 8,
-    overflow: "hidden",
-  },
-  header: { display: "flex", justifyContent: "space-between", marginBottom: 8 },
+  card: { background: "#222", padding: 10, borderRadius: 8, overflow: "hidden" },
+  header: { display: "flex", justifyContent: "space-between", marginBottom: 8, gap: 8 },
   videoWrapper: {
     position: "relative" as const,
     paddingTop: "75%",
     background: "#000",
-    borderRadius: 4,
+    borderRadius: 8,
+    overflow: "hidden",
   },
   video: {
     position: "absolute" as const,
@@ -234,6 +248,15 @@ const styles = {
     justifyContent: "center",
     zIndex: 10,
   },
+  placeholder: {
+    position: "absolute" as const,
+    inset: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#555",
+    fontSize: 16,
+  },
   retryBtn: {
     background: "#444",
     color: "#fff",
@@ -242,18 +265,9 @@ const styles = {
     cursor: "pointer",
     borderRadius: 4,
   },
-  footer: {
-    padding: 10,
-    background: "#1a1a1a",
-    display: "flex",
-    justifyContent: "flex-end", // Aligns button to right
-    borderTop: "1px solid #333",
-  },
+  footer: { paddingTop: 10, display: "flex", justifyContent: "flex-end" },
   actionBtn: {
-    background: "#333",
     color: "#fff",
-    border: "1px solid #555",
-    borderRadius: 4,
     padding: "8px 12px",
     fontSize: "0.85rem",
     fontWeight: "bold",
