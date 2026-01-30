@@ -13,7 +13,9 @@ const IndexPage: React.FC = () => {
       display: "flex",
       flexDirection: "column",
       height: "100vh",
-      overflow: "hidden"
+      overflow: "hidden",
+      background: "#111",
+      color: "#EEE"
     }}>
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
       {activeTab === "cameras" && <Cameras />}

@@ -85,6 +85,8 @@ const TelemetryConsole: React.FC = () => {
                     ? "#ffcc66"
                     : level === "DEBUG"
                     ? "#999"
+                    : level === "SUCCESS"
+                    ? "#26cb4fff"
                     : "#eee",
               }}
             >
