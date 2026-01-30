@@ -1,10 +1,13 @@
 // TelemetryContext.tsx
 import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
 import { useRoverUrl, URLType } from "@/hooks/useRoverUrl";
+import { json } from "stream/consumers";
 
 interface TelemetryContextValue {
   status: "idle" | "connecting" | "connected" | "error";
   messages: any[];
+  roverStatus: Record<string, any>
+  send: (msg: string | object) => boolean;
   reconnect: () => void;
   disconnect: () => void;
 }
@@ -20,6 +23,7 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const [status, setStatus] = useState<"idle" | "connecting" | "connected" | "error">("idle");
   const [messages, setMessages] = useState<any[]>([]);
+  const [roverStatus, setRoverStatus] = useState<Record<string, any>>({})
   const serverUrl = useRoverUrl(URLType.TELEMETRY);
   const reconnectInterval = 3000; // default
 
@@ -49,14 +53,27 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     dc.onopen = () => setStatus("connected");
     dc.onmessage = (ev) => {
 
-    const newMessage = ev.data
+      const newMessage = ev.data
 
-    setMessages(prev => {
-        if(newMessage === "CLEARSCREEN") return [];
-        const newMessages = [...prev, newMessage];
-        if (newMessages.length > MAX_MESSAGES) newMessages.shift(); // remove oldest
-        return newMessages;
-    });
+      if(newMessage.startsWith("JSON ")){
+        const msg = JSON.parse(newMessage.substr('JSON '.length))
+        const type = msg.type
+        const data = msg.data
+
+        setRoverStatus(prev => ({
+          ...prev,      // copy existing properties
+          [type]: data,  // overwrite or add this key
+        }));
+
+        return
+      }
+
+      setMessages(prev => {
+          if(newMessage === "CLEARSCREEN") return [];
+          const newMessages = [...prev, newMessage];
+          if (newMessages.length > MAX_MESSAGES) newMessages.shift(); // remove oldest
+          return newMessages;
+      });
 
     };
 
@@ -113,6 +130,25 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, [serverUrl, disconnect]);
 
+  const send = useCallback((msg: string | object): boolean => {
+    const dc = dcRef.current;
+  
+    if (!dc || dc.readyState !== "open") {
+      console.warn("Telemetry send failed: data channel not open");
+      return false;
+    }
+  
+    try {
+      const payload =
+        typeof msg === "string" ? msg : JSON.stringify(msg);
+      dc.send(payload);
+      return true;
+    } catch (err) {
+      console.error("Telemetry send error:", err);
+      return false;
+    }
+  }, []);
+
   // Auto-connect once, persists across page navigation
   useEffect(() => {
     connect();
@@ -120,7 +156,7 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [connect, disconnect]);
 
   return (
-    <TelemetryContext.Provider value={{ status, messages, reconnect: connect, disconnect }}>
+    <TelemetryContext.Provider value={{ status, messages, roverStatus, send, reconnect: connect, disconnect }}>
       {children}
     </TelemetryContext.Provider>
   );

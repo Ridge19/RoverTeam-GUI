@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import Cameras from "./Cameras";
 import ArmControl from "./ArmControl";
 import TelemetryConsole from "./Telemetry";
+import SystemVitals from "./SystemVitals";
 
 const IndexPage: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState("cameras");
@@ -18,6 +19,7 @@ const IndexPage: React.FC = () => {
       {activeTab === "cameras" && <Cameras />}
       {activeTab === "arm" && <ArmControl/>}
       {activeTab === "telemetry" && <TelemetryConsole/>}
+      {activeTab === "vitals" && <SystemVitals/>}
     </main>
   );
 };

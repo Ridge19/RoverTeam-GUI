@@ -13,10 +13,10 @@ const ControllerVisual: React.FC<ControllerVisualProps> = () => {
             flexDirection: "row",
             width: 500
         }}>
-            <InputHint type='icon' content="inputprompts/ps/Default/playstation_trigger_l2.png" inputLabel='TRIG_LEFT'/>
+            <InputHint type='icon' content="inputprompts/ps/playstation_trigger_l2.png" inputLabel='TRIG_LEFT'/>
             <ControllerAxis axisLabel='LEFT_STICK' style={{marginRight: 30}} label='L'/>
             <ControllerAxis axisLabel='RIGHT_STICK' label='R'/>
-            <InputHint type='icon' content="inputprompts/ps/Default/playstation_trigger_r2.png" inputLabel='TRIG_RIGHT'/>
+            <InputHint type='icon' content="inputprompts/ps/playstation_trigger_r2.png" inputLabel='TRIG_RIGHT'/>
         </div>
     );
 };

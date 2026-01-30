@@ -93,6 +93,7 @@ export const Header: React.FC<HeaderProps> = ({ target, activeTab, setActiveTab 
             { id: 'cameras', label: 'Cameras' },
             { id: 'arm', label: 'Arm' },
             { id: 'telemetry', label: 'Telemetry' },
+            { id: 'vitals', label: 'System' },
           ]}
           active={activeTab}
           onChange={setActiveTab}
