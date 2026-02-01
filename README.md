@@ -5,7 +5,104 @@ note: rm -rf the myenv and make new python3 env and source it to avoid externall
 use v4l2-ctl --list-devices to find video device indexes. also disable firewalls.
 
 
-## whoa! this is so cool! how does this work?
+
+# Rover Team GUI
+
+A GUI (Graphical User Interface) for the Rover Equinox - contains cameras, Arm controls, Telemetry and system vitals. 
+
+## Information: 
+rm -rf the myenv and make a new python3 env, then source it to avoid externally managed env error
+use v4l2-ctl --list-devices to find video device indexes, and disable firewalls.
+
+## Requirements
+
+- pip (standard package manager for python)
+```bash
+  download: https://pypi.org/project/pip/
+```
+- python3 
+```bash
+  sudo apt install python3 
+```
+- nodeJS
+```bash
+  sudo apt install nodejs -y
+```
+- NPM (Node Package Manager) - YOU MUST INSTALL NODEJS FIRST >:(
+```bash
+  sudo apt install npm 
+```
+
+## Setup
+
+Clone the project
+
+```bash
+  git clone https://github.com/RMIT-Rover-Team/RoverTeam-GUI
+```
+
+To setup this project, go to the ```webrtc-gui``` folder:
+```bash
+  /RoverTeam-GUI/webrtc-gui
+```
+
+Then, run the virtual python environment using the command:
+```bash
+  source myenv/bin/activate
+```
+
+Then, install the requirements.txt file - This contains all the python libraries needed to run the WebRTC server:
+```bash
+  pip install -r requirements.txt
+```
+
+Then, for the Web Application which runs the GUI, install npm: 
+```bash
+  npm install 
+```
+
+## Run Locally
+
+after installing all the packages and setting up the virtual environment, run the command:
+```bash
+  npm run dev
+```
+you should see this in the terminal: 
+```bash
+  
+> webrtc-gui@0.1.0 dev
+> next dev --turbopack
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /home/ridge/RMIT/Rover/RoverTeam-GUI/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /home/ridge/RMIT/Rover/RoverTeam-GUI/webrtc-gui/package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.132.101.24:3000
+
+✓ Starting...
+✓ Ready in 397ms
+ GET / 200 in 100ms (compile: 79ms, render: 20ms)
+```
+to access the gui, ctrl+click on the network or localhost link shown above. 
+
+## Run the WebRTC Server 
+after running the GUI, run the WebRTC Python server using this command: 
+```bash
+  python3 rover_webrtc.py
+```
+you should see this in the terminal: 
+```bash
+  2026-02-01 15:09:27,983 INFO Rover WebRTC Server running on http://0.0.0.0:3001
+======== Running on http://0.0.0.0:3001 ========
+(Press CTRL+C to quit)
+```
+
+## How WebRTC Works with the Rover
 
 -- NOTE: THIS SECTION IS TECHNICAL AND WILL THROW BIG WORDS AT YOU. keep up ;) --
 
@@ -20,122 +117,6 @@ Your computer, which is connected to the rover via radio, acts as a "client" and
 For my visual learners, see the diagram attached. **A** would be the client (e.g. someone's laptop) and **B** would be the Raspberry Pi.
 
 ![WebRTC Architecture Diagram](webrtc-gui/public/ivrpowers-turn-stun-screen.005.jpeg)
-# Rover GUI - USB Cameras Example
-
-![Rover GUI with USB Cameras](webrtc-gui/public/rover_gui_usb_cameras.png)
-
-This screenshot shows the Rover GUI displaying two connected USB cameras, with live video feeds and connection status indicators.
-
-in this case, Camera 0 is the camera below the right wheel (for payloads), and Camera 2 is the 360 Gimbal Camera. 
-
-
-# How to clone the repository
-
-Head to the repository: https://github.com/Ridge19/RoverTeam-GUI
-
-**Cloning via SSH (most common and easiest):**
-1. Click on 'Code' then copy the SSH URL: `git@github.com:Ridge19/RoverTeam-GUI.git`
-2. In your terminal, run:
-
-```bash
-git clone git@github.com:Ridge19/RoverTeam-GUI.git
-```
-
-# How to run GUI
-
-- On the laptop (client), open your editor of choice (e.g. VS Code) after cloning the repository (see above).
-- After cloning, install dependencies using:
-
-```bash
-npm i
-```
-(Make sure you are in the `webrtc-gui` folder)
-- To run the GUI application, use:
-
-```bash
-npm run dev
-```
-It will be accessible via [localhost:3000](http://localhost:3000)
-You should see:
-
-```text
-> webrtc-gui@0.1.0 dev
-> next dev --turbopack
-
-▲ Next.js 15.4.6 (Turbopack)
-- Local:        http://localhost:3000
-- Network:      http://172.24.80.1:3000
-```
-
-<a name="HeadingConnectingCameras"></a>
-# Connecting cameras
-
-- Go to the `webrtc-gui` folder, and run the script `rover_webrtc.py` using either:
-
-```bash
-# On Linux:
-python rover_webrtc.py
-# OR
-python3 rover_webrtc.py
-```
-
-```bash
-# On Windows:
-python rover_webrtc_windows.py
-# OR
-python3 rover_webrtc_windows.py
-```
-
-- If successful, you should see:
-
-```text
-INFO:root:Starting rover server at http://0.0.0.0:3001
-======== Running on http://0.0.0.0:3001 ========
-(Press CTRL+C to quit)
-```
-- If you cannot run the script, install dependencies using:
-
-```bash
-pip install -r requirements.txt
-```
-
-# Checking cameras
-
-- The backend makes it easy: head to [localhost:3000/cameras](http://localhost:3000/cameras) (on laptop)
-on rover: http://192.168.50.1:3001/cameras
-	- This will list all available USB cameras.
-- If you are connected to a camera or if it is not detected (e.g. not plugged in), it will not show. Please ensure this is done (don't be like Ridge haha).
-
-# Checking WebRTC server
-
-- There is also a backend to check the WebRTC server: head to [localhost:3001](http://localhost:3001) (on laptop)
-on rover: http://192.168.50.1:3001/
-	- This is hosted on the rover and the laptop (client) is connected to the Pi (host).
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Windows Support
 
