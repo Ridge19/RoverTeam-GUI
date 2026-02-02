@@ -1,4 +1,5 @@
 # analysis.py
+import os
 import glob
 import pandas as pd
 import numpy as np
@@ -13,7 +14,7 @@ from skimage.color import rgb2gray
 from skimage.filters import sobel
 from skimage.util import img_as_float
 from skimage.transform import resize
-import os
+
 
 # === 1. Load image data from extracted folder ===
 # Folder should have files like: Model-Training/extracted_images/image1.png, image2.png, etc.
@@ -108,9 +109,68 @@ def show_img_for_wc(wc_value):
     plt.tight_layout()
     plt.show()
 
+def compare_to_screenshot(screenshot_path):
+    screenshot_features = extract_features(screenshot_path).reshape(1, -1)
+
+    predicted_wc = model.predict(screenshot_features)[0]
+    print(f"Predicted water content for {os.path.basename(screenshot_path)}: {predicted_wc:.3f}")
+
+    # Eucleadian distance to find most similar training images (3 closest)
+    # from sklearn.metrics import euclidean_distances
+    # distances = euclidean_distances(screenshot_features, X)[0]
+    # top_indices = distances.argsort()[:3]
+
+    # print("most similar training images:")
+    # for rank, idx in enumerate(top_indices, 1):
+    #     print(f"  {rank}. {os.path.basename(img_paths[idx])} (WC={y[idx]:.3f}, distance={distances[idx]:.4f})")
+    
+    from sklearn.metrics.pairwise import euclidean_distances
+
+    distances = euclidean_distances(screenshot_features, X)[0]
+    similarities = 1 / (1 + distances)  # higher = more similar
+    top_indices = np.argsort(distances)[:3]
+
+    print("Most similar training images:")
+    for rank, idx in enumerate(top_indices, 1):
+            print(
+        f"  {rank}. {os.path.basename(img_paths[idx])} "
+        f"(WC={y[idx]:.3f}, distance={distances[idx]:.4f}, similarity={similarities[idx]:.3f})"
+    )
+
+    plt.figure(figsize=(10, 4))
+    plt.subplot(1, 4, 1)
+    plt.imshow(mpimg.imread(screenshot_path))
+    plt.title("Microscope Screenshot")
+    plt.axis("off")
+
+    for i, idx in enumerate(top_indices, 1):
+        plt.subplot(1, 4, i+1)
+        plt.imshow(mpimg.imread(img_paths[idx]))
+        plt.title(f"Train Img {i}\nWC={y[idx]:.3f}")
+        plt.axis("off")
+    
+    plt.tight_layout()
+    plt.show()
+
+# === Example usage: compare a screenshot ===
+screenshot_dir = "/home/ridge/RMIT/Rover/RoverTeam-GUI/webrtc-gui/Model-Training/screenshots"
+
+# Find all .png or .jpg images
+screenshot_files = sorted(
+    glob.glob(os.path.join(screenshot_dir, "*.png")) +
+    glob.glob(os.path.join(screenshot_dir, "*.jpg"))
+)
+
+if not screenshot_files:
+    print(f"No screenshots found in: {screenshot_dir}")
+else:
+    for path in screenshot_files:
+        print(f"\nComparing {os.path.basename(path)} ...")
+        compare_to_screenshot(path)
+
 # === Show all WC sample groups sequentially ===
-for wc in [
-    0.0, 0.025, 0.05, 0.075, 0.1, 0.125, 0.15,
-    0.175, 0.2, 0.225, 0.25, 0.275
-]:
-    show_img_for_wc(wc)
+# for wc in [
+#     0.0, 0.025, 0.05, 0.075, 0.1, 0.125, 0.15,
+#     0.175, 0.2, 0.225, 0.25, 0.275
+# ]:
+#     show_img_for_wc(wc)
