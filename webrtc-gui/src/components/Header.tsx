@@ -13,39 +13,6 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ target, activeTab, setActiveTab }) => {
   const roverWatchdog = useRoverWatchdog();
-  const gamepad = useGamepad();
-  const lastBumpState = useRef<{ [key: string]: boolean }>({});
-
-  const bumpTab = (amount: number) => {
-    if(amount>0 && activeTab === "cameras") setActiveTab("arm");
-    if(amount<0 && activeTab === "arm") setActiveTab("cameras");
-  };
-
-  useEffect(() => {
-    // Edge-triggered bump left
-    const handleBumpLeft = (pressed: any) => {
-      if (pressed && !lastBumpState.current['BUMP_LEFT']) {
-        bumpTab(-1);
-      }
-      lastBumpState.current['BUMP_LEFT'] = pressed;
-    };
-
-    // Edge-triggered bump right
-    const handleBumpRight = (pressed: any) => {
-      if (pressed && !lastBumpState.current['BUMP_RIGHT']) {
-        bumpTab(1);
-      }
-      lastBumpState.current['BUMP_RIGHT'] = pressed;
-    };
-
-    gamepad.registerInputChanged('BUMP_LEFT', handleBumpLeft);
-    gamepad.registerInputChanged('BUMP_RIGHT', handleBumpRight);
-
-    return () => {
-      gamepad.deregisterInputChanged('BUMP_LEFT', handleBumpLeft);
-      gamepad.deregisterInputChanged('BUMP_RIGHT', handleBumpRight);
-    };
-  }, [gamepad]);
 
   return (
     <header

@@ -4,6 +4,8 @@ import { useRoverUrl } from "@/hooks/useRoverUrl";
 import { CameraFeed } from "@/components/CameraFeed";
 import { CAMERA_GRID } from "@/layout/cameraLayout";
 import { ControllerVisual } from "@/components/ControllerVisual";
+import { AxisTooltip } from "@/components/AxisTooltip";
+import { ButtonTooltip } from "@/components/ButtonTooltip";
 
 const ArmControl: React.FC = () => {
   const { cameras, loading, error } = useCameraList();
@@ -24,13 +26,57 @@ const ArmControl: React.FC = () => {
   // Single camera (index 0)
   const cameraToShow = cameras.length > 0 ? cameras[0] : null;
 
+  const c1 = "#ff3636AA"
+  const c2 = "#e3e3e3AA"
+  const c3 = "#000000"
+  const c4 = "#FFFFFF"
+
   return (
     <div style={{
         padding: 20,
         maxHeight: "calc(100% - 110px)",       // don't let it grow beyond parent
         overflowY: "auto",       // allow vertical scroll if content exceeds height
         flexShrink: 0,           // prevent flexbox from shrinking/stretching it
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column"
     }}>
+
+      <div style={{
+        width: "calc(100% + 40px)",
+        margin: -20,
+        marginBottom: 20,
+        height: 50,
+        background: `repeating-linear-gradient(
+          -45deg,
+          ${c1} 0px,
+          ${c1} 20px,
+          ${c2} 20px,
+          ${c2} 40px
+        )`,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
+      }}>
+        <div style={{
+          backgroundColor: c3,
+          color: c4,
+          fontWeight: "bold",
+          padding: 5,
+          paddingRight: 10,
+          paddingLeft: 10,
+          fontFamily: "monospace",
+          fontSize: 20
+        }}>
+          ARM IS UNDER YOUR CONTROL
+        </div>
+      </div>
+
+
+        Hello world! this is a controller input test :)
+      
+
       {/* Camera view */}
       <div
         style={{
@@ -41,41 +87,41 @@ const ArmControl: React.FC = () => {
           gap: 20
         }}
     >
-        <div style={{ width: columnWidth, display: "flex", flexDirection: "column", gap: 20 }}>
-            {cameraToShow && <CameraFeed camera={cameraToShow}/>}
-        </div>
+      <AxisTooltip xAxisIndex={0} yAxisIndex={1} style={{marginRight: 30}}/>
+      <AxisTooltip xAxisIndex={2} yAxisIndex={3} style={{marginRight: 30}}/>
 
-{/* Actuator list */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 10,
-          width: 200,
-        }}
-      >
-        {actuators.map((act) => (
-          <div
-            key={act.name}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "6px 10px",
-              background: "#222",
-              borderRadius: 6,
-              color: "#eee",
-            }}
-          >
-            <span>{act.name}</span>
-            <span>{act.degree}°</span>
-          </div>
-        ))}
-
-        <ControllerVisual/>
-      </div>
     </div>
 
-      </div>
+    <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+          marginBottom: 20,
+          gap: 20
+        }}
+    >
+      <ButtonTooltip buttonIndex={0}/>
+      <ButtonTooltip buttonIndex={1}/>
+      <ButtonTooltip buttonIndex={2}/>
+      <ButtonTooltip buttonIndex={3}/>
+      <ButtonTooltip buttonIndex={4}/>
+      <ButtonTooltip buttonIndex={5}/>
+      <ButtonTooltip buttonIndex={6}/>
+      <ButtonTooltip buttonIndex={7}/>
+      <ButtonTooltip buttonIndex={8}/>
+      <ButtonTooltip buttonIndex={9}/>
+      <ButtonTooltip buttonIndex={10}/>
+      <ButtonTooltip buttonIndex={11}/>
+      <ButtonTooltip buttonIndex={12}/>
+      <ButtonTooltip buttonIndex={13}/>
+      <ButtonTooltip buttonIndex={14}/>
+      <ButtonTooltip buttonIndex={15}/>
+      <ButtonTooltip buttonIndex={16}/>
+
+    </div>
+  
+  </div>
 
       
   );

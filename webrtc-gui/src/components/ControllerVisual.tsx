@@ -1,5 +1,5 @@
 import React from 'react';
-import { ControllerAxis } from './ControllerAxis';
+import { AxisTooltip } from './AxisTooltip';
 import { InputHint } from './InputHint';
 
 interface ControllerVisualProps {
@@ -13,10 +13,8 @@ const ControllerVisual: React.FC<ControllerVisualProps> = () => {
             flexDirection: "row",
             width: 500
         }}>
-            <InputHint type='icon' content="inputprompts/ps/playstation_trigger_l2.png" inputLabel='TRIG_LEFT'/>
-            <ControllerAxis axisLabel='LEFT_STICK' style={{marginRight: 30}} label='L'/>
-            <ControllerAxis axisLabel='RIGHT_STICK' label='R'/>
-            <InputHint type='icon' content="inputprompts/ps/playstation_trigger_r2.png" inputLabel='TRIG_RIGHT'/>
+            <AxisTooltip xAxisIndex={0} yAxisIndex={1} style={{marginRight: 30}}/>
+            <AxisTooltip xAxisIndex={2} yAxisIndex={3} style={{marginRight: 30}}/>
         </div>
     );
 };
