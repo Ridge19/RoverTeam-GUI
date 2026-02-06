@@ -51,18 +51,20 @@ interface ButtonTooltipProps {
   buttonIndex: number;
   size?: number; // in pixels
   style?: React.CSSProperties;
+  disabled?: boolean;
 }
 
 export const ButtonTooltip: React.FC<ButtonTooltipProps> = ({
   buttonIndex,
   size = 48,
-  style
+  style,
+  disabled = false
 }) => {
   const { gamepadType, buttons } = useGamepad();
 
   if (gamepadType === "none") return null;
 
-  const pressed = (buttons[buttonIndex] ?? 0);
+  const pressed = disabled?1:(buttons[buttonIndex] ?? 0);
   const icon = `${ROOT}/${ICONS[gamepadType]?.[buttonIndex]}`;
 
   if (!icon) return null;

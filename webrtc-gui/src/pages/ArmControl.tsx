@@ -6,10 +6,13 @@ import { CAMERA_GRID } from "@/layout/cameraLayout";
 import { ControllerVisual } from "@/components/ControllerVisual";
 import { AxisTooltip } from "@/components/AxisTooltip";
 import { ButtonTooltip } from "@/components/ButtonTooltip";
+import { ButtonHoldTooltip } from "@/components/ButtonHoldTooltip";
+import { useGamepad } from "@/contexts/GamepadContext";
 
 const ArmControl: React.FC = () => {
   const { cameras, loading, error } = useCameraList();
   const Roverurl = useRoverUrl();
+  const gamepad = useGamepad();
 
   const columnWidth = `400px`;
 
@@ -30,6 +33,8 @@ const ArmControl: React.FC = () => {
   const c2 = "#e3e3e3AA"
   const c3 = "#000000"
   const c4 = "#FFFFFF"
+  const c5 = "#89e582aa"
+  const c6 = "#e3e3e3AA"
 
   return (
     <div style={{
@@ -43,7 +48,7 @@ const ArmControl: React.FC = () => {
         flexDirection: "column"
     }}>
 
-      <div style={{
+      {gamepad.hasControl==="arm" && <div style={{
         width: "calc(100% + 40px)",
         margin: -20,
         marginBottom: 20,
@@ -69,13 +74,76 @@ const ArmControl: React.FC = () => {
           fontFamily: "monospace",
           fontSize: 20
         }}>
-          ARM IS UNDER YOUR CONTROL
+          ARM IS UNDER YOUR CONTROL - HOLD
+          <ButtonHoldTooltip
+            size={32}
+            style={{
+              display: "inline-block",
+              marginBottom: -10,
+              marginLeft: 5,
+              marginRight: 5}}
+            buttonIndex={3}
+            holdDuration={2}
+            onComplete={()=>{
+              gamepad.setHasControl("none")
+            }}
+          />
+          TO EXIT
         </div>
-      </div>
+      </div>}
+
+      {gamepad.hasControl==="none" && <div style={{
+        width: "calc(100% + 40px)",
+        margin: -20,
+        marginBottom: 20,
+        height: 50,
+        background: `repeating-linear-gradient(
+          -45deg,
+          ${c5} 0px,
+          ${c5} 20px,
+          ${c6} 20px,
+          ${c6} 40px
+        )`,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
+      }}>
+        <div style={{
+          backgroundColor: c3,
+          color: c4,
+          fontWeight: "bold",
+          padding: 5,
+          paddingRight: 10,
+          paddingLeft: 10,
+          fontFamily: "monospace",
+          fontSize: 20
+        }}>
+          HOLD
+          <ButtonHoldTooltip
+            size={32}
+            style={{
+              display: "inline-block",
+              marginBottom: -10,
+              marginLeft: 5,
+              marginRight: 5
+            }}
+            buttonIndex={3}
+            holdDuration={2}
+            onComplete={()=>{
+              gamepad.setHasControl("arm")
+            }}
+          />
+          TO TAKE CONTROL OF ARM
+        </div>
+      </div>}
+      
+
+            
 
 
         Hello world! this is a controller input test :)
-      
+
+              
 
       {/* Camera view */}
       <div
@@ -104,7 +172,6 @@ const ArmControl: React.FC = () => {
       <ButtonTooltip buttonIndex={0}/>
       <ButtonTooltip buttonIndex={1}/>
       <ButtonTooltip buttonIndex={2}/>
-      <ButtonTooltip buttonIndex={3}/>
       <ButtonTooltip buttonIndex={4}/>
       <ButtonTooltip buttonIndex={5}/>
       <ButtonTooltip buttonIndex={6}/>

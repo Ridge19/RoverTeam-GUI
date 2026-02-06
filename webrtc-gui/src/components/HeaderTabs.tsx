@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ButtonTooltip } from "./ButtonTooltip";
-import { useButtonPress } from "@/contexts/GamepadContext";
+import { useButtonPress, useGamepad } from "@/contexts/GamepadContext";
 
 interface Tab {
   id: string;
@@ -18,6 +18,8 @@ const RIGHT = 15
 
 const HeaderTabs: React.FC<HeaderTabsProps> = ({ tabs, active, onChange }) => {
 
+  const gamepad = useGamepad()
+
   useButtonPress(LEFT, () => moveActiveTab(-1))
   useButtonPress(RIGHT, () => moveActiveTab(+1))
 
@@ -32,14 +34,14 @@ const HeaderTabs: React.FC<HeaderTabsProps> = ({ tabs, active, onChange }) => {
     if (newIndex !== currentIndex) {
       onChange(tabs[newIndex].id);
     }
-  }  
+  }
 
   return (
     <nav
       className="flex gap-6 border-b border-gray-700 justify-center"
       style={{ marginTop: -40, height: 32 }}
     >
-      <ButtonTooltip buttonIndex={LEFT} size={32}></ButtonTooltip>
+      <ButtonTooltip buttonIndex={LEFT} size={32} disabled={gamepad.hasControl!="none"}></ButtonTooltip>
       {tabs.map((tab) => {
         const isActive = tab.id === active;
         return (
@@ -58,7 +60,7 @@ const HeaderTabs: React.FC<HeaderTabsProps> = ({ tabs, active, onChange }) => {
           </button>
         );
       })}
-      <ButtonTooltip buttonIndex={RIGHT} size={32}></ButtonTooltip>
+      <ButtonTooltip buttonIndex={RIGHT} size={32} disabled={gamepad.hasControl!="none"}></ButtonTooltip>
     </nav>
   );
 };
