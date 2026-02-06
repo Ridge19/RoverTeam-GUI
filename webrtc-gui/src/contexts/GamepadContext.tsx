@@ -27,6 +27,7 @@ const GamepadContext = createContext<GamepadContextState>({
 // -------------------------
 export const GamepadProvider = ({ children }: { children: ReactNode }) => {
   const [gamepadType, setGamepadType] = useState<GamepadType>("none");
+  const [gamepadIndex, setGamepadIndex] = useState<number | null>(null);
   const [buttons, setButtons] = useState<number[]>([]);
   const [pressed, setPressed] = useState<boolean[]>([]);
   const [axes, setAxes] = useState<number[]>([]);
@@ -35,22 +36,29 @@ export const GamepadProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const detectType = (id: string): GamepadType => {
       const lower = id.toLowerCase();
+
+      // Vendor ID check (Sony = 054c)
+      if (lower.includes("054c")) return "ps";
+
+      // Fallback string heuristics
       if (lower.includes("playstation") || lower.includes("ps")) return "ps";
       if (lower.includes("xbox")) return "xbox";
+
       return "other";
     };
 
     const connectHandler = (e: GamepadEvent) => {
+      setGamepadIndex(e.gamepad.index);
       setGamepadType(detectType(e.gamepad.id));
-      console.log("Gamepad connected:", e.gamepad.id);
     };
 
-    const disconnectHandler = (e: GamepadEvent) => {
+
+    const disconnectHandler = () => {
       setGamepadType("none");
+      setGamepadIndex(null);
       setButtons([]);
       setPressed([]);
       setAxes([]);
-      console.log("Gamepad disconnected");
     };
 
     window.addEventListener("gamepadconnected", connectHandler);
@@ -67,16 +75,22 @@ export const GamepadProvider = ({ children }: { children: ReactNode }) => {
     let animationFrame: number;
 
     const update = () => {
-      const gp = navigator.getGamepads()[0]; // always fresh
-      if (gp) {
-        const newButtons = gp.buttons.map((b) => b.value);
-        const newPressed = newButtons.map((v) => v > 0.5);
-        const newAxes = gp.axes.slice();
+      const pads = navigator.getGamepads();
 
-        setButtons(newButtons);
-        setPressed(newPressed);
-        setAxes(newAxes);
+      // Prefer stored index, but fallback safely
+      let gp =
+        gamepadIndex !== null ? pads[gamepadIndex] : null;
+
+      if (!gp) {
+        gp = pads.find(p => p !== null) ?? null;
       }
+
+      if (gp) {
+        setButtons(gp.buttons.map(b => b.value));
+        setPressed(gp.buttons.map(b => b.value > 0.5));
+        setAxes(gp.axes.slice());
+      }
+
       animationFrame = requestAnimationFrame(update);
     };
 

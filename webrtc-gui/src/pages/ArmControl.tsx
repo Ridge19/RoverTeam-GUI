@@ -117,7 +117,6 @@ const ArmControl: React.FC = () => {
       <ButtonTooltip buttonIndex={13}/>
       <ButtonTooltip buttonIndex={14}/>
       <ButtonTooltip buttonIndex={15}/>
-      <ButtonTooltip buttonIndex={16}/>
 
     </div>
   

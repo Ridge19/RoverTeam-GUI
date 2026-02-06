@@ -5,7 +5,26 @@ const ROOT = "inputprompts"
 
 // Icon images per gamepad type
 const ICONS: Record<string, Record<string, string>> = {
-  ps: {},
+  ps: {
+    0: "/ps/playstation_button_color_cross.png",
+    1: "/ps/playstation_button_color_circle.png",
+    2: "/ps/playstation_button_color_square.png",
+    3: "/ps/playstation_button_color_triangle.png",
+    4: "/ps/playstation_trigger_l1.png",
+    5: "/ps/playstation_trigger_r1.png",
+    6: "/ps/playstation_trigger_l2.png",
+    7: "/ps/playstation_trigger_r2.png",
+    8: "/ps/playstation4_button_share.png",
+    9: "/ps/playstation4_button_options.png",
+    10: "/ps/playstation_stick_top_l.png",
+    11: "/ps/playstation_stick_top_r.png",
+    12: "/ps/playstation_dpad_up.png",
+    13: "/ps/playstation_dpad_down.png",
+    14: "/ps/playstation_dpad_left.png",
+    15: "/ps/playstation_dpad_right.png",
+    16: "/ps/playstation_.png",
+    17: "/ps/playstation4_touchpad_press.png",
+  },
   xbox: {
     0: "/xbox/xbox_button_color_a.png",
     1: "/xbox/xbox_button_color_b.png",

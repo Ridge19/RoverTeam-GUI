@@ -6,9 +6,10 @@ interface StatusChipProps {
     color: StatusColor;
     label?: string;
     noDot?: boolean;
+    compact?: boolean;
 }
 
-const StatusChip: React.FC<StatusChipProps> = ({ color, label, noDot }) => {
+const StatusChip: React.FC<StatusChipProps> = ({ color, label, noDot, compact }) => {
     const statusColors = {
         success: 'bg-green-600',
         disabled: 'bg-gray-400',

@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import StatusChip from './StatusChip';
 import { useRoverWatchdog } from '@/hooks/useRoverWatchdog';
 import { HeaderTabs } from './HeaderTabs';
 import { useRoverUrl } from '@/hooks/useRoverUrl';
-import { useGamepad } from '@/hooks/useGamepad';
+import { EndpointModal } from "@/components/EndpointModal";
 
 interface HeaderProps {
   target?: string;
@@ -13,6 +13,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ target, activeTab, setActiveTab }) => {
   const roverWatchdog = useRoverWatchdog();
+  const [endpointModalOpen, setEndpointModalOpen] = useState<boolean>(false);
 
   return (
     <header
@@ -23,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({ target, activeTab, setActiveTab 
         height: 110
       }}
     >
+      <EndpointModal open={endpointModalOpen} onClose={()=>setEndpointModalOpen(false)}/>
       <div className="mx-auto px-4 py-4 flex flex-col gap-6">
 
         {/* Top row */}
@@ -38,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({ target, activeTab, setActiveTab 
 
           {/* Status */}
           <div className="ml-auto flex items-center gap-3">
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-400" onClick={()=>setEndpointModalOpen(true)}>
               {useRoverUrl()?.replace('http://', '')}
             </span>
             <StatusChip
