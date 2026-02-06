@@ -82,7 +82,7 @@ const ArmControl: React.FC = () => {
               marginBottom: -10,
               marginLeft: 5,
               marginRight: 5}}
-            buttonIndex={3}
+            buttonIndex={1}
             holdDuration={2}
             onComplete={()=>{
               gamepad.setHasControl("none")
