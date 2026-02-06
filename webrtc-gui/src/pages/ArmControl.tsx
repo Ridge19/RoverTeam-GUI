@@ -8,6 +8,7 @@ import { AxisTooltip } from "@/components/AxisTooltip";
 import { ButtonTooltip } from "@/components/ButtonTooltip";
 import { ButtonHoldTooltip } from "@/components/ButtonHoldTooltip";
 import { useGamepad } from "@/contexts/GamepadContext";
+import { StatusBanner } from "@/components/StatusBanner";
 
 const ArmControl: React.FC = () => {
   const { cameras, loading, error } = useCameraList();
@@ -48,98 +49,7 @@ const ArmControl: React.FC = () => {
         flexDirection: "column"
     }}>
 
-      {gamepad.hasControl==="arm" && <div style={{
-        width: "calc(100% + 40px)",
-        margin: -20,
-        marginBottom: 20,
-        height: 50,
-        background: `repeating-linear-gradient(
-          -45deg,
-          ${c1} 0px,
-          ${c1} 20px,
-          ${c2} 20px,
-          ${c2} 40px
-        )`,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
-      }}>
-        <div style={{
-          backgroundColor: c3,
-          color: c4,
-          fontWeight: "bold",
-          padding: 5,
-          paddingRight: 10,
-          paddingLeft: 10,
-          fontFamily: "monospace",
-          fontSize: 20
-        }}>
-          ARM IS UNDER YOUR CONTROL - HOLD
-          <ButtonHoldTooltip
-            size={32}
-            style={{
-              display: "inline-block",
-              marginBottom: -10,
-              marginLeft: 5,
-              marginRight: 5}}
-            buttonIndex={1}
-            holdDuration={2}
-            onComplete={()=>{
-              gamepad.setHasControl("none")
-            }}
-          />
-          TO EXIT
-        </div>
-      </div>}
-
-      {gamepad.hasControl==="none" && <div style={{
-        width: "calc(100% + 40px)",
-        margin: -20,
-        marginBottom: 20,
-        height: 50,
-        background: `repeating-linear-gradient(
-          -45deg,
-          ${c5} 0px,
-          ${c5} 20px,
-          ${c6} 20px,
-          ${c6} 40px
-        )`,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
-      }}>
-        <div style={{
-          backgroundColor: c3,
-          color: c4,
-          fontWeight: "bold",
-          padding: 5,
-          paddingRight: 10,
-          paddingLeft: 10,
-          fontFamily: "monospace",
-          fontSize: 20
-        }}>
-          HOLD
-          <ButtonHoldTooltip
-            size={32}
-            style={{
-              display: "inline-block",
-              marginBottom: -10,
-              marginLeft: 5,
-              marginRight: 5
-            }}
-            buttonIndex={3}
-            holdDuration={2}
-            onComplete={()=>{
-              gamepad.setHasControl("arm")
-            }}
-          />
-          TO TAKE CONTROL OF ARM
-        </div>
-      </div>}
-      
-
-            
-
+      <StatusBanner controlDevice="arm" controlDeviceLabel="Arm"/>          
 
         Hello world! this is a controller input test :)
 
