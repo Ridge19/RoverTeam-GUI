@@ -1,111 +1,132 @@
 import { useGamepad } from "@/contexts/GamepadContext"
 import { ButtonHoldTooltip } from "./ButtonHoldTooltip"
 
+type ControlState =
+  | "active"
+  | "idle"
+  | "disabled"
+
 interface StatusBannerProps {
-    controlDevice: string, controlDeviceLabel: string
+  controlDevice: string
+  controlDeviceLabel: string
 }
 
-const StatusBanner: React.FC<StatusBannerProps> = ({controlDevice, controlDeviceLabel}:StatusBannerProps) => {
+/* ---------- COLOR VARIANTS ---------- */
 
-    const gamepad = useGamepad()
+const bannerVariants: Record<ControlState, {
+  stripeA: string
+  stripeB: string
+}> = {
+  active: {
+    stripeA: "#ff3636AA",
+    stripeB: "#e3e3e3AA",
+  },
+  idle: {
+    stripeA: "#89e582aa",
+    stripeB: "#e3e3e3AA",
+  },
+  disabled: {
+    stripeA: "#363636aa",
+    stripeB: "#e3e3e3AA",
+  }
+}
 
-    const c1 = "#ff3636AA"
-    const c2 = "#e3e3e3AA"
-    const c3 = "#000000"
-    const c4 = "#FFFFFF"
-    const c5 = "#89e582aa"
-    const c6 = "#e3e3e3AA"
+/* ---------- SHARED STYLES ---------- */
 
-    return (<>
-        {gamepad.hasControl===controlDevice && <div style={{
-            width: "calc(100% + 40px)",
-            margin: -20,
-            marginBottom: 20,
-            height: 70,
-            background: `repeating-linear-gradient(
-                -45deg,
-                ${c1} 0px,
-                ${c1} 20px,
-                ${c2} 20px,
-                ${c2} 40px
-            )`,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center"
-        }}>
-            <div style={{
-                backgroundColor: c3,
-                color: c4,
-                fontWeight: "bold",
-                padding: 5,
-                paddingRight: 10,
-                paddingLeft: 10,
-                fontFamily: "monospace",
-                fontSize: 24
-            }}>
-                {controlDeviceLabel.toUpperCase()} IS UNDER YOUR CONTROL - HOLD
-                <ButtonHoldTooltip
-                size={36}
-                style={{
-                    display: "inline-block",
-                    marginBottom: -10,
-                    marginLeft: 5,
-                    marginRight: 5}}
-                buttonIndex={1}
-                holdDuration={2}
-                onComplete={()=>{
-                    gamepad.setHasControl("none")
-                }}
-                />
-                TO EXIT
-            </div>
-            </div>}
+const containerBase: React.CSSProperties = {
+  width: "calc(100% + 40px)",
+  margin: -20,
+  marginBottom: 20,
+  height: 70,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+}
 
-            {gamepad.hasControl==="none" && <div style={{
-            width: "calc(100% + 40px)",
-            margin: -20,
-            marginBottom: 20,
-            height: 70,
-            background: `repeating-linear-gradient(
-                -45deg,
-                ${c5} 0px,
-                ${c5} 20px,
-                ${c6} 20px,
-                ${c6} 40px
-            )`,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center"
-            }}>
-            <div style={{
-                backgroundColor: c3,
-                color: c4,
-                fontWeight: "bold",
-                padding: 5,
-                paddingRight: 10,
-                paddingLeft: 10,
-                fontFamily: "monospace",
-                fontSize: 24
-            }}>
-                HOLD
-                <ButtonHoldTooltip
-                size={36}
-                style={{
-                    display: "inline-block",
-                    marginBottom: -10,
-                    marginLeft: 5,
-                    marginRight: 5
-                }}
-                buttonIndex={3}
-                holdDuration={2}
-                onComplete={()=>{
-                    gamepad.setHasControl(controlDevice)
-                }}
-                />
-                TO TAKE CONTROL OF {controlDeviceLabel.toUpperCase()}
-            </div>
-        </div>}
-    </>)
+const labelBase: React.CSSProperties = {
+  backgroundColor: "#000000",
+  color: "#FFFFFF",
+  fontWeight: "bold",
+  padding: 5,
+  paddingLeft: 10,
+  paddingRight: 10,
+  fontFamily: "monospace",
+  fontSize: 24,
+}
+
+const buttonStyle: React.CSSProperties = {
+  display: "inline-block",
+  marginBottom: -10,
+  marginLeft: 5,
+  marginRight: 5,
+}
+
+/* ---------- HELPERS ---------- */
+
+function stripeBackground(a: string, b: string) {
+  return `repeating-linear-gradient(
+    -45deg,
+    ${a} 0px,
+    ${a} 20px,
+    ${b} 20px,
+    ${b} 40px
+  )`
+}
+
+/* ---------- COMPONENT ---------- */
+
+const StatusBanner: React.FC<StatusBannerProps> = ({
+  controlDevice,
+  controlDeviceLabel,
+}) => {
+  const gamepad = useGamepad()
+
+  const state: ControlState =
+    gamepad.hasControl === controlDevice ? "active" :
+    gamepad.gamepadType === "none" ? "disabled" : "idle"
+
+  const colors = bannerVariants[state]
+
+  const bannerStyle: React.CSSProperties = {
+    ...containerBase,
+    background: stripeBackground(colors.stripeA, colors.stripeB),
+  }
+
+  return (
+    <div style={bannerStyle}>
+      <div style={labelBase}>
+        {state === "active" ? (
+          <>
+            {controlDeviceLabel.toUpperCase()} IS UNDER YOUR CONTROL — HOLD
+            <ButtonHoldTooltip
+              size={36}
+              style={buttonStyle}
+              buttonIndex={1}
+              holdDuration={1}
+              onComplete={() => gamepad.setHasControl("none")}
+            />
+            TO EXIT
+          </>
+        ) : state === "idle" ? (
+          <>
+            HOLD
+            <ButtonHoldTooltip
+              size={36}
+              style={buttonStyle}
+              buttonIndex={3}
+              holdDuration={1}
+              onComplete={() => gamepad.setHasControl(controlDevice)}
+            />
+            TO TAKE CONTROL OF {controlDeviceLabel.toUpperCase()}
+          </>
+        ) : (
+          <>
+            CONTROLLER MUST BE CONNECTED
+          </>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export { StatusBanner }

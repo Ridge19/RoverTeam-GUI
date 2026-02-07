@@ -32,7 +32,7 @@ export const ENDPOINTS: EndpointConfig[] = [
     host: "http://localhost",
     priority: 2,
     ports: [
-      { port: 3001 }, // Cameras
+      { port: 3001 },
       { port: 5005 }, // Telemetry
       { port: 5001 }, // Drive
       { port: 5003 }, // Payload Backend (Arm)
@@ -59,12 +59,14 @@ export interface EndpointState {
 
 export type EndpointEvent =
   | { type: "auto-connected"; endpoint: EndpointState }
-  | { type: "endpoint-available"; endpoint: EndpointState };
+  | { type: "endpoint-available"; endpoint: EndpointState }
+  | { type: "scan-complete" };
 
 interface EndpointContextType {
   endpoints: EndpointState[];
   selected: EndpointState[];
   onEvent: (handler: (e: EndpointEvent) => void) => () => void;
+  getEndpointsOfService: (service: string) => string[];
 }
 
 const EndpointContext = createContext<EndpointContextType | null>(null);
@@ -99,10 +101,9 @@ async function ping(url: string): Promise<string> {
 export function EndpointProvider({ children }: { children: React.ReactNode }) {
   const [endpoints, setEndpoints] = useState<EndpointState[]>([]);
   const [selected, setSelected] = useState<EndpointState[]>([]);
-
   const handlers = useRef<((e: EndpointEvent) => void)[]>([]);
 
-  const emit = (e: EndpointEvent) => handlers.current.forEach(h => h(e));
+  const emit = (e: EndpointEvent) => setTimeout(()=>handlers.current.forEach(h => h(e)))
 
   const onEvent = (handler: (e: EndpointEvent) => void) => {
     handlers.current.push(handler);
@@ -147,9 +148,10 @@ export function EndpointProvider({ children }: { children: React.ReactNode }) {
       return results;
     });
 
-    // Automatically select all online endpoints
     const available = results.filter(e => e.ports.some(p => p.status === "online"));
     setSelected(available);
+
+    emit({ type: "scan-complete" });
   }
 
   useEffect(() => {
@@ -158,9 +160,20 @@ export function EndpointProvider({ children }: { children: React.ReactNode }) {
     return () => clearInterval(id);
   }, []);
 
+  /* ================== NEW: getEndpointsOfService ================== */
+  const getEndpointsOfService = (service: string): string[] => {
+    const urls: string[] = [];
+    endpoints.forEach(ep => {
+      ep.ports
+        .filter(p => p.status === "online" && p.service === service)
+        .forEach(p => urls.push(`${ep.host}:${p.port}`));
+    });
+    return urls;
+  };
+
   return (
     <EndpointContext.Provider
-      value={{ endpoints, selected, onEvent }}
+      value={{ endpoints, selected, onEvent, getEndpointsOfService }}
     >
       {children}
     </EndpointContext.Provider>

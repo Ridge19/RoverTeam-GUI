@@ -22,10 +22,7 @@ export function EndpointModal({ open, onClose }: { open: boolean; onClose: () =>
               </div>
 
               <div className="space-y-1 text-sm">
-                {ep.ports.map(p => {
-
-                  if(p.status !== "online") return ""
-                  
+                {ep.ports.filter(p => p.status === "online").map(p => {
                   return(
                     <div key={p.port} className="flex justify-between">
                       <span style={{ marginLeft: 10 }}>

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useCameraList } from "@/hooks/useCameraList";
 import { useRoverUrl } from "@/hooks/useRoverUrl";
 import { CameraFeed } from "@/components/CameraFeed";
 import { CAMERA_GRID } from "@/layout/cameraLayout";
@@ -11,7 +10,6 @@ import { useGamepad } from "@/contexts/GamepadContext";
 import { StatusBanner } from "@/components/StatusBanner";
 
 const ArmControl: React.FC = () => {
-  const { cameras, loading, error } = useCameraList();
   const Roverurl = useRoverUrl();
   const gamepad = useGamepad();
 
@@ -26,9 +24,6 @@ const ArmControl: React.FC = () => {
     { name: "J5", degree: 0 },
     { name: "J6", degree: 0 },
   ]);
-
-  // Single camera (index 0)
-  const cameraToShow = cameras.length > 0 ? cameras[0] : null;
 
   const c1 = "#ff3636AA"
   const c2 = "#e3e3e3AA"
