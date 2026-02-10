@@ -68,6 +68,7 @@ const styles = {savedOverlay: {
     justifyContent: "center",
     fontWeight: "bold",
     zIndex: 20,
+    pointerEvents: "none" as const
 }}
 
 export default Cameras;

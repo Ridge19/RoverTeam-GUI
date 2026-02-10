@@ -1,17 +1,50 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useTelemetryContext } from "@/contexts/TelementryContext";
+import { useTelemetryContext } from "@/contexts/TelemetryContext";
 import StatusChip, { StatusColor } from "@/components/StatusChip";
 
+const HEADER_HEIGHT = 110;
+const INPUT_HEIGHT = 50;
+
 const TelemetryConsole: React.FC = () => {
-  const { status, messages, send } = useTelemetryContext();
+  const { messages, currentEndpoint, setCurrentEndpoint, send, getStatus } =
+    useTelemetryContext();
+
+  const [input, setInput] = useState("");
   const consoleEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [input, setInput] = useState("");
 
-  // Auto-scroll to bottom when new message arrives
+  // Auto-scroll toggle
+  const [autoScroll, setAutoScroll] = useState(true);
+  const consoleRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to bottom when messages update
   useEffect(() => {
-    consoleEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (autoScroll) consoleEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, currentEndpoint, autoScroll]);
+
+  // Disable auto-scroll if user scrolls manually
+  useEffect(() => {
+    const el = consoleRef.current;
+    if (!el) return;
+
+    const onScroll = () => {
+      const isAtBottom =
+        el.scrollHeight - el.scrollTop - el.clientHeight < 20;
+      setAutoScroll(isAtBottom);
+    };
+
+    el.addEventListener("scroll", onScroll);
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const handleSend = () => {
+    if (!input.trim() || !currentEndpoint) return;
+    const success = send(currentEndpoint, input.trim());
+    if (success) {
+      setInput("");
+      setAutoScroll(true); // re-enable auto-scroll on send
+    }
+  };
 
   const statusMap: Record<string, StatusColor> = {
     idle: "disabled",
@@ -20,21 +53,19 @@ const TelemetryConsole: React.FC = () => {
     error: "error",
   };
 
-  const canSend = status === "connected";
+  const currentMessages = currentEndpoint
+    ? messages.find((m) => m.endpoint === currentEndpoint)?.data ?? []
+    : [];
 
-  const handleSend = () => {
-    if (!input.trim() || !canSend) return;
-
-    send(input.trim());
-    setInput("");
-  };
+  const canSend =
+    currentEndpoint && getStatus(currentEndpoint) === "connected";
 
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "column",
-        height: "calc(100vh - 110px)",
+        height: `calc(100vh - ${HEADER_HEIGHT}px)`,
         background: "#1e1e1e",
         color: "#eee",
         fontFamily: "monospace",
@@ -42,34 +73,120 @@ const TelemetryConsole: React.FC = () => {
         boxSizing: "border-box",
       }}
     >
-      {/* Header */}
+      {/* Tabs + Auto-Scroll Checkbox */}
       <div
         style={{
           display: "flex",
-          flexDirection: "row",
           alignItems: "center",
-          marginBottom: 20,
-          gap: 20,
+          gap: 8,
+          marginBottom: -2,
+          flexWrap: "wrap",
         }}
       >
-        <h2>Telemetry Console</h2>
-        <StatusChip color={statusMap[status]} label={status} />
+        {messages.map((m) => {
+          const epStatus = getStatus(m.endpoint);
+          return (
+            <button
+              key={m.endpoint}
+              onClick={() => setCurrentEndpoint(m.endpoint)}
+              style={{
+                padding: "6px 12px",
+                borderRadius: 16,
+                borderBottomLeftRadius: 0,
+                borderBottomRightRadius: 0,
+                border:
+                  currentEndpoint === m.endpoint
+                    ? "2px solid transparent"
+                    : "2px solid #eee",
+                background:
+                  currentEndpoint === m.endpoint ? "#eee" : "#111",
+                color: currentEndpoint === m.endpoint ? "#111" : "#eee",
+                cursor: "pointer",
+                fontFamily: "monospace",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <span
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  background:
+                    epStatus === "connected"
+                      ? "#26cb4fff"
+                      : epStatus === "connecting"
+                      ? "#ffcc66"
+                      : epStatus === "error"
+                      ? "#ff5555"
+                      : "#555",
+                }}
+              />
+              {m.endpoint}
+            </button>
+          );
+        })}
+
+        {/* Auto-Scroll Checkbox */}
+        <label
+          style={{
+            marginLeft: "auto",
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+            fontSize: 14,
+            cursor: "pointer",
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={autoScroll}
+            onChange={(e) => setAutoScroll(e.target.checked)}
+          />
+          Auto-scroll
+        </label>
       </div>
 
       {/* Console */}
       <div
+        ref={consoleRef}
         style={{
           flexGrow: 1,
+          height: `calc(100% - ${INPUT_HEIGHT}px)`,
           background: "#111",
           padding: 10,
           borderRadius: 6,
+          borderBottomLeftRadius: 16,
+          borderTopLeftRadius: 0,
+          border: "#eee 2px solid",
           overflowY: "auto",
           whiteSpace: "pre-wrap",
           fontSize: 16,
-          lineHeight: "16px"
+          lineHeight: "16px",
         }}
       >
-        {messages.map((msg, idx) => {
+        <style>
+          {`
+            /* Chrome, Edge, Safari */
+            div::-webkit-scrollbar {
+              width: 8px;
+            }
+            div::-webkit-scrollbar-track {
+              background: transparent;
+            }
+            div::-webkit-scrollbar-thumb {
+              background-color: #888;
+              border-radius: 14px;
+              border: none;
+            }
+            div::-webkit-scrollbar-button {
+              display: none;
+            }
+          `}
+        </style>
+
+        {currentMessages.map((msg, idx) => {
           const [levelRaw, ...rest] = msg.split(" ");
           const level = levelRaw.toUpperCase();
           const text = rest.join(" ");
@@ -103,15 +220,14 @@ const TelemetryConsole: React.FC = () => {
           display: "flex",
           gap: 10,
           marginTop: 12,
+          height: INPUT_HEIGHT - 12,
         }}
       >
         <input
           ref={inputRef}
           value={input}
           disabled={!canSend}
-          placeholder={
-            canSend ? "Type command…" : "Not connected"
-          }
+          placeholder={canSend ? "Type command…" : "Not connected"}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") handleSend();
