@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import StatusChip from './StatusChip';
 import { HeaderTabs } from './HeaderTabs';
 import { EndpointModal } from "@/components/EndpointModal";
 import { useEndpoints } from "@/contexts/EndpointContext";
