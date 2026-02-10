@@ -36,6 +36,36 @@ const MAX_MESSAGES = 150;
 const RECONNECT_INTERVAL = 3000;
 const MAX_RETRIES = 5;
 
+// -------------------------
+// Helper to sanitize host for file name
+// -------------------------
+function getLogFileName(endpoint: string) {
+  try {
+    const url = new URL(endpoint);
+    const host = url.hostname;
+    return `telemetry-${host.replace(/\./g, "-")}`;
+  } catch {
+    // fallback for raw IP / malformed URL
+    return `telemetry-${endpoint.replace(/[:\/.]/g, "-")}`;
+  }
+}
+
+// -------------------------
+// Helper to log via API
+// -------------------------
+async function logToApi(endpoint: string, msg: string) {
+  const file = getLogFileName(endpoint);
+  try {
+    await fetch("/api/log", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ file, log: msg }),
+    });
+  } catch (err) {
+    console.warn("Failed to log to API:", err);
+  }
+}
+
 export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { getEndpointsOfService, onEvent } = useEndpoints();
 
@@ -52,7 +82,6 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // -------------------------
   // HELPERS
   // -------------------------
-
   const ensureBuckets = useCallback((endpoint: string) => {
     setMessages(prev =>
       prev.some(e => e.endpoint === endpoint) ? prev : [...prev, { endpoint, data: [] }]
@@ -80,7 +109,6 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // -------------------------
   // DISCONNECT
   // -------------------------
-
   const disconnect = useCallback(() => {
     reconnectTimers.current.forEach(clearTimeout);
     reconnectTimers.current.clear();
@@ -97,7 +125,6 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // -------------------------
   // CONNECT & RECONNECT
   // -------------------------
-
   const scheduleReconnect = useCallback((endpoint: string) => {
     if (reconnectTimers.current.has(endpoint)) return;
 
@@ -143,11 +170,15 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         copy.delete(endpoint);
         return copy;
       });
+      logToApi(endpoint, "WebSocket connected");
     };
 
     ws.onmessage = ev => {
       const data = ev.data;
       if (typeof data !== "string") return;
+
+      // log all messages
+      logToApi(endpoint, `[RECV] ${data}`);
 
       if (data.startsWith("JSON ")) {
         try {
@@ -171,6 +202,7 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     ws.onerror = err => {
       console.warn("Telemetry WS error:", endpoint, err);
       setEndpointStatus(prev => ({ ...prev, [endpoint]: "error" }));
+      logToApi(endpoint, `[ERROR] ${err}`);
     };
 
     ws.onclose = () => {
@@ -185,6 +217,8 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setHiddenEndpoints(prev => new Set(prev).add(endpoint));
       }
 
+      logToApi(endpoint, "WebSocket closed");
+
       scheduleReconnect(endpoint);
     };
   }, [ensureBuckets, scheduleReconnect, updateMessages, updateRoverStatus]);
@@ -192,7 +226,6 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // -------------------------
   // SCAN & CONNECT ALL ENDPOINTS
   // -------------------------
-
   const scanTelemetryEndpoints = useCallback(() => {
     const endpoints = getEndpointsOfService("telemetry");
     endpoints.forEach(connectEndpoint);
@@ -209,7 +242,6 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // -------------------------
   // AUTO MANAGE CURRENT TAB
   // -------------------------
-
   useEffect(() => {
     const visibleEndpoints = messages
       .map(m => m.endpoint)
@@ -222,7 +254,6 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // -------------------------
   // SEND
   // -------------------------
-
   const send = useCallback((endpoint: string, msg: string | object) => {
     const ws = wsMap.current.get(endpoint);
     if (!ws || ws.readyState !== WebSocket.OPEN) return false;
@@ -230,6 +261,7 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const payload = typeof msg === "string" ? msg : JSON.stringify(msg);
       ws.send(payload);
+      logToApi(endpoint, `[SEND] ${payload}`);
       return true;
     } catch {
       return false;
@@ -239,7 +271,6 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // -------------------------
   // GET STATUS
   // -------------------------
-
   const getStatus = useCallback(
     (endpoint?: string | null) => {
       if (!endpoint) return "idle";

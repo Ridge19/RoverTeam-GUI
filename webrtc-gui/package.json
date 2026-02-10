@@ -11,6 +11,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "again": "^0.0.1",
+    "fs": "^0.0.1-security",
     "next": "^16.1.6",
     "node": "^25.5.0",
     "react": "19.1.0",
