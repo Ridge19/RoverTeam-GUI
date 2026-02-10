@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { HeaderTabs } from './HeaderTabs';
 import { EndpointModal } from "@/components/EndpointModal";
+import { GithubModal } from './GithubModal';
 import { useEndpoints } from "@/contexts/EndpointContext";
 
 interface HeaderProps {
@@ -11,18 +12,18 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ target, activeTab, setActiveTab }) => {
   const [endpointModalOpen, setEndpointModalOpen] = useState(false);
+  const [githubModalOpen, setGithubModalOpen] = useState(false);
   const { endpoints } = useEndpoints();
-  const [gitLabel, setGitLabel] = useState("Git: loading...");
+  const [gitData, setGitData] = useState<any>({});
 
   // Fetch Git info from server API
   useEffect(() => {
     fetch("/api/git")
       .then(res => res.json())
       .then(data => {
-        if (data.error) setGitLabel(`Git data unavailable.`);
-        else setGitLabel(`${data.branch ?? "unknown"} @ ${data.commit?.slice(0, 7) ?? "unknown"}`);
+        setGitData(data)
       })
-      .catch(() => setGitLabel("Git: unavailable"));
+      .catch(() => setGitData({error: "Bad fetch"}));
   }, []);
 
   // Compute port & endpoint counts
@@ -43,15 +44,16 @@ export const Header: React.FC<HeaderProps> = ({ target, activeTab, setActiveTab 
   return (
     <header className="text-gray-100 shadow-md" style={{ background: '#222', flexShrink: 0, height: 110 }}>
       <EndpointModal open={endpointModalOpen} onClose={() => setEndpointModalOpen(false)} />
+      <GithubModal data={gitData} open={githubModalOpen} onClose={()=>setGithubModalOpen(false)} />
       <div className="mx-auto px-4 py-4 flex flex-col gap-6">
         {/* Top row */}
         <div className="relative flex items-center">
           {/* Logo (left) */}
           <img src="Team Logo.png" className="h-[70px] flex-shrink-0" />
 
-          {!gitLabel.startsWith("main") &&
-          <div className="text-xs text-center -mt-3 ml-5 -mt-15" style={{color: "#777"}}>
-              {gitLabel}
+          {(gitData.available) && //&& gitData.branch!=="main"
+          <div className="cursor-pointer text-xs text-center -mt-3 ml-5 -mt-15" style={{color: "#777"}} onClick={()=>setGithubModalOpen(true)}>
+              {gitData.branch} @ {gitData.shortCommit}
           </div>}
 
           {/* Title (centered absolutely) */}
