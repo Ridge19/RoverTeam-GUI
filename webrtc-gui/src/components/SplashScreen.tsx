@@ -7,7 +7,7 @@ export default function SplashScreen({ visible }: { visible: boolean }) {
       }`}
     >
         <img src="Equinox Logo.png" style={{width: "30%", marginTop: "15%"}}/>
-        <img src="Loading_dots.gif" style={{width: "30%", marginTop: "-10%"}}/>
+        <img src="Loading_Dots.gif" style={{width: "30%", marginTop: "-10%"}}/>
 
     </div>
   );

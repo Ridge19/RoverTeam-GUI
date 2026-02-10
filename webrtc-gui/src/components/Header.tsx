@@ -46,32 +46,21 @@ export const Header: React.FC<HeaderProps> = ({ target, activeTab, setActiveTab 
       <EndpointModal open={endpointModalOpen} onClose={() => setEndpointModalOpen(false)} />
       <div className="mx-auto px-4 py-4 flex flex-col gap-6">
         {/* Top row */}
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-8">
-            {/* Logo */}
-            <img src="Equinox Logo.png" className="h-[70px] flex-shrink-0" />
+        <div className="relative flex items-center">
+          {/* Logo (left) */}
+          <img src="Team Logo.png" className="h-[70px] flex-shrink-0" />
 
-            {/* Title */}
-            <div>
-              <h1 className="text-3xl font-extrabold">RMIT Rover Team</h1>
-              <p className="text-gray-400 mt-1">Equinox Control Centre</p>
-            </div>
+          {!gitLabel.startsWith("main") &&
+          <div className="text-xs text-center -mt-3 ml-5 -mt-15" style={{color: "#777"}}>
+              {gitLabel}
+          </div>}
 
-            {/* Status */}
-            <div className="ml-auto flex flex-col items-end gap-1">
-              {/* Git Info */}
-              <div style={{ fontFamily: "monospace", fontSize: 12, color: "#eee", background: "#000", padding: "5px 10px", borderRadius: 8 }}>
-                {gitLabel}
-              </div>
-
-              {/* Endpoint Status */}
-              <StatusChip
-                onClick={() => setEndpointModalOpen(true)}
-                color={statusColor}
-                label={statusLabel}
-              />
-            </div>
+          {/* Title (centered absolutely) */}
+          <div className="absolute left-1/2 transform -translate-x-1/2">
+            <h1 onClick={()=>setEndpointModalOpen(true)} className="text-3xl font-extrabold text-center cursor-pointer" style={{transform: "translateY(-18px)"}}>Command & Control Centre</h1>
           </div>
+
+          <img src="Equinox Logo.png" className="h-[70px] flex-shrink-0 ml-auto" />
         </div>
 
         {/* Tabs row */}

@@ -1,5 +1,4 @@
 import { TelemetryProvider } from "@/contexts/TelemetryContext";
-import { useRoverUrl } from "@/hooks/useRoverUrl";
 import { CameraStreamsProvider } from "@/providers/CameraStreamsProvider";
 import { GamepadProvider } from "@/contexts/GamepadContext"
 import "@/styles/globals.css";
