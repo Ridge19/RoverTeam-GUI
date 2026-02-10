@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import StatusChip from './StatusChip';
-import { useRoverWatchdog } from '@/hooks/useRoverWatchdog';
 import { HeaderTabs } from './HeaderTabs';
 import { useRoverUrl } from '@/hooks/useRoverUrl';
 import { EndpointModal } from "@/components/EndpointModal";
+import { useEndpoints } from "@/contexts/EndpointContext";
 
 interface HeaderProps {
   target?: string;
@@ -12,16 +12,34 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ target, activeTab, setActiveTab }) => {
-  const roverWatchdog = useRoverWatchdog();
   const [endpointModalOpen, setEndpointModalOpen] = useState<boolean>(false);
+  const { endpoints } = useEndpoints();
+
+  // Compute port & endpoint counts
+  const { portCount, endpointCount } = useMemo(() => {
+    const activeEndpoints = endpoints.filter(ep =>
+      ep.ports.some(p => p.status === "online")
+    );
+    const ports = activeEndpoints.reduce(
+      (sum, ep) => sum + ep.ports.filter(p => p.status === "online").length,
+      0
+    );
+    return {
+      portCount: ports,
+      endpointCount: activeEndpoints.length,
+    };
+  }, [endpoints]);
+
+  const statusColor = portCount === 0 && endpointCount === 0 ? "error" : "success";
+  const statusLabel = `${portCount} port${portCount === 1 ? "" : "s"}, ${endpointCount} endpoint${endpointCount === 1 ? "" : "s"}`;
 
   return (
     <header
       className="text-gray-100 shadow-md"
       style={{
         background: '#222',
-        flexShrink: 0, // ensure header doesn't shrink in a flex column
-        height: 110
+        flexShrink: 0,
+        height: 110,
       }}
     >
       <EndpointModal open={endpointModalOpen} onClose={()=>setEndpointModalOpen(false)}/>
@@ -40,18 +58,10 @@ export const Header: React.FC<HeaderProps> = ({ target, activeTab, setActiveTab 
 
           {/* Status */}
           <div className="ml-auto flex items-center gap-3">
-            <span className="text-xs text-gray-400" onClick={()=>setEndpointModalOpen(true)}>
-              {useRoverUrl()?.replace('http://', '')}
-            </span>
             <StatusChip
-              color={
-                roverWatchdog.status === 'connected'
-                  ? 'success'
-                  : roverWatchdog.status === 'connecting'
-                  ? 'warning'
-                  : 'error'
-              }
-              label={roverWatchdog.status}
+              onClick={() => setEndpointModalOpen(true)}
+              color={statusColor}
+              label={statusLabel}
             />
           </div>
         </div>

@@ -34,17 +34,20 @@ const TelemetryContext = createContext<TelemetryContextValue | null>(null);
 
 const MAX_MESSAGES = 150;
 const RECONNECT_INTERVAL = 3000;
+const MAX_RETRIES = 5;
 
 export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { getEndpointsOfService, onEvent } = useEndpoints();
 
   const wsMap = useRef<Map<string, WebSocket>>(new Map());
   const reconnectTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const retryCount = useRef<Map<string, number>>(new Map());
 
   const [endpointStatus, setEndpointStatus] = useState<Record<string, "idle" | "connecting" | "connected" | "error">>({});
   const [messages, setMessages] = useState<EndpointMessages[]>([]);
   const [roverStatus, setRoverStatus] = useState<EndpointStatus[]>([]);
   const [currentEndpoint, setCurrentEndpoint] = useState<string | null>(null);
+  const [hiddenEndpoints, setHiddenEndpoints] = useState<Set<string>>(new Set());
 
   // -------------------------
   // HELPERS
@@ -81,25 +84,35 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const disconnect = useCallback(() => {
     reconnectTimers.current.forEach(clearTimeout);
     reconnectTimers.current.clear();
-
     wsMap.current.forEach(ws => ws.close());
     wsMap.current.clear();
-
+    retryCount.current.clear();
     setMessages([]);
     setRoverStatus([]);
     setCurrentEndpoint(null);
     setEndpointStatus({});
+    setHiddenEndpoints(new Set());
   }, []);
 
   // -------------------------
   // CONNECT & RECONNECT
   // -------------------------
 
+  const scheduleReconnect = useCallback((endpoint: string) => {
+    if (reconnectTimers.current.has(endpoint)) return;
+
+    const t = setTimeout(() => {
+      reconnectTimers.current.delete(endpoint);
+      connectEndpoint(endpoint);
+    }, RECONNECT_INTERVAL);
+
+    reconnectTimers.current.set(endpoint, t);
+  }, []);
+
   const connectEndpoint = useCallback((endpoint: string) => {
     ensureBuckets(endpoint);
 
     const existingWS = wsMap.current.get(endpoint);
-
     if (existingWS) {
       if (existingWS.readyState === WebSocket.OPEN) {
         setEndpointStatus(prev => ({ ...prev, [endpoint]: "connected" }));
@@ -122,7 +135,15 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     wsMap.current.set(endpoint, ws);
 
-    ws.onopen = () => setEndpointStatus(prev => ({ ...prev, [endpoint]: "connected" }));
+    ws.onopen = () => {
+      setEndpointStatus(prev => ({ ...prev, [endpoint]: "connected" }));
+      retryCount.current.set(endpoint, 0);
+      setHiddenEndpoints(prev => {
+        const copy = new Set(prev);
+        copy.delete(endpoint);
+        return copy;
+      });
+    };
 
     ws.onmessage = ev => {
       const data = ev.data;
@@ -155,20 +176,18 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     ws.onclose = () => {
       wsMap.current.delete(endpoint);
       setEndpointStatus(prev => ({ ...prev, [endpoint]: "error" }));
+
+      const prevRetry = retryCount.current.get(endpoint) ?? 0;
+      retryCount.current.set(endpoint, prevRetry + 1);
+
+      // Hide tab if exceeded retries
+      if (prevRetry + 1 >= MAX_RETRIES) {
+        setHiddenEndpoints(prev => new Set(prev).add(endpoint));
+      }
+
       scheduleReconnect(endpoint);
     };
-  }, [ensureBuckets, updateMessages, updateRoverStatus]);
-
-  const scheduleReconnect = useCallback((endpoint: string) => {
-    if (reconnectTimers.current.has(endpoint)) return;
-
-    const t = setTimeout(() => {
-      reconnectTimers.current.delete(endpoint);
-      connectEndpoint(endpoint);
-    }, RECONNECT_INTERVAL);
-
-    reconnectTimers.current.set(endpoint, t);
-  }, [connectEndpoint]);
+  }, [ensureBuckets, scheduleReconnect, updateMessages, updateRoverStatus]);
 
   // -------------------------
   // SCAN & CONNECT ALL ENDPOINTS
@@ -192,11 +211,13 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // -------------------------
 
   useEffect(() => {
-    const endpoints = messages.map(m => m.endpoint);
-    if (!endpoints.length) return setCurrentEndpoint(null);
-    if (currentEndpoint && endpoints.includes(currentEndpoint)) return;
-    setCurrentEndpoint(endpoints[0]);
-  }, [messages, currentEndpoint]);
+    const visibleEndpoints = messages
+      .map(m => m.endpoint)
+      .filter(ep => !hiddenEndpoints.has(ep));
+    if (!visibleEndpoints.length) return setCurrentEndpoint(null);
+    if (currentEndpoint && visibleEndpoints.includes(currentEndpoint)) return;
+    setCurrentEndpoint(visibleEndpoints[0]);
+  }, [messages, currentEndpoint, hiddenEndpoints]);
 
   // -------------------------
   // SEND
@@ -231,7 +252,7 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     <TelemetryContext.Provider
       value={{
         getStatus,
-        messages,
+        messages: messages.filter(m => !hiddenEndpoints.has(m.endpoint)),
         roverStatus,
         currentEndpoint,
         setCurrentEndpoint,

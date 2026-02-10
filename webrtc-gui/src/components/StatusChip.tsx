@@ -7,9 +7,10 @@ interface StatusChipProps {
     label?: string;
     noDot?: boolean;
     compact?: boolean;
+    onClick?: () => void
 }
 
-const StatusChip: React.FC<StatusChipProps> = ({ color, label, noDot, compact }) => {
+const StatusChip: React.FC<StatusChipProps> = ({ color, label, noDot, onClick }) => {
     const statusColors = {
         success: 'bg-green-600',
         disabled: 'bg-gray-400',
@@ -18,7 +19,7 @@ const StatusChip: React.FC<StatusChipProps> = ({ color, label, noDot, compact })
     };
 
     return (
-        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${statusColors[color]}`}>
+        <div onClick={onClick} className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${statusColors[color]} cursor-${onClick ? "pointer" : "default"}`}>
             {!noDot && <div className="w-2 h-2 bg-white rounded-full"></div>}
             <span className="text-white text-sm font-medium">{label || color}</span>
         </div>

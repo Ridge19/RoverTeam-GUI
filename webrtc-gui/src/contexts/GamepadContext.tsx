@@ -21,6 +21,7 @@ export interface GamepadContextState {
   hasControl: ControlTarget;
   setHasControl: (target: ControlTarget) => void;
   hardwareStates: Record<string, HardwareState>;
+  hardwareControlAvailable: (hardware: string) => any;
 }
 
 // -------------------------
@@ -34,6 +35,7 @@ const GamepadContext = createContext<GamepadContextState>({
   hasControl: "none",
   setHasControl: () => {},
   hardwareStates: {},
+  hardwareControlAvailable: () => {}
 });
 
 // -------------------------
@@ -203,6 +205,7 @@ export const GamepadProvider = ({ children }: { children: ReactNode }) => {
         hasControl,
         setHasControl,
         hardwareStates,
+        hardwareControlAvailable
       }}
     >
       {children}

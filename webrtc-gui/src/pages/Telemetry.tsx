@@ -13,9 +13,27 @@ const TelemetryConsole: React.FC = () => {
   const consoleEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const [fade, setFade] = useState(false);
+  const [deferredEndpoint, setDeferredEndpoint] = useState<string | null>(currentEndpoint);
+
   // Auto-scroll toggle
   const [autoScroll, setAutoScroll] = useState(true);
   const consoleRef = useRef<HTMLDivElement>(null);
+
+  const prevEndpointRef = useRef<string | null>(currentEndpoint);
+  useEffect(() => {
+    if (prevEndpointRef.current !== null && prevEndpointRef.current !== currentEndpoint) {
+      // Trigger fade
+      setFade(true);
+
+      const timeout = setTimeout(() => {
+        setFade(false);
+      }, 150); // duration of fade out, you can adjust
+
+      return () => clearTimeout(timeout);
+    }
+    prevEndpointRef.current = currentEndpoint;
+  }, [currentEndpoint]);
 
   // Scroll to bottom when messages update
   useEffect(() => {
@@ -46,6 +64,20 @@ const TelemetryConsole: React.FC = () => {
     }
   };
 
+  const handleTabClick = (endpoint: string) => {
+    if (endpoint === currentEndpoint) return;
+
+    // Start fade out
+    setFade(true);
+
+    // After fade duration, switch tab and fade in
+    setTimeout(() => {
+      setDeferredEndpoint(endpoint);
+      setFade(false);
+      setCurrentEndpoint(endpoint);
+    }, 150); // match your CSS transition duration
+  };
+
   const statusMap: Record<string, StatusColor> = {
     idle: "disabled",
     connecting: "warning",
@@ -53,8 +85,8 @@ const TelemetryConsole: React.FC = () => {
     error: "error",
   };
 
-  const currentMessages = currentEndpoint
-    ? messages.find((m) => m.endpoint === currentEndpoint)?.data ?? []
+  const currentMessages = deferredEndpoint
+    ? messages.find((m) => m.endpoint === deferredEndpoint)?.data ?? []
     : [];
 
   const canSend =
@@ -73,6 +105,7 @@ const TelemetryConsole: React.FC = () => {
         boxSizing: "border-box",
       }}
     >
+      {messages.length === 0 ? <div style={styles.savedOverlay}>No available telemetry services</div> : <>
       {/* Tabs + Auto-Scroll Checkbox */}
       <div
         style={{
@@ -88,19 +121,19 @@ const TelemetryConsole: React.FC = () => {
           return (
             <button
               key={m.endpoint}
-              onClick={() => setCurrentEndpoint(m.endpoint)}
+              onClick={() => handleTabClick(m.endpoint)}
               style={{
                 padding: "6px 12px",
                 borderRadius: 16,
                 borderBottomLeftRadius: 0,
                 borderBottomRightRadius: 0,
                 border:
-                  currentEndpoint === m.endpoint
+                  deferredEndpoint === m.endpoint
                     ? "2px solid transparent"
                     : "2px solid #eee",
                 background:
-                  currentEndpoint === m.endpoint ? "#eee" : "#111",
-                color: currentEndpoint === m.endpoint ? "#111" : "#eee",
+                  deferredEndpoint === m.endpoint ? "#eee" : "#111",
+                color: deferredEndpoint === m.endpoint ? "#111" : "#eee",
                 cursor: "pointer",
                 fontFamily: "monospace",
                 display: "flex",
@@ -164,6 +197,8 @@ const TelemetryConsole: React.FC = () => {
           whiteSpace: "pre-wrap",
           fontSize: 16,
           lineHeight: "16px",
+          transition: "opacity 0.15s ease-in-out",
+          opacity: fade ? 0 : 1, // fade to black then back
         }}
       >
         <style>
@@ -259,9 +294,25 @@ const TelemetryConsole: React.FC = () => {
         >
           Send
         </button>
-      </div>
+      </div></>}
     </div>
   );
 };
+
+const styles = {savedOverlay: {
+  position: "absolute" as const,
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  color: "#fff",
+  fontSize: 24,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontWeight: "bold",
+  zIndex: 20,
+  pointerEvents: "none" as const
+}}
 
 export default TelemetryConsole;

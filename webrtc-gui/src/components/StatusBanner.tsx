@@ -1,37 +1,30 @@
-import { useGamepad } from "@/contexts/GamepadContext"
+import { useGamepad, ControlTarget } from "@/contexts/GamepadContext"
 import { ButtonHoldTooltip } from "./ButtonHoldTooltip"
+import React from "react"
+
+/* ---------- TYPES ---------- */
 
 type ControlState =
   | "active"
   | "idle"
   | "disabled"
+  | "unavailable"
 
 interface StatusBannerProps {
-  controlDevice: string
+  controlDevice: ControlTarget
   controlDeviceLabel: string
 }
 
 /* ---------- COLOR VARIANTS ---------- */
 
-const bannerVariants: Record<ControlState, {
-  stripeA: string
-  stripeB: string
-}> = {
-  active: {
-    stripeA: "#ff3636AA",
-    stripeB: "#e3e3e3AA",
-  },
-  idle: {
-    stripeA: "#89e582aa",
-    stripeB: "#e3e3e3AA",
-  },
-  disabled: {
-    stripeA: "#363636aa",
-    stripeB: "#e3e3e3AA",
-  }
+const bannerVariants: Record<ControlState, { stripeA: string; stripeB: string }> = {
+  active: { stripeA: "#ff3636AA", stripeB: "#e3e3e3AA" },
+  idle: { stripeA: "#89e582aa", stripeB: "#e3e3e3AA" },
+  disabled: { stripeA: "#363636aa", stripeB: "#e3e3e3AA" },
+  unavailable: { stripeA: "#555555aa", stripeB: "#e3e3e3AA" },
 }
 
-/* ---------- SHARED STYLES ---------- */
+/* ---------- STYLES ---------- */
 
 const containerBase: React.CSSProperties = {
   width: "calc(100% + 40px)",
@@ -61,8 +54,6 @@ const buttonStyle: React.CSSProperties = {
   marginRight: 5,
 }
 
-/* ---------- HELPERS ---------- */
-
 function stripeBackground(a: string, b: string) {
   return `repeating-linear-gradient(
     -45deg,
@@ -81,9 +72,14 @@ const StatusBanner: React.FC<StatusBannerProps> = ({
 }) => {
   const gamepad = useGamepad()
 
-  const state: ControlState =
-    gamepad.hasControl === controlDevice ? "active" :
-    gamepad.gamepadType === "none" ? "disabled" : "idle"
+  // Check if hardware is available
+  const { ok, error } = gamepad.hardwareControlAvailable?.(controlDevice) ?? { ok: false, error: "Controller must be connected" }
+
+  // Determine state
+  let state: ControlState = "disabled"
+  if (gamepad.hasControl === controlDevice) state = "active"
+  else if (!ok) state = "unavailable"
+  else if (gamepad.hasControl !== controlDevice) state = "idle"
 
   const colors = bannerVariants[state]
 
@@ -121,7 +117,7 @@ const StatusBanner: React.FC<StatusBannerProps> = ({
           </>
         ) : (
           <>
-            CONTROLLER MUST BE CONNECTED
+            {(error ?? "Controller must be connected").toUpperCase()}
           </>
         )}
       </div>
