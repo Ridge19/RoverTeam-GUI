@@ -8,29 +8,12 @@ import { ButtonTooltip } from "@/components/ButtonTooltip";
 import { ButtonHoldTooltip } from "@/components/ButtonHoldTooltip";
 import { useGamepad } from "@/contexts/GamepadContext";
 import { StatusBanner } from "@/components/StatusBanner";
+import { TooltipLabel } from "@/components/TooltipLabel";
+import { ActuatorStatus } from "@/components/ActuatorStatus";
 
 const ArmControl: React.FC = () => {
-  const Roverurl = useRoverUrl();
+
   const gamepad = useGamepad();
-
-  const columnWidth = `400px`;
-
-  // Hard-coded actuator degrees for demo (replace with real state later)
-  const [actuators] = useState([
-    { name: "J1", degree: 0 },
-    { name: "J2", degree: 0 },
-    { name: "J3", degree: 0 },
-    { name: "J4", degree: 0 },
-    { name: "J5", degree: 0 },
-    { name: "J6", degree: 0 },
-  ]);
-
-  const c1 = "#ff3636AA"
-  const c2 = "#e3e3e3AA"
-  const c3 = "#000000"
-  const c4 = "#FFFFFF"
-  const c5 = "#89e582aa"
-  const c6 = "#e3e3e3AA"
 
   return (
     <div style={{
@@ -90,7 +73,14 @@ const ArmControl: React.FC = () => {
       <ButtonTooltip buttonIndex={14}/>
       <ButtonTooltip buttonIndex={15}/>
 
+      <TooltipLabel label="Test Function"><ButtonTooltip size={32} buttonIndex={0}/></TooltipLabel>
+
     </div>
+
+    <ActuatorStatus name="J1" status="active" velocity={Math.abs(gamepad.axes[0]) > 0.1 ? -gamepad.axes[0]*10 : 0 || 0} maxVelocity={10}/>
+    <ActuatorStatus name="J2" status="active" velocity={Math.abs(gamepad.axes[1]) > 0.1 ? -gamepad.axes[1]*40 : 0 || 0} maxVelocity={40}/>
+    <ActuatorStatus name="J3" status="active" velocity={Math.abs(gamepad.axes[2]) > 0.1 ? -gamepad.axes[2]*80 : 0 || 0} maxVelocity={80}/>
+    <ActuatorStatus name="J4" status="active" velocity={Math.abs(gamepad.axes[3]) > 0.1 ? -gamepad.axes[3]*10 : 0 || 0} maxVelocity={10}/>
   
   </div>
 
