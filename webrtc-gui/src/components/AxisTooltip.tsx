@@ -1,5 +1,5 @@
 import React, { useEffect, useState, CSSProperties } from "react";
-import { useGamepad } from "@/contexts/GamepadContext";
+import { useGamepad } from "@/contexts/HardwareControl/useGamepad";
 
 interface AxisTooltipProps {
   xAxisIndex: number;       // index of horizontal axis

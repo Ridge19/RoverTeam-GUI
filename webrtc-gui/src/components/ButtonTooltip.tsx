@@ -1,5 +1,5 @@
 import React from "react";
-import { useGamepad, useButtonPress } from "@/contexts/GamepadContext";
+import { useGamepad, useButtonPress } from "@/contexts/HardwareControl/useGamepad";
 
 const ROOT = "inputprompts"
 

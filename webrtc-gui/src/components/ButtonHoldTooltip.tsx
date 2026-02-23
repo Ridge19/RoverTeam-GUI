@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useGamepad } from "@/contexts/GamepadContext";
+import { useGamepad } from "@/contexts/HardwareControl/useGamepad";
 import { ButtonTooltip } from "./ButtonTooltip";
 
 interface ButtonHoldTooltipProps {

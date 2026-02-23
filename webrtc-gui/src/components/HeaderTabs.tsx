@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ButtonTooltip } from "./ButtonTooltip";
-import { useButtonPress, useGamepad } from "@/contexts/GamepadContext";
+import { useButtonPress, useGamepad } from "@/contexts/HardwareControl/useGamepad";
 
 interface Tab {
   id: string;

@@ -1,4 +1,5 @@
-import { useGamepad, ControlTarget } from "@/contexts/GamepadContext"
+import { useGamepad } from "@/contexts/HardwareControl/useGamepad"
+import { ControlTarget } from "@/contexts/HardwareControl/types"
 import { ButtonHoldTooltip } from "./ButtonHoldTooltip"
 import React from "react"
 

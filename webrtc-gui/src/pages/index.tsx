@@ -4,7 +4,7 @@ import Cameras from "./Cameras";
 import ArmControl from "./ArmControl";
 import TelemetryConsole from "./Telemetry";
 import SystemVitals from "./SystemVitals";
-import { useGamepad } from "@/contexts/GamepadContext";
+import { useGamepad } from "@/contexts/HardwareControl/useGamepad";
 import SplashScreen from "@/components/SplashScreen";
 import { useEndpoints } from "@/contexts/EndpointContext";
 

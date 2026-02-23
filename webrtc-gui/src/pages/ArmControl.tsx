@@ -6,7 +6,7 @@ import { ControllerVisual } from "@/components/ControllerVisual";
 import { AxisTooltip } from "@/components/AxisTooltip";
 import { ButtonTooltip } from "@/components/ButtonTooltip";
 import { ButtonHoldTooltip } from "@/components/ButtonHoldTooltip";
-import { useGamepad } from "@/contexts/GamepadContext";
+import { useGamepad } from "@/contexts/HardwareControl/useGamepad";
 import { StatusBanner } from "@/components/StatusBanner";
 import { TooltipLabel } from "@/components/TooltipLabel";
 import { ActuatorStatus } from "@/components/ActuatorStatus";
