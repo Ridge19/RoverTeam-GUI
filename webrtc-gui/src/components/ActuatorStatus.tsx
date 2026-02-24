@@ -3,41 +3,50 @@ import React, { useEffect, useRef, useState } from 'react';
 interface ActuatorStatusProps {
     name: string;
     status: 'active' | 'inactive' | 'error';
-    velocity?: number; // RPM
-    maxVelocity?: number; // For scaling the velocity bar, default 100 RPM
+    velocity?: number; // deg/s
+    position?: number; // degrees
+    maxVelocity?: number; // For scaling the velocity bar, default 100 deg/s
 }
 
 const ActuatorStatus: React.FC<ActuatorStatusProps> = ({
     name,
     status,
     velocity = 0,
+    position,
     maxVelocity = 1
 }) => {
-    const [pos, setPos] = useState(0); // degrees, 0 = home position
+    const [pos, setPos] = useState(position ?? 0); // displayed position
 
     const velocityRef = useRef(velocity);
     const lastTimeRef = useRef<number | null>(null);
-    const posRef = useRef(0);
+    const posRef = useRef(position ?? 0);
 
     // Keep velocity updated without restarting loop
     useEffect(() => {
         velocityRef.current = velocity;
     }, [velocity]);
 
-    // Start animation loop once
+    // Update posRef if a new absolute position comes in
+    useEffect(() => {
+        if (position !== undefined) {
+            posRef.current = position;
+            setPos(position);
+        }
+    }, [position]);
+
+    // Animation loop for integrating velocity when position is unavailable
     useEffect(() => {
         let frameId: number;
 
         const update = (time: number) => {
             if (lastTimeRef.current !== null) {
-                // Convert ms → seconds
-                const dtSeconds = (time - lastTimeRef.current!) / 1000;
+                const dtSeconds = (time - lastTimeRef.current) / 1000;
 
-                // Integrate position in degrees
-                posRef.current += velocityRef.current * dtSeconds;
-
-                // Update React state
-                setPos(posRef.current);
+                // Only integrate if absolute position not provided
+                if (position === undefined) {
+                    posRef.current += velocityRef.current * dtSeconds;
+                    setPos(posRef.current);
+                }
             }
 
             lastTimeRef.current = time;
@@ -46,10 +55,10 @@ const ActuatorStatus: React.FC<ActuatorStatusProps> = ({
 
         frameId = requestAnimationFrame(update);
         return () => cancelAnimationFrame(frameId);
-    }, []);
+    }, [position]);
 
     const getVelocityStyle = () => {
-        const clamped = Math.min(Math.abs(velocity/maxVelocity), 1); // clamp for UI scaling
+        const clamped = Math.min(Math.abs(velocity / maxVelocity), 1); 
         const height = `${clamped * 50}%`;
         const isPositive = velocity >= 0;
 

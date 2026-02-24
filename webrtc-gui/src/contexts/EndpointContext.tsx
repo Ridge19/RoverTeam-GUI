@@ -17,8 +17,19 @@ export interface EndpointConfig {
 
 export const ENDPOINTS: EndpointConfig[] = [
   {
-    name: "Rover",
-    host: "http://rover.local",
+    name: "Equinox 1",
+    host: "http://equinox1.local",
+    priority: 1,
+    ports: [
+      //{ port: 3001 }, // Cameras
+      //{ port: 5005 }, // Telemetry
+      //{ port: 5001 }, // Drive
+      //{ port: 5003 }, // Payload Backend (Arm)
+    ],
+  },
+  {
+    name: "Equinox 2",
+    host: "http://equinox2.local",
     priority: 1,
     ports: [
       { port: 3001 }, // Cameras
@@ -28,14 +39,25 @@ export const ENDPOINTS: EndpointConfig[] = [
     ],
   },
   {
+    name: "Rover",
+    host: "http://rover.local",
+    priority: 1,
+    ports: [
+      //{ port: 3001 }, // Cameras
+      //{ port: 5005 }, // Telemetry
+      //{ port: 5001 }, // Drive
+      //{ port: 5003 }, // Payload Backend (Arm)
+    ],
+  },
+  {
     name: "Localhost",
     host: "http://localhost",
     priority: 2,
     ports: [
-      { port: 3001 },
+      //{ port: 3001 },
       { port: 5005 }, // Telemetry
-      { port: 5001 }, // Drive
-      { port: 5003 }, // Payload Backend (Arm)
+      //{ port: 5001 }, // Drive
+      //{ port: 5003 }, // Payload Backend (Arm)
     ],
   },
 ];

@@ -79,6 +79,18 @@ export const GamepadProvider = ({ children }: { children: ReactNode }) => {
       setButtons([]);
       setPressed([]);
       setAxes([]);
+
+      setHasControl(prev => {
+        if (prev !== "none") {
+          // mark hardware as not controlled
+          setHardwareStates(hwPrev => ({
+            ...hwPrev,
+            [prev]: { ...(hwPrev[prev] || {}), hasControl: false },
+          }));
+          return "none";
+        }
+        return prev;
+      });
     };
 
     window.addEventListener("gamepadconnected", connectHandler);
@@ -111,7 +123,7 @@ export const GamepadProvider = ({ children }: { children: ReactNode }) => {
   
         const socket = controlSockets.current[hasControl];
   
-        if (hasControl !== "none" && socket?.ws.readyState === WebSocket.OPEN) {
+        if (hasControl !== "none" && socket && socket.ws && socket?.ws.readyState === WebSocket.OPEN) {
           const buttonsChanged =
             prevButtons.current.length !== newButtons.length || newButtons.some((v, i) => v !== prevButtons.current[i]);
           const axesChanged =
@@ -199,19 +211,24 @@ export const GamepadProvider = ({ children }: { children: ReactNode }) => {
       if (!hw) {
         return { ok: false, error: "No such hardware tracked" };
       }
+
+      //Check if gamepad is connected
+      if (gamepadType === "none") {
+        return { ok: false, error: "No gamepad connected" };
+      }
   
       // If tracked, we consider it available
       if (!hw.ws) {
         return { ok: true, error: "WS not yet connected" };
       }
   
-      if (hw.ws.ws.readyState !== WebSocket.OPEN) {
+      if (hw.ws.ws !== null && hw.ws.ws.readyState !== WebSocket.OPEN) {
         return { ok: true, error: "WS not open" };
       }
   
       return { ok: true };
     },
-    [hardwareStates]
+    [hardwareStates, gamepadType]
   );
 
   return (

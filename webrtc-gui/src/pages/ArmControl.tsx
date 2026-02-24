@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRoverUrl } from "@/hooks/useRoverUrl";
 import { CameraFeed } from "@/components/CameraFeed";
 import { CAMERA_GRID } from "@/layout/cameraLayout";
@@ -10,10 +10,31 @@ import { useGamepad } from "@/contexts/HardwareControl/useGamepad";
 import { StatusBanner } from "@/components/StatusBanner";
 import { TooltipLabel } from "@/components/TooltipLabel";
 import { ActuatorStatus } from "@/components/ActuatorStatus";
+import { Camera, useCameraStreams } from "@/contexts/CameraStreamsContext";
 
 const ArmControl: React.FC = () => {
 
   const gamepad = useGamepad();
+
+  const { cameras, loading, fetchCameras } = useCameraStreams();
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Pre-fetch /cameras for all endpoints to ensure IDs are loaded
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCameras = async () => {
+      for (const cam of cameras) {
+        await fetchCameras(cam.endpoint.replace(`:${cam.port}`, ""), cam.port);
+      }
+    };
+
+    loadCameras();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cameras, fetchCameras]);
 
   return (
     <div style={{
@@ -24,14 +45,11 @@ const ArmControl: React.FC = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        flexDirection: "column"
+        flexDirection: "column",
+        gap: 20
     }}>
 
       <StatusBanner controlDevice="arm" controlDeviceLabel="Arm"/>          
-
-        Hello world! this is a controller input test :)
-
-              
 
       {/* Camera view */}
       <div
@@ -77,11 +95,18 @@ const ArmControl: React.FC = () => {
 
     </div>
 
-    <ActuatorStatus name="J1" status="active" velocity={Math.abs(gamepad.axes[0]) > 0.1 ? -gamepad.axes[0]*10 : 0 || 0} maxVelocity={10}/>
-    <ActuatorStatus name="J2" status="active" velocity={Math.abs(gamepad.axes[1]) > 0.1 ? -gamepad.axes[1]*40 : 0 || 0} maxVelocity={40}/>
-    <ActuatorStatus name="J3" status="active" velocity={Math.abs(gamepad.axes[2]) > 0.1 ? -gamepad.axes[2]*80 : 0 || 0} maxVelocity={80}/>
-    <ActuatorStatus name="J4" status="active" velocity={Math.abs(gamepad.axes[3]) > 0.1 ? -gamepad.axes[3]*10 : 0 || 0} maxVelocity={10}/>
-  
+    <div style={{display: "flex", flexDirection: "row", gap: 40}}>
+      <div className="flex flex-col gap-2">
+        <ActuatorStatus name="J1" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J1_vel"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J1_pos"] as number || 0} maxVelocity={500}/>
+        <ActuatorStatus name="J2" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J2_vel"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J2_pos"] as number || 0} maxVelocity={500}/>
+        <ActuatorStatus name="J3" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J3_vel"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J3_pos"] as number || 0} maxVelocity={500}/>
+      </div>
+      <div>
+        <ActuatorStatus name="J4" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J4_vel"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J4_pos"] as number || 0} maxVelocity={500}/>
+        <ActuatorStatus name="J5" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J5_vel"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J5_pos"] as number || 0} maxVelocity={500}/>
+        <ActuatorStatus name="J6" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J6_vel"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J6_pos"] as number || 0} maxVelocity={500}/>
+      </div>
+    </div> 
   </div>
 
       
