@@ -1,18 +1,24 @@
-import React, { createContext, useEffect, useState, useRef, useCallback, ReactNode } from "react";
+import React, {
+  createContext,
+  useEffect,
+  useState,
+  useRef,
+  ReactNode,
+  useCallback,
+} from "react";
 import { GamepadType, ControlTarget, HardwareState } from "./types";
 import { ControlSocketAdapter } from "./ControlSocketAdapter";
 import { gamepadMappings } from "./mapping";
 import { useEndpoints } from "@/contexts/EndpointContext";
 
-// AVAILABLE HARDWARE TYPES:
-const HARDWARE_TYPES: ControlTarget[] = [
-  "arm",
-  //"drive",
-  //"excavator",
-  //"science",
-  //"ptzcam"
-];
+// -------------------------
+// AVAILABLE HARDWARE TYPES
+// -------------------------
+const HARDWARE_TYPES: ControlTarget[] = ["arm"];
 
+// -------------------------
+// Context Interface
+// -------------------------
 interface GamepadContextState {
   gamepadType: GamepadType;
   buttons: number[];
@@ -21,9 +27,14 @@ interface GamepadContextState {
   hasControl: ControlTarget;
   setHasControl: (target: ControlTarget) => void;
   hardwareStates: Record<string, HardwareState>;
-  hardwareControlAvailable: (name: string) => { ok: boolean; ws?: ControlSocketAdapter; error?: string };
+  hardwareControlAvailable: (
+    name: string
+  ) => { ok: boolean; ws?: ControlSocketAdapter; error?: string };
 }
 
+// -------------------------
+// Context
+// -------------------------
 export const GamepadContext = createContext<GamepadContextState>({
   gamepadType: "none",
   buttons: [],
@@ -32,40 +43,65 @@ export const GamepadContext = createContext<GamepadContextState>({
   hasControl: "none",
   setHasControl: () => {},
   hardwareStates: {},
-  hardwareControlAvailable: () => ({ ok: false, error: "Not implemented" }),
+  hardwareControlAvailable: () => ({ ok: false }),
 });
 
+// -------------------------
+// Provider
+// -------------------------
 export const GamepadProvider = ({ children }: { children: ReactNode }) => {
   const { getEndpointsOfService } = useEndpoints();
 
+  // ---------- Stable endpoint ref ----------
+  const endpointsRef = useRef(getEndpointsOfService);
+  useEffect(() => {
+    endpointsRef.current = getEndpointsOfService;
+  }, [getEndpointsOfService]);
+
+  // ---------- State ----------
   const [gamepadType, setGamepadType] = useState<GamepadType>("none");
   const [gamepadIndex, setGamepadIndex] = useState<number | null>(null);
   const [buttons, setButtons] = useState<number[]>([]);
   const [pressed, setPressed] = useState<boolean[]>([]);
   const [axes, setAxes] = useState<number[]>([]);
   const [hasControl, setHasControl] = useState<ControlTarget>("none");
-  const [hardwareStates, setHardwareStates] = useState<Record<string, HardwareState>>({});
+  const [hardwareStates, setHardwareStates] = useState<
+    Record<string, HardwareState>
+  >({});
 
+  // ---------- Socket Registry ----------
   const controlSockets = useRef<Record<string, ControlSocketAdapter>>({});
 
   // -------------------------
-  // Detect gamepad type
+  // Initialize hardware state
   // -------------------------
   useEffect(() => {
-    setHardwareStates(prev => {
-      const next: Record<string, HardwareState> = { ...prev };
-      HARDWARE_TYPES.forEach(hw => {
+    setHardwareStates((prev) => {
+      const next = { ...prev };
+      HARDWARE_TYPES.forEach((hw) => {
         if (!next[hw]) {
-          next[hw] = { ws: null, hasControl: false, outputs: {}, error: null };
+          next[hw] = {
+            ws: null,
+            hasControl: false,
+            outputs: {},
+            error: null,
+          };
         }
       });
       return next;
     });
+  }, []);
 
+  // -------------------------
+  // Gamepad Detection
+  // -------------------------
+  useEffect(() => {
     const detectType = (id: string): GamepadType => {
       const lower = id.toLowerCase();
-      if (lower.includes("054c") || lower.includes("playstation") || lower.includes("ps")) return "ps";
-      if (lower.includes("045e") || lower.includes("xbox")) return "xbox";
+      if (lower.includes("054c") || lower.includes("playstation"))
+        return "ps";
+      if (lower.includes("045e") || lower.includes("xbox"))
+        return "xbox";
       return "other";
     };
 
@@ -73,28 +109,19 @@ export const GamepadProvider = ({ children }: { children: ReactNode }) => {
       setGamepadIndex(e.gamepad.index);
       setGamepadType(detectType(e.gamepad.id));
     };
+
     const disconnectHandler = () => {
       setGamepadType("none");
       setGamepadIndex(null);
       setButtons([]);
       setPressed([]);
       setAxes([]);
-
-      setHasControl(prev => {
-        if (prev !== "none") {
-          // mark hardware as not controlled
-          setHardwareStates(hwPrev => ({
-            ...hwPrev,
-            [prev]: { ...(hwPrev[prev] || {}), hasControl: false },
-          }));
-          return "none";
-        }
-        return prev;
-      });
+      setHasControl("none");
     };
 
     window.addEventListener("gamepadconnected", connectHandler);
     window.addEventListener("gamepaddisconnected", disconnectHandler);
+
     return () => {
       window.removeEventListener("gamepadconnected", connectHandler);
       window.removeEventListener("gamepaddisconnected", disconnectHandler);
@@ -102,131 +129,184 @@ export const GamepadProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   // -------------------------
-  // Poll gamepad and send input to active hardware
+  // Gamepad Poll Loop
   // -------------------------
   useEffect(() => {
-    const prevButtons = { current: [] as number[] };
-    const prevAxes = { current: [] as number[] };
     let animationFrame: number;
-  
-    const update = () => {
+
+    const prevButtons: number[] = [];
+    const prevAxes: number[] = [];
+
+    let lastSentTime = 0;
+    let lastSentPayload: string | null = null;
+
+    const SEND_INTERVAL = 100; // 10Hz
+
+    const update = (now: number) => {
       const pads = navigator.getGamepads();
-      const gp = gamepadIndex !== null ? pads[gamepadIndex] : pads.find(p => p != null) ?? null;
-  
+      const gp =
+        gamepadIndex !== null
+          ? pads[gamepadIndex]
+          : pads.find((p) => p != null) ?? null;
+
       if (gp) {
-        const newButtons = gp.buttons.map(b => b.value);
-        const newAxes = gp.axes.map(v => (Math.abs(v) < 0.05 ? 0 : v));
-  
+        const newButtons = gp.buttons.map((b) => b.value);
+        const newAxes = gp.axes.map((v) => (Math.abs(v) < 0.05 ? 0 : v));
+
         setButtons(newButtons);
-        setPressed(newButtons.map(v => v > 0.5));
+        setPressed(newButtons.map((v) => v > 0.5));
         setAxes(newAxes);
-  
+
         const socket = controlSockets.current[hasControl];
-  
-        if (hasControl !== "none" && socket && socket.ws && socket?.ws.readyState === WebSocket.OPEN) {
-          const buttonsChanged =
-            prevButtons.current.length !== newButtons.length || newButtons.some((v, i) => v !== prevButtons.current[i]);
-          const axesChanged =
-            prevAxes.current.length !== newAxes.length || newAxes.some((v, i) => v !== prevAxes.current[i]);
-  
-          if (buttonsChanged || axesChanged) {
+
+        if (hasControl !== "none" && socket?.ws?.readyState === WebSocket.OPEN) {
+          const inputChanged =
+            newButtons.some((v, i) => v !== prevButtons[i]) ||
+            newAxes.some((v, i) => v !== prevAxes[i]);
+
+          const timeElapsed = now - lastSentTime;
+
+          // ✅ Send if input changed OR interval elapsed
+          if (inputChanged || timeElapsed >= SEND_INTERVAL) {
             const mapper = gamepadMappings[hasControl];
             if (mapper) {
-              const payload = mapper(newAxes, newButtons);
-              socket.sendInput(payload);
+              const payloadObj = mapper(newAxes, newButtons);
+              const payload = JSON.stringify(payloadObj);
+
+              // Only send if different from last sent payload
+              if (payload !== lastSentPayload) {
+                // Prevent buffer flooding
+                if (socket.ws.bufferedAmount === 0) {
+                  socket.sendInput(payloadObj);
+                  lastSentPayload = payload;
+                  lastSentTime = now;
+                }
+              }
             }
-            prevButtons.current = newButtons;
-            prevAxes.current = newAxes;
           }
         }
+
+        // Always update previous state
+        prevButtons.splice(0, prevButtons.length, ...newButtons);
+        prevAxes.splice(0, prevAxes.length, ...newAxes);
       }
-  
+
       animationFrame = requestAnimationFrame(update);
     };
-  
-    update();
+
+    animationFrame = requestAnimationFrame(update);
     return () => cancelAnimationFrame(animationFrame);
   }, [gamepadIndex, hasControl]);
 
   // -------------------------
-  // Connect to hardware / ControlSocket
+  // Get or Create Stable Socket
   // -------------------------
-  const connectHardware = useCallback(
-    (name: string) => {
-      if (controlSockets.current[name]) return controlSockets.current[name];
+  const createSocket = (name: string) => {
+    const urls = endpointsRef.current(name);
+    if (!urls?.length) return null;
 
-      const urls = getEndpointsOfService(name);
-      if (!urls.length) return null;
-
-      const adapter = new ControlSocketAdapter(urls[0] + "/ws", (outputs: any) => {
-        setHardwareStates(prev => ({
+    const adapter = new ControlSocketAdapter(
+      urls[0] + "/ws",
+      (outputs: any) => {
+        setHardwareStates((prev) => ({
           ...prev,
           [name]: {
-            ...(prev[name] || { ws: adapter, hasControl: false, outputs: {}, error: null }),
+            ...(prev[name] || {}),
             outputs,
           },
         }));
-      });
+      }
+    );
 
-      controlSockets.current[name] = adapter;
-      setHardwareStates(prev => ({
+    adapter.connect();
+
+    adapter.ws!.onclose = () => {
+      console.warn("WS closed, forcing control release");
+
+      controlSockets.current[name] = undefined as any;
+
+      setHardwareStates((prev) => ({
         ...prev,
-        [name]: { ws: adapter, hasControl: false, outputs: {}, error: null },
+        [name]: {
+          ...(prev[name] || {}),
+          ws: null,
+          hasControl: false,
+          error: "Connection closed",
+        },
       }));
 
-      return adapter;
-    },
-    [getEndpointsOfService]
-  );
+      setHasControl("none");
+    };
+
+    controlSockets.current[name] = adapter;
+
+    setHardwareStates((prev) => ({
+      ...prev,
+      [name]: {
+        ws: adapter,
+        hasControl: true,
+        outputs: {},
+        error: null,
+      },
+    }));
+
+    return adapter;
+  };
 
   // -------------------------
-  // Update hasControl
+  // Handle hasControl changes
   // -------------------------
   useEffect(() => {
     if (hasControl === "none") return;
 
-    const socket = connectHardware(hasControl);
-    if (!socket) {
-      setHardwareStates(prev => ({
-        ...prev,
-        [hasControl]: { ws: null, hasControl: false, outputs: {}, error: "No endpoint" },
-      }));
-      setHasControl("none");
-      return;
+    const existing = controlSockets.current[hasControl];
+
+    if (existing) {
+      return; // already connected
     }
 
-    setHardwareStates(prev => ({
-      ...prev,
-      [hasControl]: { ...(prev[hasControl] || {}), hasControl: true, error: null },
-    }));
-  }, [hasControl, connectHardware]);
+    const socket = createSocket(hasControl);
+
+    if (!socket) {
+      setHasControl("none");
+    }
+  }, [hasControl]);
 
   // -------------------------
-  // hardwareControlAvailable
+  // Cleanup on unmount
+  // -------------------------
+  useEffect(() => {
+    return () => {
+      Object.values(controlSockets.current).forEach((s) =>
+        s.close()
+      );
+      controlSockets.current = {};
+    };
+  }, []);
+
+  // -------------------------
+  // Availability Check
   // -------------------------
   const hardwareControlAvailable = useCallback(
-    (name: string): { ok: boolean; error?: string } => {
-      const hw = hardwareStates[name];
-  
-      if (!hw) {
-        return { ok: false, error: "No such hardware tracked" };
+    (name: string) => {
+      if (gamepadType === "none") {
+        return { ok: false, error: "No controller connected" };
       }
 
-      //Check if gamepad is connected
-      if (gamepadType === "none") {
-        return { ok: false, error: "No gamepad connected" };
+      const hw = hardwareStates[name];
+
+      // ✅ If we already have an active WS, that's the source of truth
+      if (hw?.ws?.ws?.readyState === WebSocket.OPEN) {
+        return { ok: true, ws: hw.ws };
       }
-  
-      // If tracked, we consider it available
-      if (!hw.ws) {
-        return { ok: true, error: "WS not yet connected" };
+
+      // Only check endpoints if NOT connected
+      const urls = endpointsRef.current(name);
+      if (!urls?.length) {
+        return { ok: false, error: "No endpoint available" };
       }
-  
-      if (hw.ws.ws !== null && hw.ws.ws.readyState !== WebSocket.OPEN) {
-        return { ok: true, error: "WS not open" };
-      }
-  
-      return { ok: true };
+
+      return { ok: true, error: "No WS active" };
     },
     [hardwareStates, gamepadType]
   );

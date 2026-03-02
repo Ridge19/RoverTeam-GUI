@@ -7,10 +7,10 @@ import { GamepadInputMapping } from "../types";
 // -------------------------
 
 const DEADZONE = 0.1;
-const MAX_VELOCITY = 200; // Max velocity in deg/s for the arm joints. Actuators support up to 500 deg/s.
+const MAX_VELOCITY = 10; // Max velocity in deg/s for the arm joints. Actuators support up to 500 deg/s.
 const MAX_ANGULAR = 10; // Overall sensitivity multiplier for the controls
-const SCALE_VELOCITY = 1000.0; // Additional scaling factor for velocity (can be adjusted for sensitivity)
-const SCALE_ANGULAR = 1000.0; // Additional scaling factor for angular controls
+const SCALE_VELOCITY = 1.0; // Additional scaling factor for velocity (can be adjusted for sensitivity)
+const SCALE_ANGULAR = 120.0; // Additional scaling factor for angular velocity (can be adjusted for sensitivity)
 
 // -------------------------
 // Helpers
@@ -45,13 +45,10 @@ export function mapGamepadToArmInputs(
 ): GamepadInputMapping {
   const targets: Record<string, number> = {};
 
-  targets["yaw"] = applyDeadzone(axes[2] ?? 0) * MAX_ANGULAR * SCALE_ANGULAR;
-  targets["pitch"] = applyDeadzone(axes[3] ?? 0) * MAX_ANGULAR * SCALE_ANGULAR;
-  targets["roll"] = -applyDeadzone((buttons[4] ?? 0) - (buttons[5] ?? 0)) * MAX_ANGULAR * SCALE_ANGULAR;
-
-  targets["x"] = -applyDeadzone((buttons[6] ?? 0) - (buttons[7] ?? 0)) * MAX_VELOCITY * SCALE_VELOCITY;
-  targets["y"] = applyDeadzone(axes[0] ?? 0) * MAX_VELOCITY * SCALE_VELOCITY;
-  targets["z"] = applyDeadzone(axes[1] ?? 0) * MAX_VELOCITY * SCALE_VELOCITY;
+  targets["J3"] = applyDeadzone(axes[1] ?? 0) * 10 * 10;
+  targets["J4"] = applyDeadzone(axes[3] ?? 0) * 10 * 120;
+  targets["J5"] = applyDeadzone(axes[2] ?? 0) * 10 * 10;
+  targets["J6"] = applyDeadzone((buttons[6] ?? 0) - (buttons[7] ?? 0)) * 10 * 10;
 
   return targets;
 }

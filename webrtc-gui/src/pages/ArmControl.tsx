@@ -106,6 +106,14 @@ const ArmControl: React.FC = () => {
         <ActuatorStatus name="J5" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J5_vel"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J5_pos"] as number || 0} maxVelocity={500}/>
         <ActuatorStatus name="J6" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J6_vel"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J6_pos"] as number || 0} maxVelocity={500}/>
       </div>
+      <div>
+        <div>{gamepad.hardwareStates.arm?.outputs?.["pitch_pos"]}</div>
+        <div>{gamepad.hardwareStates.arm?.outputs?.["yaw_pos"]}</div>
+        <div>{gamepad.hardwareStates.arm?.outputs?.["roll_pos"]}</div>
+        <div>{gamepad.hardwareStates.arm?.outputs?.["x_pos"]}</div>
+        <div>{gamepad.hardwareStates.arm?.outputs?.["y_pos"]}</div>
+        <div>{gamepad.hardwareStates.arm?.outputs?.["z_pos"]}</div>
+      </div>
     </div> 
   </div>
 
