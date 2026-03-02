@@ -18,7 +18,7 @@ export interface EndpointConfig {
 export const ENDPOINTS: EndpointConfig[] = [
   {
     name: "Equinox 1",
-    host: "http://equinox1.local",
+    host: "http://Equinox1.local",
     priority: 1,
     ports: [
       //{ port: 3001 }, // Cameras
@@ -29,7 +29,7 @@ export const ENDPOINTS: EndpointConfig[] = [
   },
   {
     name: "Equinox 2",
-    //host: "http://equinox2.local",
+    //host: "http://Equinox2.local",
     host: "http://192.168.40.2",
     priority: 1,
     ports: [
@@ -56,7 +56,7 @@ export const ENDPOINTS: EndpointConfig[] = [
     priority: 2,
     ports: [
       //{ port: 3001 },
-      { port: 5005 }, // Telemetry
+      //{ port: 5005 }, // Telemetry
       //{ port: 5001 }, // Drive
       //{ port: 5003 }, // Payload Backend (Arm)
     ],
