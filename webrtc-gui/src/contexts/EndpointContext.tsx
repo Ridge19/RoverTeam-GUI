@@ -31,6 +31,7 @@ export const ENDPOINTS: EndpointConfig[] = [
       //{ port: 5005 }, // Telemetry
       //{ port: 5001 }, // Drive
       //{ port: 5003 }, // Payload Backend (Arm)
+      //{ port: 5000 }, // PDB
     ],
   },
   {
@@ -43,6 +44,7 @@ export const ENDPOINTS: EndpointConfig[] = [
       { port: 5005 }, // Telemetry
       { port: 5001 }, // Drive
       { port: 5003 }, // Payload Backend (Arm)
+      { port: 5000 }, // PDB
     ],
   },
   {
@@ -54,6 +56,7 @@ export const ENDPOINTS: EndpointConfig[] = [
       //{ port: 5005 }, // Telemetry
       //{ port: 5001 }, // Drive
       //{ port: 5003 }, // Payload Backend (Arm)
+      //{ port: 5000 }, // PDB
     ],
   },
   {
@@ -65,6 +68,7 @@ export const ENDPOINTS: EndpointConfig[] = [
       { port: 5005 }, // Telemetry
       { port: 5001 }, // Drive
       { port: 5003 }, // Payload Backend (Arm)
+      { port: 5000 }, // PDB
     ],
   },
 ];
