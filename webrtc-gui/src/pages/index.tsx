@@ -7,12 +7,12 @@ import SystemVitals from "./SystemVitals";
 import { useGamepad } from "@/contexts/HardwareControl/useGamepad";
 import SplashScreen from "@/components/SplashScreen";
 import { useEndpoints } from "@/contexts/EndpointContext";
-
+import PDB from "./PDB";
 const IndexPage: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState("cameras");
   const [loading, setLoading] = React.useState(true);
   const gamepad = useGamepad();
-  const endpoints = useEndpoints()
+  const endpoints = useEndpoints();
 
   React.useEffect(() => {
     const ready = () => setLoading(false);
@@ -20,36 +20,41 @@ const IndexPage: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    const off = endpoints.onEvent(e => {
+    const off = endpoints.onEvent((e) => {
       if (e.type === "scan-complete") {
-        setLoading(false)
+        setLoading(false);
       }
     });
     return off;
   }, []);
 
   const onChange = (page: string) => {
-    if(gamepad.hasControl!="none") return;
-    setActiveTab(page)
-  }
+    if (gamepad.hasControl != "none") return;
+    setActiveTab(page);
+  };
 
-  return (<>
-    <SplashScreen visible={loading} />
-    <main style={{
-      display: "flex",
-      flexDirection: "column",
-      height: "100vh",
-      overflow: "hidden",
-      background: "#111",
-      color: "#EEE"
-    }}>
-      <Header activeTab={activeTab} setActiveTab={onChange} />
-      {activeTab === "cameras" && <Cameras />}
-      {activeTab === "arm" && <ArmControl/>}
-      {activeTab === "telemetry" && <TelemetryConsole/>}
-      {activeTab === "vitals" && <SystemVitals/>}
-    </main>
-  </>);
+  return (
+    <>
+      <SplashScreen visible={loading} />
+      <main
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          overflow: "hidden",
+          background: "#111",
+          color: "#EEE",
+        }}
+      >
+        <Header activeTab={activeTab} setActiveTab={onChange} />
+        {activeTab === "cameras" && <Cameras />}
+        {activeTab === "arm" && <ArmControl />}
+        {activeTab === "telemetry" && <TelemetryConsole />}
+        {activeTab === "vitals" && <SystemVitals />}
+        {activeTab === "pdb" && <PDB />}
+      </main>
+    </>
+  );
 };
 
 export default IndexPage;

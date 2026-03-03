@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 /* ================= CONFIG ================= */
 
@@ -55,10 +61,10 @@ export const ENDPOINTS: EndpointConfig[] = [
     host: "http://localhost",
     priority: 2,
     ports: [
-      //{ port: 3001 },
-      //{ port: 5005 }, // Telemetry
-      //{ port: 5001 }, // Drive
-      //{ port: 5003 }, // Payload Backend (Arm)
+      { port: 3001 },
+      { port: 5005 }, // Telemetry
+      { port: 5001 }, // Drive
+      { port: 5003 }, // Payload Backend (Arm)
     ],
   },
 ];
@@ -126,12 +132,13 @@ export function EndpointProvider({ children }: { children: React.ReactNode }) {
   const [selected, setSelected] = useState<EndpointState[]>([]);
   const handlers = useRef<((e: EndpointEvent) => void)[]>([]);
 
-  const emit = (e: EndpointEvent) => setTimeout(()=>handlers.current.forEach(h => h(e)))
+  const emit = (e: EndpointEvent) =>
+    setTimeout(() => handlers.current.forEach((h) => h(e)));
 
   const onEvent = (handler: (e: EndpointEvent) => void) => {
     handlers.current.push(handler);
     return () => {
-      handlers.current = handlers.current.filter(h => h !== handler);
+      handlers.current = handlers.current.filter((h) => h !== handler);
     };
   };
 
@@ -142,14 +149,14 @@ export function EndpointProvider({ children }: { children: React.ReactNode }) {
 
     for (const ep of sorted) {
       const ports: PortState[] = await Promise.all(
-        ep.ports.map(async p => {
+        ep.ports.map(async (p) => {
           const service = await ping(`${ep.host}:${p.port}`);
           return {
             ...p,
             status: service !== "offline" ? "online" : "offline",
             service: service !== "offline" ? service : undefined,
           };
-        })
+        }),
       );
 
       results.push({
@@ -160,10 +167,10 @@ export function EndpointProvider({ children }: { children: React.ReactNode }) {
       });
     }
 
-    setEndpoints(prev => {
-      results.forEach(r => {
-        const old = prev.find(p => p.host === r.host);
-        if (!old && r.ports.some(p => p.status === "online")) {
+    setEndpoints((prev) => {
+      results.forEach((r) => {
+        const old = prev.find((p) => p.host === r.host);
+        if (!old && r.ports.some((p) => p.status === "online")) {
           emit({ type: "endpoint-available", endpoint: r });
           emit({ type: "auto-connected", endpoint: r });
         }
@@ -171,7 +178,9 @@ export function EndpointProvider({ children }: { children: React.ReactNode }) {
       return results;
     });
 
-    const available = results.filter(e => e.ports.some(p => p.status === "online"));
+    const available = results.filter((e) =>
+      e.ports.some((p) => p.status === "online"),
+    );
     setSelected(available);
 
     emit({ type: "scan-complete" });
@@ -186,10 +195,10 @@ export function EndpointProvider({ children }: { children: React.ReactNode }) {
   /* ================== NEW: getEndpointsOfService ================== */
   const getEndpointsOfService = (service: string): string[] => {
     const urls: string[] = [];
-    endpoints.forEach(ep => {
+    endpoints.forEach((ep) => {
       ep.ports
-        .filter(p => p.status === "online" && p.service === service)
-        .forEach(p => urls.push(`${ep.host}:${p.port}`));
+        .filter((p) => p.status === "online" && p.service === service)
+        .forEach((p) => urls.push(`${ep.host}:${p.port}`));
     });
     return urls;
   };
