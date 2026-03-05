@@ -7,7 +7,7 @@ interface CameraFeedProps {
   camera: Camera;
 }
 
-export const CameraFeed: React.FC<CameraFeedProps> = ({ camera }) => {
+export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({ camera, children }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const { getStream, getStatus, getError, start } = useCameraStreams();
 
@@ -129,6 +129,13 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ camera }) => {
         )}
 
         <video ref={videoRef} autoPlay playsInline muted style={styles.video} />
+
+        <div style={{
+          position: "absolute",
+          top: 0, left: 0,
+          width: "100%",
+          height: "100%",
+        }}>{children}</div>
       </div>
 
       {/* Footer */}
