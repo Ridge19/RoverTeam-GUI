@@ -118,7 +118,6 @@ const DriveControl: React.FC = () => {
               top: "50%",
               left: "50%",
               width: "40%",
-              height: "20%",
               transform: "translate(-50%, -50%)",
               background: "#222222EE",
               border: "2px solid white",
