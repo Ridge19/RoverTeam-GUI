@@ -100,19 +100,66 @@ const DriveControl: React.FC = () => {
               </div>
             </Modal>
           </div>
-          <div style={{flex: 1}}>
-            {/* 2x2 grid */}
+          <div style={{ flex: 1, position: "relative" }}>
+            <img
+              src="/diagrams/eq-top.png"
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                filter: "saturate(0) brightness(2)",
+              }}
+            />
+
             <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(2, 1fr)",
-              gridTemplateRows: "repeat(2, 1fr)",
-              gap: 10,
-              height: "100%",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: "40%",
+              height: "20%",
+              transform: "translate(-50%, -50%)",
+              background: "#222222EE",
+              border: "2px solid white",
+              borderRadius: 10,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 20,
+              paddingBottom: 10,
             }}>
-              {/*<ActuatorStatus/>
-              <ActuatorStatus/>
-              <ActuatorStatus/>
-              <ActuatorStatus/>*/}
+              <div>Torque Differential:</div>
+              <div style={{
+                flex: 1,
+                color: "#ff9100",
+                textShadow: "0 0 10px #fab861",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}>LOCKED</div>
+              <div style={{fontSize: 14}}>
+                <TooltipLabel label="Unlock Differential (Hold)">
+                  <ButtonHoldTooltip buttonIndex={0} holdDuration={0.5} onComplete={()=>{}} size={32}></ButtonHoldTooltip>
+                </TooltipLabel>
+              </div>
+            </div>
+
+            <div
+              style={{
+                position: "relative",
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 1fr)",
+                gridTemplateRows: "repeat(2, 1fr)",
+                gap: 0,
+                height: "100%",
+              }}
+            >
+              <div style={{padding: 20, display: "flex", alignItems: "flex-start", justifyContent: "left"}}><ActuatorStatus name="FL" status="inactive"/></div>
+              <div style={{padding: 20, display: "flex", alignItems: "flex-start", justifyContent: "right"}}><ActuatorStatus name="FR" status="active"/></div>
+              <div style={{padding: 20, display: "flex", alignItems: "flex-end", justifyContent: "left"}}><ActuatorStatus name="RL" status="error"/></div>
+              <div style={{padding: 20, display: "flex", alignItems: "flex-end", justifyContent: "right"}}><ActuatorStatus name="RR" status="active"/></div>
             </div>
           </div>
         </div>
@@ -209,13 +256,13 @@ const DriveControl: React.FC = () => {
             alignItems: "center",
             justifyContent: "center",
           }}>
-            <div style={{flex: 1, width: "100%"}}>
+            <div style={{flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center"}}>
               <AngleView label="PITCH" angle={gamepad.axes[1] * 90} imageUrl="diagrams/eq-side.png"/>
             </div>
-            <div style={{flex: 1, width: "100%"}}>
+            <div style={{flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center"}}>
               <AngleView label="ROLL" angle={gamepad.axes[0] * 90} imageUrl="diagrams/eq-back.png"/>
             </div>
-            <div style={{flex: 1, width: "100%"}}>
+            <div style={{flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center"}}>
               <AngleView label="YAW" angle={gamepad.axes[2] * 180} imageUrl="diagrams/eq-top.png"/>
             </div>
           </div>
