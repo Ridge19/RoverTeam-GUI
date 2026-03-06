@@ -78,7 +78,7 @@ const DriveControl: React.FC = () => {
               </div>
             </TooltipLabel>
 
-            <TooltipLabel label="Tourque Mode (Hold)">
+            <TooltipLabel label="Torque Mode (Hold)">
               <div className="mr-1">
                 <ButtonHoldTooltip buttonIndex={9} holdDuration={3} onComplete={()=>{
                   setWarningModal(true)
