@@ -76,6 +76,22 @@ const PDBService = {
 
     return true;
   },
+  async estop(
+    currentEndpoint: string,
+    getEndpointsOfService: (s: string) => string[],
+  ) {
+    const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
+
+    const response = await fetch(
+      `${baseUrl}/bms/estop`,
+      {
+        method: "POST",
+      },
+    );
+
+    if (!response.ok) throw new Error(`PDB Error: ${response.statusText}`);
+    return response.json();
+  }
 };
 
 export default PDBService;

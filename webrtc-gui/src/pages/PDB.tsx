@@ -1,6 +1,7 @@
 import React from "react";
 import { useTelemetryContext } from "@/contexts/TelemetryContext";
 import ChannelRow from "@/components/pdb/ChannelRow";
+import EstopButton from "@/components/pdb/EStop";
 function formatValue(value: number, unit: "V" | "A" | "W") {
   if (value === undefined || value === null) return "-";
   return value < 1
@@ -150,6 +151,7 @@ const PDB = () => {
           </div>
         </div>
       </div>
+      <EstopButton />
     </div>
   );
 };
