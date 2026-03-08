@@ -14,10 +14,27 @@ import { Camera, useCameraStreams } from "@/contexts/CameraStreamsContext";
 import AngleView from "@/components/AngleView";
 import { AircraftHUD } from "@/components/AircraftHUD";
 import { Modal } from "@/components/Modal";
+import { useTelemetryContext } from "@/contexts/TelemetryContext";
+
+/*
+{
+  "type": "imu_data",
+  "data":{
+      "gyro":{"p":0, "y":0, "r":0},
+      "vel":{"x":0,"y":0,"z":0}
+  }
+}
+
+*/
+
 
 const DriveControl: React.FC = () => {
 
   const gamepad = useGamepad();
+
+  // Telemetry Access
+  const { roverStatus } = useTelemetryContext();
+  const imuData = roverStatus.find((s) => s.data.imu_data)?.data;
 
   const { cameras, loading, fetchCameras } = useCameraStreams();
   const [refreshing, setRefreshing] = useState(false);
@@ -48,7 +65,7 @@ const DriveControl: React.FC = () => {
       display: "flex",
       flexDirection: "column",
     }}>
-      <StatusBanner controlDevice="drive" controlDeviceLabel="Drive"/>
+      <StatusBanner controlDevice="drive" controlDeviceLabel="Drive" />
       <div style={{
         display: "flex",
         flexDirection: "row",
@@ -74,13 +91,13 @@ const DriveControl: React.FC = () => {
 
             <TooltipLabel label="Clear Errors (Hold)">
               <div className="mr-1">
-                <ButtonHoldTooltip buttonIndex={2} holdDuration={1} onComplete={()=>{}} size={50}></ButtonHoldTooltip>
+                <ButtonHoldTooltip buttonIndex={2} holdDuration={1} onComplete={() => { }} size={50}></ButtonHoldTooltip>
               </div>
             </TooltipLabel>
 
             <TooltipLabel label="Torque Mode (Hold)">
               <div className="mr-1">
-                <ButtonHoldTooltip buttonIndex={9} holdDuration={3} onComplete={()=>{
+                <ButtonHoldTooltip buttonIndex={9} holdDuration={3} onComplete={() => {
                   setWarningModal(true)
                 }} size={50}></ButtonHoldTooltip>
               </div>
@@ -88,7 +105,7 @@ const DriveControl: React.FC = () => {
 
             <Modal
               open={warningModal}
-              onClose={()=>{
+              onClose={() => {
                 setWarningModal(false);
               }}
               title="ENABLE TORQUE MODE?"
@@ -138,9 +155,9 @@ const DriveControl: React.FC = () => {
                 alignItems: "center",
                 justifyContent: "center",
               }}>LOCKED</div>
-              <div style={{fontSize: 14}}>
+              <div style={{ fontSize: 14 }}>
                 <TooltipLabel label="Unlock Differential (Hold)">
-                  <ButtonHoldTooltip buttonIndex={0} holdDuration={0.5} onComplete={()=>{}} size={32}></ButtonHoldTooltip>
+                  <ButtonHoldTooltip buttonIndex={0} holdDuration={0.5} onComplete={() => { }} size={32}></ButtonHoldTooltip>
                 </TooltipLabel>
               </div>
             </div>
@@ -155,10 +172,10 @@ const DriveControl: React.FC = () => {
                 height: "100%",
               }}
             >
-              <div style={{padding: 20, display: "flex", alignItems: "flex-start", justifyContent: "left"}}><ActuatorStatus name="FL" status="inactive"/></div>
-              <div style={{padding: 20, display: "flex", alignItems: "flex-start", justifyContent: "right"}}><ActuatorStatus name="FR" status="active"/></div>
-              <div style={{padding: 20, display: "flex", alignItems: "flex-end", justifyContent: "left"}}><ActuatorStatus name="RL" status="error"/></div>
-              <div style={{padding: 20, display: "flex", alignItems: "flex-end", justifyContent: "right"}}><ActuatorStatus name="RR" status="active"/></div>
+              <div style={{ padding: 20, display: "flex", alignItems: "flex-start", justifyContent: "left" }}><ActuatorStatus name="FL" status="inactive" /></div>
+              <div style={{ padding: 20, display: "flex", alignItems: "flex-start", justifyContent: "right" }}><ActuatorStatus name="FR" status="active" /></div>
+              <div style={{ padding: 20, display: "flex", alignItems: "flex-end", justifyContent: "left" }}><ActuatorStatus name="RL" status="error" /></div>
+              <div style={{ padding: 20, display: "flex", alignItems: "flex-end", justifyContent: "right" }}><ActuatorStatus name="RR" status="active" /></div>
             </div>
           </div>
         </div>
@@ -173,7 +190,7 @@ const DriveControl: React.FC = () => {
             flexDirection: "column",
           }}>
             <div style={{
-              flex:1,
+              flex: 1,
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
@@ -195,7 +212,7 @@ const DriveControl: React.FC = () => {
                   fontSize: 80,
                   letterSpacing: 20,
                 }}>
-                  <div style={{color: "#222"}}>88888
+                  <div style={{ color: "#222" }}>88888
                     <div style={{
                       position: "absolute",
                       top: 0, left: 0,
@@ -246,7 +263,7 @@ const DriveControl: React.FC = () => {
                 <AircraftHUD pitch={-gamepad.axes[1] * 90} roll={-gamepad.axes[0] * 90} />
               </CameraFeed>}
             </div>
-            
+
           </div>
           <div style={{
             flex: "30%",
@@ -255,19 +272,19 @@ const DriveControl: React.FC = () => {
             alignItems: "center",
             justifyContent: "center",
           }}>
-            <div style={{flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center"}}>
-              <AngleView label="PITCH" angle={gamepad.axes[1] * 90} imageUrl="diagrams/eq-side.png"/>
+            <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <AngleView label="PITCH" angle={imuData.gyro.p * 90} imageUrl="diagrams/eq-side.png" />
             </div>
-            <div style={{flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center"}}>
-              <AngleView label="ROLL" angle={gamepad.axes[0] * 90} imageUrl="diagrams/eq-back.png"/>
+            <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <AngleView label="ROLL" angle={imuData.gyro.r * 90} imageUrl="diagrams/eq-back.png" />
             </div>
-            <div style={{flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center"}}>
-              <AngleView label="YAW" angle={gamepad.axes[2] * 180} imageUrl="diagrams/eq-top.png"/>
+            <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <AngleView label="YAW" angle={imuData.gyro.y * 180} imageUrl="diagrams/eq-top.png" />
             </div>
           </div>
         </div>
       </div>
-    </div>          
+    </div>
   );
 };
 
