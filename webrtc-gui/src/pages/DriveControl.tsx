@@ -264,7 +264,7 @@ const DriveControl: React.FC = () => {
               flex: 1
             }}>
               {cameras[0] && <CameraFeed camera={cameras[0]}>
-                <AircraftHUD pitch={-gamepad.axes[1] * 90} roll={-gamepad.axes[0] * 90} />
+                <AircraftHUD pitch={-imuData.imu_data.gyro.p} roll={-imuData.imu_data.gyro.r} />
               </CameraFeed>}
             </div>
 
@@ -279,13 +279,13 @@ const DriveControl: React.FC = () => {
             {imuData &&
               <>
                 <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <AngleView label="PITCH" angle={imuData.imu_data.gyro.p * 90} imageUrl="diagrams/eq-side.png" />
+                  <AngleView label="PITCH" angle={-imuData.imu_data.gyro.p} imageUrl="diagrams/eq-side.png" />
                 </div>
                 <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <AngleView label="ROLL" angle={imuData.imu_data.gyro.r * 90} imageUrl="diagrams/eq-back.png" />
+                  <AngleView label="ROLL" angle={imuData.imu_data.gyro.r } imageUrl="diagrams/eq-back.png" />
                 </div>
                 <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <AngleView label="YAW" angle={imuData.imu_data.gyro.y * 180} imageUrl="diagrams/eq-top.png" />
+                  <AngleView label="YAW" angle={imuData.imu_data.gyro.y } imageUrl="diagrams/eq-top.png" />
                 </div>
               </>
             }
