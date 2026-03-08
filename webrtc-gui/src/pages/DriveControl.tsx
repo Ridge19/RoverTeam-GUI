@@ -41,6 +41,10 @@ const DriveControl: React.FC = () => {
 
   const [warningModal, setWarningModal] = useState<boolean>(false);
 
+  useEffect(() => {
+    console.log(imuData)
+  }, [imuData])
+  
   // Pre-fetch /cameras for all endpoints to ensure IDs are loaded
   useEffect(() => {
     let cancelled = false;
@@ -272,15 +276,19 @@ const DriveControl: React.FC = () => {
             alignItems: "center",
             justifyContent: "center",
           }}>
-            <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <AngleView label="PITCH" angle={imuData.gyro.p * 90} imageUrl="diagrams/eq-side.png" />
-            </div>
-            <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <AngleView label="ROLL" angle={imuData.gyro.r * 90} imageUrl="diagrams/eq-back.png" />
-            </div>
-            <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <AngleView label="YAW" angle={imuData.gyro.y * 180} imageUrl="diagrams/eq-top.png" />
-            </div>
+            {imuData &&
+              <>
+                <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <AngleView label="PITCH" angle={imuData.imu_data.gyro.p * 90} imageUrl="diagrams/eq-side.png" />
+                </div>
+                <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <AngleView label="ROLL" angle={imuData.imu_data.gyro.r * 90} imageUrl="diagrams/eq-back.png" />
+                </div>
+                <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <AngleView label="YAW" angle={imuData.imu_data.gyro.y * 180} imageUrl="diagrams/eq-top.png" />
+                </div>
+              </>
+            }
           </div>
         </div>
       </div>
