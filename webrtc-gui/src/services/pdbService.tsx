@@ -91,6 +91,21 @@ const PDBService = {
 
     if (!response.ok) throw new Error(`PDB Error: ${response.statusText}`);
     return response.json();
+  },
+
+  async setInterval(
+    currentEndpoint: string,
+    getEndpointsOfService: (s: string) => string[],
+    interval: number,
+  ) {
+    const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
+    
+    const response = await fetch(`${baseUrl}/can/polling/${interval}`, {
+      method: "POST",
+    });
+
+    if (!response.ok) throw new Error(`PDB Error: ${response.statusText}`);
+    return response.json();
   }
 };
 
