@@ -1,18 +1,27 @@
-import React from "react";
+import React, { memo } from "react";
+import { useTelemetryContext } from "@/contexts/TelemetryContext";
 
 interface AngleViewProps {
-  angle?: number;
+  axis?: "" | "p" | "r" | "y";
   label?: string;
   size?: number;
   imageUrl?: string; // optional image to display in center
 }
 
-export default function AngleView({
-  angle = 45,
+const AngleView = memo(({
+  axis = "",
   label = "ANGLE",
   size = 200,
   imageUrl,
-}: AngleViewProps) {
+}: AngleViewProps) => {
+  // Telemetry Access
+  const { roverStatus } = useTelemetryContext();
+  const imuData = roverStatus.find((s) => s.data.imu_data)?.data;
+
+  if (axis == "" || !imuData) return
+
+  const angle = imuData.imu_data.gyro[axis]
+
   const r = size * 0.4;
   const cx = size / 2;
   const cy = size / 2;
@@ -22,7 +31,6 @@ export default function AngleView({
   const y = cy + r * Math.sin(rad);
 
   const color = "#00ff88"; // bright green for visibility
-
 
   return (
     <div
@@ -96,4 +104,6 @@ export default function AngleView({
       </div>
     </div>
   );
-}
+})
+
+export default AngleView

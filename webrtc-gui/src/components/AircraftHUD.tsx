@@ -1,18 +1,23 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { memo, useRef, useEffect, useState } from "react";
+import { useTelemetryContext } from "@/contexts/TelemetryContext";
 
 interface AircraftHUDProps {
-  pitch: number; // degrees, positive = nose up
-  roll: number;  // degrees, positive = right wing down
   verticalFOV?: number; // degrees of vertical field of view
 }
 
-export const AircraftHUD: React.FC<AircraftHUDProps> = ({
-  pitch,
-  roll,
+export const AircraftHUD: React.FC<AircraftHUDProps> = memo(({
   verticalFOV = 60,
 }) => {
   const [size, setSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const { roverStatus } = useTelemetryContext();
+  const imuData = roverStatus.find((s) => s.data.imu_data)?.data;
+
+  if (!imuData) return;
+
+  const pitch: number = -imuData.imu_data.gyro.p; // degrees, positive = nose up
+  const roll: number = -imuData.imu_data.gyro.r; // degrees, positive = right wing down
 
   useEffect(() => {
     if (containerRef.current) {
@@ -41,7 +46,9 @@ export const AircraftHUD: React.FC<AircraftHUDProps> = ({
       {width > 0 && height > 0 && (
         <svg width={width} height={height} style={{ display: "block" }}>
           {/* horizon line with black border */}
-          <g transform={`translate(${cx}, ${cy - pitchOffset}) rotate(${roll})`}>
+          <g
+            transform={`translate(${cx}, ${cy - pitchOffset}) rotate(${roll})`}
+          >
             {/* green line on top */}
             <line
               x1={-width * 2}
@@ -55,7 +62,7 @@ export const AircraftHUD: React.FC<AircraftHUDProps> = ({
 
           {/* center crosshair */}
           <g>
-             {/* center circle */}
+            {/* center circle */}
             <circle
               cx={cx}
               cy={cy}
@@ -67,7 +74,7 @@ export const AircraftHUD: React.FC<AircraftHUDProps> = ({
             <circle
               cx={cx}
               cy={cy}
-              r={crosshairRadius*0.2}
+              r={crosshairRadius * 0.2}
               fill={color}
               strokeWidth={2}
             />
@@ -94,4 +101,4 @@ export const AircraftHUD: React.FC<AircraftHUDProps> = ({
       )}
     </div>
   );
-};
+});

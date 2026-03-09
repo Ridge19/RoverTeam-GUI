@@ -41,10 +41,6 @@ const DriveControl: React.FC = () => {
 
   const [warningModal, setWarningModal] = useState<boolean>(false);
 
-  useEffect(() => {
-    console.log(imuData)
-  }, [imuData])
-  
   // Pre-fetch /cameras for all endpoints to ensure IDs are loaded
   useEffect(() => {
     let cancelled = false;
@@ -264,7 +260,7 @@ const DriveControl: React.FC = () => {
               flex: 1
             }}>
               {cameras[0] && <CameraFeed camera={cameras[0]}>
-                <AircraftHUD pitch={-imuData.imu_data.gyro.p} roll={-imuData.imu_data.gyro.r} />
+                <AircraftHUD/>
               </CameraFeed>}
             </div>
 
@@ -279,13 +275,13 @@ const DriveControl: React.FC = () => {
             {imuData &&
               <>
                 <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <AngleView label="PITCH" angle={-imuData.imu_data.gyro.p} imageUrl="diagrams/eq-side.png" />
+                  <AngleView label="PITCH" axis="p" imageUrl="diagrams/eq-side.png" />
                 </div>
                 <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <AngleView label="ROLL" angle={imuData.imu_data.gyro.r } imageUrl="diagrams/eq-back.png" />
+                  <AngleView label="ROLL" axis="r" imageUrl="diagrams/eq-back.png" />
                 </div>
                 <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <AngleView label="YAW" angle={imuData.imu_data.gyro.y } imageUrl="diagrams/eq-top.png" />
+                  <AngleView label="YAW" axis="y" imageUrl="diagrams/eq-top.png" />
                 </div>
               </>
             }
