@@ -21,7 +21,7 @@ import { useTelemetryContext } from "@/contexts/TelemetryContext";
   "type": "imu_data",
   "data":{
       "gyro":{"p":0, "y":0, "r":0},
-      "vel":{"x":0,"y":0,"z":0}
+      "vel":{"fd":0,"up":0,"lr":0}
   }
 }
 
@@ -223,7 +223,7 @@ const DriveControl: React.FC = () => {
                       color: "#ff9100",
                       textShadow: "0 0 10px #fab861",
                       whiteSpace: "pre"
-                    }}> 6770</div>
+                    }}> {imuData?.imu_data?.fd ?? ""} </div>
                     <div style={{
                       position: "absolute",
                       top: 0, left: 20,
