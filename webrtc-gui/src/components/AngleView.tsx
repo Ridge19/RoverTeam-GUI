@@ -115,20 +115,21 @@ const AngleView = memo(({
       </div>
 
       {/* number */}
-      {hasData &&
-      (<div
-        style={{
-          position: "absolute",
-          top: 8,
-          right: 8,
-          fontSize: 14,
-          fontWeight: "bold",
-        }}
-      >
-        {angle.toFixed(1)}°
-      </div>
+      {hasData && (
+        <div
+          style={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            fontSize: 14,
+            fontWeight: "bold",
+          }}
+        >
+          {angle.toFixed(1)}°
+        </div>
+      )}
     </div>
   );
-})
+});
 
-export default AngleView
+export default AngleView;
