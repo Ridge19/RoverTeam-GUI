@@ -55,7 +55,7 @@ const AngleView = memo(({
           cx={cx}
           cy={cy}
           r={r}
-          stroke={(hasData ? simulated ? colorSimulated : color : colorNoData) + "88"}
+          stroke={color+"88"}
           strokeWidth={0.5}
           fill="none"
         />
@@ -67,8 +67,8 @@ const AngleView = memo(({
               href={imageUrl}
               x={-r} // center image
               y={-r}
-              width={r*2}
-              height={r*2}
+              width={r * 2}
+              height={r * 2}
               preserveAspectRatio="xMidYMid meet"
               style={{filter: "hue-rotate(-109deg) opacity(0.5)"}}
             />
@@ -126,7 +126,7 @@ const AngleView = memo(({
         }}
       >
         {angle.toFixed(1)}°
-      </div>)}
+      </div>
     </div>
   );
 })
