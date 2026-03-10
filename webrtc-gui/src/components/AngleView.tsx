@@ -2,25 +2,23 @@ import React, { memo } from "react";
 import { useTelemetryContext } from "@/contexts/TelemetryContext";
 
 interface AngleViewProps {
-  axis?: "" | "p" | "r" | "y";
+  angle?: number;
   label?: string;
   size?: number;
   imageUrl?: string; // optional image to display in center
+  hasData?: boolean; // whether to show data or just the circle
+  simulated?: boolean; // whether this is simulated data (for styling)
 }
 
 const AngleView = memo(({
-  axis = "",
+  angle = 0,
   label = "ANGLE",
   size = 200,
   imageUrl,
+  hasData = true,
+  simulated = false,
 }: AngleViewProps) => {
   // Telemetry Access
-  const { roverStatus } = useTelemetryContext();
-  const imuData = roverStatus.find((s) => s.data.imu_data)?.data;
-
-  if (axis == "" || !imuData) return
-
-  const angle = imuData.imu_data.gyro[axis]
 
   const r = size * 0.4;
   const cx = size / 2;
@@ -31,6 +29,8 @@ const AngleView = memo(({
   const y = cy + r * Math.sin(rad);
 
   const color = "#00ff88"; // bright green for visibility
+  const colorNoData = "#e44141"; // gray when no data
+  const colorSimulated = "#ffb700"; // orange for simulated data
 
   return (
     <div
@@ -55,14 +55,14 @@ const AngleView = memo(({
           cx={cx}
           cy={cy}
           r={r}
-          stroke={color+"88"}
+          stroke={(hasData ? simulated ? colorSimulated : color : colorNoData) + "88"}
           strokeWidth={0.5}
           fill="none"
         />
 
         {/* center: image or small circle */}
-        {imageUrl ? (
-          <g transform={`translate(${cx}, ${cy}) rotate(${angle})`}>
+        {imageUrl && hasData ? (
+          <><g transform={`translate(${cx}, ${cy}) rotate(${angle})`}>
             <image
               href={imageUrl}
               x={-r} // center image
@@ -70,10 +70,34 @@ const AngleView = memo(({
               width={r*2}
               height={r*2}
               preserveAspectRatio="xMidYMid meet"
+              style={{filter: "hue-rotate(-109deg) opacity(0.5)"}}
             />
           </g>
+          {simulated && (
+            <text
+              x={cx}
+              y={cy}
+              textAnchor="middle"
+              fill={colorSimulated}
+              fontSize={16}
+              fontWeight="bold"
+            >
+              SIMULATED
+            </text>
+          )}</>
         ) : (
-          <circle cx={cx} cy={cy} r={2} fill={color} />
+          /*text saying NO DATA*/
+          <text
+            x={cx}
+            y={cy}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fill={colorNoData}
+            fontSize={24}
+            fontWeight="bold"
+          >
+            NO DATA
+          </text>
         )}
       </svg>
 
@@ -91,7 +115,8 @@ const AngleView = memo(({
       </div>
 
       {/* number */}
-      <div
+      {hasData &&
+      (<div
         style={{
           position: "absolute",
           top: 8,
@@ -101,7 +126,7 @@ const AngleView = memo(({
         }}
       >
         {angle.toFixed(1)}°
-      </div>
+      </div>)}
     </div>
   );
 })

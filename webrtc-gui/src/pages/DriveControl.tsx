@@ -15,6 +15,7 @@ import AngleView from "@/components/AngleView";
 import { AircraftHUD } from "@/components/AircraftHUD";
 import { Modal } from "@/components/Modal";
 import { useTelemetryContext } from "@/contexts/TelemetryContext";
+import { SpeedDisplay } from "@/components/SpeedDisplay";
 
 /*
 {
@@ -196,65 +197,7 @@ const DriveControl: React.FC = () => {
               alignItems: "center",
               justifyContent: "center",
             }}>
-              <div style={{
-                background: "#000",
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "center",
-                borderRadius: 10,
-                padding: "0px 20px",
-                border: "5px solid #222",
-              }}>
-                <div style={{
-                  fontWeight: "bold",
-                  fontFamily: "segment-eglas, monospace",
-                  position: "relative",
-                  fontSize: 80,
-                  letterSpacing: 20,
-                }}>
-                  <div style={{ color: "#222" }}>88888
-                    <div style={{
-                      position: "absolute",
-                      top: 0, left: 0,
-                      color: "#ff9100",
-                      textShadow: "0 0 10px #fab861",
-                      whiteSpace: "pre"
-                    }}> {imuData?.imu_data?.fd ?? ""} </div>
-                    <div style={{
-                      position: "absolute",
-                      top: 0, left: 20,
-                      color: "#ff9100",
-                      textShadow: "0 0 10px #fab861",
-                      whiteSpace: "pre"
-                    }}>  .</div>
-                  </div>
-                </div>
-                <div style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  marginTop: 15,
-                  gap: 5,
-                  fontFamily: "monospace",
-                  fontWeight: "bold",
-                }}>
-                  <div style={{
-                    fontSize: 24,
-                    lineHeight: "24px",
-                    color: "#ff9100",
-                    textShadow: "0 0 10px #fab861",
-                  }}>m⋅s⁻¹</div>
-                  <div style={{
-                    fontSize: 24,
-                    lineHeight: "24px",
-                    color: "#222",
-                  }}>kph</div>
-                  <div style={{
-                    fontSize: 24,
-                    lineHeight: "24px",
-                    color: "#222",
-                  }}>rpm</div>
-                </div>
-              </div>
+              <SpeedDisplay value={imuData?.imu_data?.vel?.fd} />
             </div>
             <div style={{
               flex: 1
@@ -272,19 +215,17 @@ const DriveControl: React.FC = () => {
             alignItems: "center",
             justifyContent: "center",
           }}>
-            {imuData &&
               <>
                 <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <AngleView label="PITCH" axis="p" imageUrl="diagrams/eq-side.png" />
+                  <AngleView label="PITCH" angle={imuData?.imu_data?.gyro?.p || 0} imageUrl="diagrams/eq-side.png" hasData={!!imuData} simulated={imuData && imuData.imu_data.simulated}/>
                 </div>
                 <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <AngleView label="ROLL" axis="r" imageUrl="diagrams/eq-back.png" />
+                  <AngleView label="ROLL" angle={imuData?.imu_data?.gyro?.r || 0} imageUrl="diagrams/eq-back.png" hasData={!!imuData} simulated={imuData && imuData.imu_data.simulated}/>
                 </div>
                 <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <AngleView label="YAW" axis="y" imageUrl="diagrams/eq-top.png" />
+                  <AngleView label="YAW" angle={imuData?.imu_data?.gyro?.y || 0} imageUrl="diagrams/eq-top.png" hasData={!!imuData} simulated={imuData && imuData.imu_data.simulated}/>
                 </div>
               </>
-            }
           </div>
         </div>
       </div>
