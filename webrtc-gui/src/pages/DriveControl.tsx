@@ -272,19 +272,18 @@ const DriveControl: React.FC = () => {
             alignItems: "center",
             justifyContent: "center",
           }}>
-            {imuData &&
-              <>
-                <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <AngleView label="PITCH" axis="p" imageUrl="diagrams/eq-side.png" />
-                </div>
-                <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <AngleView label="ROLL" axis="r" imageUrl="diagrams/eq-back.png" />
-                </div>
-                <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <AngleView label="YAW" axis="y" imageUrl="diagrams/eq-top.png" />
-                </div>
-              </>
-            }
+            <>
+              <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <AngleView label="PITCH" axis="p" imageUrl="diagrams/eq-side.png" />
+              </div>
+              <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <AngleView label="ROLL" axis="r" imageUrl="diagrams/eq-back.png" />
+              </div>
+              <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <AngleView label="YAW" axis="y" imageUrl="diagrams/eq-top.png" />
+              </div>
+            </>
+          
           </div>
         </div>
       </div>

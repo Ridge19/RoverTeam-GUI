@@ -18,10 +18,10 @@ const AngleView = memo(({
   const { roverStatus } = useTelemetryContext();
   const imuData = roverStatus.find((s) => s.data.imu_data)?.data;
 
-  if (axis == "" || !imuData) return
-
-  const angle = imuData.imu_data.gyro[axis]
-
+  let angle = -1
+  if (axis != "" && imuData) { 
+    angle = imuData.imu_data.gyro[axis]
+  }
   const r = size * 0.4;
   const cx = size / 2;
   const cy = size / 2;
@@ -55,7 +55,7 @@ const AngleView = memo(({
           cx={cx}
           cy={cy}
           r={r}
-          stroke={color+"88"}
+          stroke={color + "88"}
           strokeWidth={0.5}
           fill="none"
         />
@@ -67,8 +67,8 @@ const AngleView = memo(({
               href={imageUrl}
               x={-r} // center image
               y={-r}
-              width={r*2}
-              height={r*2}
+              width={r * 2}
+              height={r * 2}
               preserveAspectRatio="xMidYMid meet"
             />
           </g>
@@ -100,7 +100,7 @@ const AngleView = memo(({
           fontWeight: "bold",
         }}
       >
-        {angle.toFixed(1)}°
+        {angle != -1 ? angle.toFixed(1) + "°" : "No Data"}
       </div>
     </div>
   );
