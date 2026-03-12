@@ -20,6 +20,8 @@ const AngleView = memo(({
 }: AngleViewProps) => {
   // Telemetry Access
 
+  simulated = false
+
   const r = size * 0.4;
   const cx = size / 2;
   const cy = size / 2;
@@ -70,7 +72,7 @@ const AngleView = memo(({
               width={r * 2}
               height={r * 2}
               preserveAspectRatio="xMidYMid meet"
-              style={{filter: "hue-rotate(-109deg) opacity(0.5)"}}
+              style={{filter: simulated ? "hue-rotate(-109deg) opacity(0.5)" : undefined}}
             />
           </g>
           {simulated && (
