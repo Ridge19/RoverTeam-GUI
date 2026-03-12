@@ -61,7 +61,7 @@ export function mapGamepadToArmInputs(
   targets["J5"] = applyDeadzone(axes[2] ?? 0) * -1 * 360 * 0.1; // 0.1 rev/s
   targets["J6"] = applyDeadzone((buttons[14] ?? 0) - (buttons[15] ?? 0)) * -1 * 360 * 0.1; // 0.1 rev/s
 
-  targets["Grip"] = applyDeadzone((buttons[6] ?? 0)>0.2?1:0 - (buttons[7] ?? 0)>0.2?1:0) * -1 * 255; // 0.1 rev/s
+  targets["Grip"] = applyDeadzone(((buttons[6] ?? 0)>0.2?1:0) - ((buttons[7] ?? 0)>0.2?1:0)) * -1 * 255; // 0.1 rev/s
   targets["Poke"] = applyDeadzone((buttons[5] ?? 0)) * 255; // 0.1 rev/s
 
   //targets["ik_z_vel"] = applyDeadzone((buttons[12] ?? 0) - (buttons[13] ?? 0)) * 20;
