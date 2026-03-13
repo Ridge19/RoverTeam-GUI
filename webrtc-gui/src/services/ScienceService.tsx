@@ -18,9 +18,9 @@ const ScienceService = {
 
       const match = scienceEndpoints.find((url) => url.includes(activeHost));
 
-      return match || `http://${activeHost}:5000`;
+      return match || `http://${activeHost}:5003`;
     } catch (e) {
-      return "http://localhost:5000";
+      return "http://localhost:500";
     }
   },
   async setDrillSpeed(
