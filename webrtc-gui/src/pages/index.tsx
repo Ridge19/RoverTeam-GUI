@@ -8,7 +8,7 @@ import { useGamepad } from "@/contexts/HardwareControl/useGamepad";
 import SplashScreen from "@/components/SplashScreen";
 import { useEndpoints } from "@/contexts/EndpointContext";
 import DriveControl from "./DriveControl";
-
+import Science from "./ScienceControl";
 const IndexPage: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState("cameras");
   const [loading, setLoading] = React.useState(true);
@@ -50,6 +50,7 @@ const IndexPage: React.FC = () => {
       {activeTab === "arm" && <ArmControl/>}
       {activeTab === "telemetry" && <TelemetryConsole/>}
       {activeTab === "vitals" && <SystemVitals/>}
+      {activeTab === "science" && <Science/>}
     </main>
   </>);
 };

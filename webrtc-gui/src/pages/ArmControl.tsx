@@ -116,8 +116,6 @@ const ArmControl: React.FC = () => {
       </div>
     </div> 
   </div>
-
-      
   );
 };
 
