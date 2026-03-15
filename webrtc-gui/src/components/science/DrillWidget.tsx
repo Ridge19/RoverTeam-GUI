@@ -24,16 +24,15 @@ const DrillWidget = () => {
     const displaySpeed = scienceData?.drill ?? 0;
         
     return (
-      <div style={{ background: "#222222", padding: 15, borderRadius: 8 }}>
-        <h3>Drill Controls</h3>
-        <input
-          type="number"
-          value={drillSpeed}
-          onChange={(e) => setDrillSpeed(Number(e.target.value))}
-          style={{ background: "#333", color: "white", padding: 5 }}
-        />
-        <button onClick={handleDrillSubmit}>Set Speed</button>
-
+      <div className={styles.DrillWidget}>
+        <div className={styles.Inputs}>
+            <input
+            type="number"
+            value={drillSpeed}
+            onChange={(e) => setDrillSpeed(Number(e.target.value))}
+            />
+            <button onClick={handleDrillSubmit}>Set Speed</button>
+        </div>
         <h3>Drill</h3>
         <h5>Motor 0</h5>
         <p>{displaySpeed}</p>

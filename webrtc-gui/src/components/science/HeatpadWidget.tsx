@@ -36,7 +36,6 @@ const HeatpadWidget = () => {
 
     return (
       <div style={{ background: "#222", padding: 15, borderRadius: 8 }}>
-        <h3>Heatpad Control</h3>
         <button
           onClick={handleToggle}
           style={{
