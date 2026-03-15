@@ -68,6 +68,21 @@ const ScienceService = {
     return response.json();
   },
 
+  async toggleHeatpad(
+    currentEndpoint: string,
+    getEndpointsOfService: (s: string) => string[],
+    toggleState: number
+  ) {
+    const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
+
+    const response = await fetch(`${baseUrl}/heatpad/${toggleState}`, {
+      method: "POST",
+    });
+
+    if (!response.ok) throw new Error(`Science Error: ${response.statusText}`);
+    return response.json();
+  }
+
 //   async setInterval(
 //     currentEndpoint: string,
 //     getEndpointsOfService: (s: string) => string[],
