@@ -5,9 +5,11 @@
     border: 1px solid #333;
     color: white;
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    margin: 10px;
+    display: flex;
+    flex-direction: column;
 
     h3 { margin: 0 0 16px 0; font-size: 1.2rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+    h4 { margin: 12px 0 12px 0; font-size: 1.0rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
 }
 
 .AugerWidget, .DrillWidget, .HeatpadWidget {

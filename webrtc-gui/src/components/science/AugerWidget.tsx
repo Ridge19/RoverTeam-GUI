@@ -48,6 +48,9 @@ const AugerWidget = memo(({
                 <button onClick={() => handleStepperSubmit(augerId, 200)}>+200</button>
                 <button onClick={() => handleStepperSubmit(augerId, -400)}>-400</button>
                 <button onClick={() => handleStepperSubmit(augerId, 400)}>+400</button>
+            </div>
+            <h4>Manual input</h4><span></span>
+            <div className={styles.Inputs}>
                 <input
                     type="number"
                     value={inputSteps}
