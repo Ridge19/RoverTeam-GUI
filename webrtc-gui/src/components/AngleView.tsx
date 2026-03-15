@@ -26,7 +26,7 @@ const AngleView = memo(({
   const cx = size / 2;
   const cy = size / 2;
 
-  const rad = (angle - 90) * (Math.PI / 180);
+  const rad = (angle.toFixed(1) - 90) * (Math.PI / 180);
   const x = cx + r * Math.cos(rad);
   const y = cy + r * Math.sin(rad);
 
