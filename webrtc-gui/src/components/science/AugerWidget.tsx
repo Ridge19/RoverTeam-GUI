@@ -21,43 +21,43 @@ const AugerWidget = memo(({
     const { roverStatus } = useTelemetryContext();
 
     // const [drillSpeed, setDrillSpeed] = useState<number>(0);
-    
+
     const [inputSteps, setInputSteps] = useState<number>(0);
-    
-    const handleStepperSubmit = async (motorId: number) => {
-    await ScienceService.setStepperStep(
-        window.location.href,
-        getEndpointsOfService,
-        motorId,
-        inputSteps,
-    );
+
+    const handleStepperSubmit = async (motorId: number, steps: number) => {
+        await ScienceService.setStepperStep(
+            window.location.href,
+            getEndpointsOfService,
+            motorId,
+            steps,
+        );
     };
-    
+
     const scienceData = roverStatus.find((s) => s.data.science_data)?.data
-    ?.science_data;
+        ?.science_data;
     const displaySteps = scienceData?.stepper_motors?.[augerId] ?? 0;
 
 
     return (
-    <div className={styles.AugerWidget}>
-        <div className={styles.Inputs}>
-            <input
-                type="number"
-                value={inputSteps}
-                onChange={(e) => setInputSteps(Number(e.target.value))}
-                style={{
-                background: "#333",
-                color: "white",
-                padding: 5,
-                width: 60,
-                }}
-            />
-            <button onClick={() => handleStepperSubmit(augerId)}>Step</button>
+        <div className={styles.AugerWidget}>
+            <h3>{ID_MAP[augerId]}</h3>
+            <div className={styles.Inputs}>
+                <button onClick={() => handleStepperSubmit(augerId, -100)}>-100</button>
+                <button onClick={() => handleStepperSubmit(augerId, 100)}>+100</button>
+                <button onClick={() => handleStepperSubmit(augerId, -200)}>-200</button>
+                <button onClick={() => handleStepperSubmit(augerId, 200)}>+200</button>
+                <button onClick={() => handleStepperSubmit(augerId, -400)}>-400</button>
+                <button onClick={() => handleStepperSubmit(augerId, 400)}>+400</button>
+                <input
+                    type="number"
+                    value={inputSteps}
+                    onChange={(e) => setInputSteps(Number(e.target.value))}
+                />
+                <button onClick={() => handleStepperSubmit(augerId, inputSteps)}>Step</button>
+            </div>
+            <h5>Motor {augerId}</h5>
+            <p>{displaySteps}</p>
         </div>
-        <h3>{ID_MAP[augerId]}</h3>
-        <h5>Motor {augerId}</h5>
-        <p>{displaySteps}</p>
-    </div>
     );
 });
 

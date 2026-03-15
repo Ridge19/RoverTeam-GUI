@@ -11,32 +11,38 @@ const DrillWidget = () => {
 
     const [drillSpeed, setDrillSpeed] = useState<number>(0);
 
-    const handleDrillSubmit = async () => {
+    const handleDrillSubmit = async (speed: number) => {
         await ScienceService.setDrillSpeed(
             window.location.href,
             getEndpointsOfService,
-            drillSpeed,
+            speed,
         );
     };
 
     const scienceData = roverStatus.find((s) => s.data.science_data)
         ?.data?.science_data;
     const displaySpeed = scienceData?.drill ?? 0;
-        
+
     return (
-      <div className={styles.DrillWidget}>
-        <div className={styles.Inputs}>
-            <input
-            type="number"
-            value={drillSpeed}
-            onChange={(e) => setDrillSpeed(Number(e.target.value))}
-            />
-            <button onClick={handleDrillSubmit}>Set Speed</button>
-        </div>
-        <h3>Drill</h3>
-        <h5>Motor 0</h5>
-        <p>{displaySpeed}</p>
-      </div>
+        <div className={styles.DrillWidget}>
+            <h3>Drill</h3>
+            <div className={styles.Inputs}>
+                <button onClick={() => handleDrillSubmit(-100)}>-100</button>
+                <button onClick={() => handleDrillSubmit(100)}>+100</button>
+                <button onClick={() => handleDrillSubmit(-200)}>-200</button>
+                <button onClick={() => handleDrillSubmit(200)}>+200</button>
+                <button onClick={() => handleDrillSubmit(-400)}>-400</button>
+                <button onClick={() => handleDrillSubmit(400)}>+400</button>
+                <input
+                    type="number"
+                    value={drillSpeed}
+                    onChange={(e) => setDrillSpeed(Number(e.target.value))}
+                />
+                <button onClick={() => handleDrillSubmit(drillSpeed)}>Speed</button>
+            </div>
+            <h5>Motor 0</h5>
+            <p>{displaySpeed}</p>
+        </div >
     );
 }
 

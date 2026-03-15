@@ -15,12 +15,13 @@
 }
 
 .Inputs {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
     align-items: center;
 
     input {
-        background: #111;
+        background: #333;
         border: 1px solid #444;
         color: white;
         padding: 8px 12px;
@@ -37,6 +38,7 @@
         border-radius: 4px;
         cursor: pointer;
         transition: all 0.2s;
+        width: 100px;
 
         &:hover { background: #444; }
         &:active { transform: translateY(1px); }
