@@ -26,7 +26,7 @@ const AngleView = memo(({
   const cx = size / 2;
   const cy = size / 2;
 
-  const rad = (angle.toFixed(1) - 90) * (Math.PI / 180);
+  const rad = (angle - 90) * (Math.PI / 180);
   const x = cx + r * Math.cos(rad);
   const y = cy + r * Math.sin(rad);
 
@@ -57,14 +57,14 @@ const AngleView = memo(({
           cx={cx}
           cy={cy}
           r={r}
-          stroke={color+"88"}
+          stroke={color + "88"}
           strokeWidth={0.5}
           fill="none"
         />
 
         {/* center: image or small circle */}
         {imageUrl && hasData ? (
-          <><g transform={`translate(${cx}, ${cy}) rotate(${angle})`}>
+          <><g transform={`translate(${cx}, ${cy}) rotate(${angle.toFixed(1)})`}>
             <image
               href={imageUrl}
               x={-r} // center image
@@ -72,21 +72,21 @@ const AngleView = memo(({
               width={r * 2}
               height={r * 2}
               preserveAspectRatio="xMidYMid meet"
-              style={{filter: simulated ? "hue-rotate(-109deg) opacity(0.5)" : undefined}}
+              style={{ filter: simulated ? "hue-rotate(-109deg) opacity(0.5)" : undefined }}
             />
           </g>
-          {simulated && (
-            <text
-              x={cx}
-              y={cy}
-              textAnchor="middle"
-              fill={colorSimulated}
-              fontSize={16}
-              fontWeight="bold"
-            >
-              SIMULATED
-            </text>
-          )}</>
+            {simulated && (
+              <text
+                x={cx}
+                y={cy}
+                textAnchor="middle"
+                fill={colorSimulated}
+                fontSize={16}
+                fontWeight="bold"
+              >
+                SIMULATED
+              </text>
+            )}</>
         ) : (
           /*text saying NO DATA*/
           <text
