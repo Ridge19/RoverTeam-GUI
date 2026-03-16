@@ -203,7 +203,7 @@ const DriveControl: React.FC = () => {
               flex: 1
             }}>
               {cameras[0] && <CameraFeed camera={cameras[0]}>
-                <AircraftHUD/>
+                <AircraftHUD />
               </CameraFeed>}
             </div>
 
@@ -215,17 +215,17 @@ const DriveControl: React.FC = () => {
             alignItems: "center",
             justifyContent: "center",
           }}>
-              <>
-                <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <AngleView label="PITCH" angle={imuData?.imu_data?.gyro?.p || 0} imageUrl="diagrams/eq-side.png" hasData={!!imuData} simulated={imuData && imuData.imu_data.simulated}/>
-                </div>
-                <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <AngleView label="ROLL" angle={imuData?.imu_data?.gyro?.r || 0} imageUrl="diagrams/eq-back.png" hasData={!!imuData} simulated={imuData && imuData.imu_data.simulated}/>
-                </div>
-                <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <AngleView label="YAW" angle={imuData?.imu_data?.gyro?.y || 0} imageUrl="diagrams/eq-top.png" hasData={!!imuData} simulated={imuData && imuData.imu_data.simulated}/>
-                </div>
-              </>
+            <>
+              <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <AngleView label="PITCH" angle={imuData?.imu_data?.gyro?.p || 0} imageUrl="diagrams/eq-side.png" hasData={!!imuData} simulated={imuData && imuData.imu_data.simulated} />
+              </div>
+              <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <AngleView label="ROLL" angle={imuData?.imu_data?.gyro?.r || 0} imageUrl="diagrams/eq-back.png" hasData={!!imuData} simulated={imuData && imuData.imu_data.simulated} />
+              </div>
+              <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <AngleView label="YAW" angle={imuData?.imu_data?.gyro?.y || 0} imageUrl="diagrams/eq-top.png" hasData={!!imuData} simulated={imuData && imuData.imu_data.simulated} />
+              </div>
+            </>
           </div>
         </div>
       </div>
