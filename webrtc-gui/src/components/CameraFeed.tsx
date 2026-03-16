@@ -69,7 +69,7 @@ export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
   }, []);
 
   // --- Screenshot ---
-  const captureFrame = useCallback(() => {
+  const captureFrame = useCallback(async () => {
     const video = videoRef.current;
     if (!video || video.videoWidth === 0) return;
 
@@ -84,6 +84,28 @@ export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
     if (!ctx) return;
 
     ctx.drawImage(video, 0, 0);
+
+    const svgElement = video.parentElement?.querySelector("svg");
+
+    if (svgElement) {
+      const svgData = new XMLSerializer().serializeToString(svgElement);
+      const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(svgBlob);
+
+      // Load it into an Image object
+      const img = new Image();
+      img.src = url;
+
+      await new Promise((resolve) => { img.onload = resolve; });
+
+      // Draw the SVG image onto the canvas
+      // Note: The SVG dimensions in the DOM might be different than the video 
+      // resolution, so you may need to scale these coordinates.
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      URL.revokeObjectURL(url);
+    }
+
     const dataUrl = canvas.toDataURL("image/png");
 
     const link = document.createElement("a");

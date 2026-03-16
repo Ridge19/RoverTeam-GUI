@@ -11,11 +11,12 @@ const ScienceControl: React.FC = () => {
             <h2 style={{ color: "#aaa" }}>Telemetry Feed</h2>
 
             <div className={styles.ScienceControl}>
-
-                <DrillWidget />
-                <AugerWidget augerId={1} />
-                <AugerWidget augerId={2} />
-                <AugerWidget augerId={3} />
+                <div className={styles.MotorControl}>
+                    <AugerWidget augerId={1} />
+                    <AugerWidget augerId={2} />
+                    <DrillWidget />
+                    <AugerWidget augerId={3} />
+                </div>
                 <HeatpadWidget />
 
                 <MicroscopeCamera />

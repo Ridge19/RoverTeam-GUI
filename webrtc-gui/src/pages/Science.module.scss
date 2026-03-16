@@ -4,4 +4,13 @@
     flex-wrap: wrap;
     gap: 20px;
     align-items: flex-start;
+
+    .MotorControl {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        align-items: center;
+        margin: 16px;
+    }
 }
+

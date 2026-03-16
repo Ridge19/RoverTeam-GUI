@@ -25,27 +25,39 @@ const DrillWidget = () => {
 
     return (
         <div className={styles.DrillWidget}>
-            <h3>Drill</h3>
-            <div className={styles.Inputs}>
-                <button onClick={() => handleDrillSubmit(-50)}>-50</button>
-                <button onClick={() => handleDrillSubmit(-50)}>50</button>
-                <button onClick={() => handleDrillSubmit(-100)}>-100</button>
-                <button onClick={() => handleDrillSubmit(100)}>100</button>
-                <button onClick={() => handleDrillSubmit(-150)}>- 150</button>
-                <button onClick={() => handleDrillSubmit(150)}>150</button>
+            <div className={styles.Title}>
+                <h3>Drill</h3>
+                <h5>Id 0</h5>
             </div>
-            <hr />
-            <h4>Manual input</h4><span></span>
-            <div className={styles.Inputs}>
-                <input
-                    type="number"
-                    value={drillSpeed}
-                    onChange={(e) => setDrillSpeed(Number(e.target.value))}
-                />
-                <button onClick={() => handleDrillSubmit(drillSpeed)}>Speed</button>
+            <div className={styles.Contents}>
+                <div className={styles.InputContainer}>
+                    <div className={styles.Inputs}>
+                        <button onClick={() => handleDrillSubmit(-50)}>-50</button>
+                        <button onClick={() => handleDrillSubmit(-50)}>50</button>
+                        <button onClick={() => handleDrillSubmit(-100)}>-100</button>
+                        <button onClick={() => handleDrillSubmit(100)}>100</button>
+                        <button onClick={() => handleDrillSubmit(-200)}>-200</button>
+                        <button onClick={() => handleDrillSubmit(200)}>200</button>
+                    </div>
+                    <hr />
+                    <h4>Manual input</h4>
+                    <div className={styles.Inputs}>
+                        <input
+                            type="number"
+                            value={drillSpeed}
+                            onChange={(e) => setDrillSpeed(Number(e.target.value))}
+                        />
+                        <button onClick={() => handleDrillSubmit(drillSpeed)}>Speed</button>
+                    </div>
+                </div>
+                <div className={styles.VerticalRule}></div>
+                <div className={styles.OutputContainer}>
+                    <div className={styles.TelemetryDisplay}>
+                        <h1>{displaySpeed}</h1>
+                        <h4 className={styles.Units}> PWM</h4>
+                    </div>
+                </div>
             </div>
-            <h5>Motor 0</h5>
-            <p>{displaySpeed}</p>
         </div >
     );
 }

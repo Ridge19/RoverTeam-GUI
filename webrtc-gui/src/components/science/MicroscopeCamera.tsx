@@ -1,7 +1,7 @@
 import React, { useEffect } from "react"
 import { useCameraStreams } from "@/contexts/CameraStreamsContext";
 import { CameraFeed } from "@/components/CameraFeed";
-
+import MicroscopeOverlay from "@/components/science/MicroscopeOverlay";
 
 const MicroscopeCamera = () => {
     const { cameras, loading, fetchCameras } = useCameraStreams();
@@ -24,7 +24,8 @@ const MicroscopeCamera = () => {
     return (
         <>
             {cameras[0] && <CameraFeed camera={cameras[0]}>
-            </CameraFeed>}
+                <MicroscopeOverlay />
+            </CameraFeed >}
         </>
     )
 }
