@@ -9,7 +9,8 @@
     flex-direction: column;
 
     h3 { margin: 0 0 16px 0; font-size: 1.2rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
-    h4 { margin: 12px 0 12px 0; font-size: 1.0rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+    h4 { margin: 0 0 16px 0; font-size: 1.0rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+    hr { margin: 16px 0 16px 0; border: none; background-color: #333; height: 3px; width: 100%; }
 }
 
 .AugerWidget, .DrillWidget, .HeatpadWidget {

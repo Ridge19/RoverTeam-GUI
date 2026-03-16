@@ -25,7 +25,7 @@ export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
   useEffect(() => {
     if (!videoRef.current || !stream) return;
     videoRef.current.srcObject = stream;
-    videoRef.current.play().catch(() => {});
+    videoRef.current.play().catch(() => { });
 
     startFpsCounter();
 

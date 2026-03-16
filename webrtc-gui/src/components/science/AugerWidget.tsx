@@ -8,6 +8,11 @@ interface WidgetProps {
     augerId: number
 }
 
+const STEPS_MAP: Record<number, number[]> = {
+    1: [100, 200, 400],
+    2: [50, 100, 200],
+    3: [20, 50, 100],
+}
 const ID_MAP: Record<number, string> = {
     1: "Auger Stepper",
     2: "Microscope Stepper",
@@ -42,13 +47,14 @@ const AugerWidget = memo(({
         <div className={styles.AugerWidget}>
             <h3>{ID_MAP[augerId]}</h3>
             <div className={styles.Inputs}>
-                <button onClick={() => handleStepperSubmit(augerId, -100)}>-100</button>
-                <button onClick={() => handleStepperSubmit(augerId, 100)}>+100</button>
-                <button onClick={() => handleStepperSubmit(augerId, -200)}>-200</button>
-                <button onClick={() => handleStepperSubmit(augerId, 200)}>+200</button>
-                <button onClick={() => handleStepperSubmit(augerId, -400)}>-400</button>
-                <button onClick={() => handleStepperSubmit(augerId, 400)}>+400</button>
+                <button onClick={() => handleStepperSubmit(augerId, -STEPS_MAP[augerId][0])}>-{STEPS_MAP[augerId][0]}</button>
+                <button onClick={() => handleStepperSubmit(augerId, STEPS_MAP[augerId][0])}>+{STEPS_MAP[augerId][0]}</button>
+                <button onClick={() => handleStepperSubmit(augerId, -STEPS_MAP[augerId][1])}>-{STEPS_MAP[augerId][1]}</button>
+                <button onClick={() => handleStepperSubmit(augerId, STEPS_MAP[augerId][1])}>+{STEPS_MAP[augerId][1]}</button>
+                <button onClick={() => handleStepperSubmit(augerId, -STEPS_MAP[augerId][2])}>-{STEPS_MAP[augerId][2]}</button>
+                <button onClick={() => handleStepperSubmit(augerId, STEPS_MAP[augerId][2])}>+{STEPS_MAP[augerId][2]}</button>
             </div>
+            <hr />
             <h4>Manual input</h4><span></span>
             <div className={styles.Inputs}>
                 <input

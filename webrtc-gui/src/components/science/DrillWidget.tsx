@@ -27,13 +27,14 @@ const DrillWidget = () => {
         <div className={styles.DrillWidget}>
             <h3>Drill</h3>
             <div className={styles.Inputs}>
+                <button onClick={() => handleDrillSubmit(-50)}>-50</button>
+                <button onClick={() => handleDrillSubmit(-50)}>50</button>
                 <button onClick={() => handleDrillSubmit(-100)}>-100</button>
-                <button onClick={() => handleDrillSubmit(100)}>+100</button>
-                <button onClick={() => handleDrillSubmit(-200)}>-200</button>
-                <button onClick={() => handleDrillSubmit(200)}>+200</button>
-                <button onClick={() => handleDrillSubmit(-400)}>-400</button>
-                <button onClick={() => handleDrillSubmit(400)}>+400</button>
+                <button onClick={() => handleDrillSubmit(100)}>100</button>
+                <button onClick={() => handleDrillSubmit(-150)}>- 150</button>
+                <button onClick={() => handleDrillSubmit(150)}>150</button>
             </div>
+            <hr />
             <h4>Manual input</h4><span></span>
             <div className={styles.Inputs}>
                 <input
