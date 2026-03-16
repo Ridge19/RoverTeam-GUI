@@ -69,8 +69,21 @@ const ActuatorStatus: React.FC<ActuatorStatusProps> = ({
         };
     };
 
+    const getStatusColor = () => {
+        switch (status) {
+            case 'active':
+                return '#222222'; // green
+            case 'inactive':
+                return '#887140'; // gray
+            case 'error':
+                return '#a92929'; // red
+            default:
+                return '#9ca3af';
+        }
+    }
+
     return (
-        <div className="border rounded-lg shadow-md p-4 flex items-center space-x-4 w-[260px]">
+        <div className="border rounded-lg shadow-md p-4 flex items-center space-x-4 w-[260px]" style={{background: getStatusColor() + "EE"}}>
 
             <div className="relative w-2 h-16 bg-white border border-gray-300 rounded-sm overflow-hidden">
                 <div className="absolute inset-x-0 top-1/2 h-0.5 bg-red-500 transform -translate-y-1/2"></div>
@@ -95,11 +108,13 @@ const ActuatorStatus: React.FC<ActuatorStatusProps> = ({
             </div>
 
             <div className="flex-1">
-                <h3 className="text-lg font-bold">{name}</h3>
-                <p className="text-gray-600 text-sm truncate">
+                <h3 className="text-lg font-bold">{name} <span style={{
+                    fontWeight: "normal"
+                }}>{status === 'inactive' ? '(IDLE)' : status === 'error' ? '(ERROR)' : ''}</span></h3>
+                <p className="text-gray-300 text-sm truncate">
                     ω: {velocity.toFixed(2)} deg/s
                 </p>
-                <p className="text-gray-600 text-sm truncate">
+                <p className="text-gray-300 text-sm truncate">
                     θ: {pos.toFixed(3)} deg
                 </p>
             </div>

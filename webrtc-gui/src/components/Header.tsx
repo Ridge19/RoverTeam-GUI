@@ -97,6 +97,7 @@ export const Header: React.FC<HeaderProps> = ({
         <HeaderTabs
           tabs={[
             { id: "cameras", label: "Cameras" },
+            { id: 'drive', label: 'Drive' },
             { id: "arm", label: "Arm" },
             { id: "telemetry", label: "Telemetry" },
             { id: "vitals", label: "System" },

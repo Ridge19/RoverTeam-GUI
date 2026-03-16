@@ -7,6 +7,13 @@
   background: #000;
 }
 
+@font-face {
+  font-family: "segment-eglas";
+  src: url("/fonts/segment-eglas.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 .rover-camera button {
   position: absolute;
   top: 8px;

@@ -97,14 +97,14 @@ const ArmControl: React.FC = () => {
 
     <div style={{display: "flex", flexDirection: "row", gap: 40}}>
       <div className="flex flex-col gap-2">
-        <ActuatorStatus name="J1" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J1_vel"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J1_pos"] as number || 0} maxVelocity={500}/>
-        <ActuatorStatus name="J2" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J2_vel"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J2_pos"] as number || 0} maxVelocity={500}/>
-        <ActuatorStatus name="J3" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J3_vel"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J3_pos"] as number || 0} maxVelocity={500}/>
+        <ActuatorStatus name="J1" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J1_velocity"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J1_position"] as number || 0} maxVelocity={20}/>
+        <ActuatorStatus name="J2" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J2_velocity"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J2_position"] as number || 0} maxVelocity={20}/>
+        <ActuatorStatus name="J3" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J3_velocity"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J3_position"] as number || 0} maxVelocity={20}/>
       </div>
       <div>
-        <ActuatorStatus name="J4" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J4_vel"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J4_pos"] as number || 0} maxVelocity={500}/>
-        <ActuatorStatus name="J5" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J5_vel"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J5_pos"] as number || 0} maxVelocity={500}/>
-        <ActuatorStatus name="J6" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J6_vel"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J6_pos"] as number || 0} maxVelocity={500}/>
+        <ActuatorStatus name="J4" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J4_velocity"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J4_position"] as number || 0} maxVelocity={20}/>
+        <ActuatorStatus name="J5" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J5_velocity"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J5_position"] as number || 0} maxVelocity={20}/>
+        <ActuatorStatus name="J6" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J6_velocity"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J6_position"] as number || 0} maxVelocity={20}/>
       </div>
       <div>
         <div>{gamepad.hardwareStates.arm?.outputs?.["pitch_pos"]}</div>

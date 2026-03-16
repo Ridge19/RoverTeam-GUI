@@ -7,6 +7,7 @@ import SystemVitals from "./SystemVitals";
 import { useGamepad } from "@/contexts/HardwareControl/useGamepad";
 import SplashScreen from "@/components/SplashScreen";
 import { useEndpoints } from "@/contexts/EndpointContext";
+import DriveControl from "./DriveControl";
 import PDB from "./PDB";
 const IndexPage: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState("cameras");
@@ -33,28 +34,25 @@ const IndexPage: React.FC = () => {
     setActiveTab(page);
   };
 
-  return (
-    <>
-      <SplashScreen visible={loading} />
-      <main
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-          overflow: "hidden",
-          background: "#111",
-          color: "#EEE",
-        }}
-      >
-        <Header activeTab={activeTab} setActiveTab={onChange} />
-        {activeTab === "cameras" && <Cameras />}
-        {activeTab === "arm" && <ArmControl />}
-        {activeTab === "telemetry" && <TelemetryConsole />}
-        {activeTab === "vitals" && <SystemVitals />}
-        {activeTab === "pdb" && <PDB />}
-      </main>
-    </>
-  );
+  return (<>
+    <SplashScreen visible={loading} />
+    <main style={{
+      display: "flex",
+      flexDirection: "column",
+      height: "100vh",
+      overflow: "hidden",
+      background: "#111",
+      color: "#EEE"
+    }}>
+      <Header activeTab={activeTab} setActiveTab={onChange} />
+      {activeTab === "cameras" && <Cameras />}
+      {activeTab === "drive" && <DriveControl />}
+      {activeTab === "arm" && <ArmControl />}
+      {activeTab === "telemetry" && <TelemetryConsole />}
+      {activeTab === "vitals" && <SystemVitals />}
+      {activeTab === "pdb" && <PDB />}
+    </main>
+  </>);
 };
 
 export default IndexPage;
