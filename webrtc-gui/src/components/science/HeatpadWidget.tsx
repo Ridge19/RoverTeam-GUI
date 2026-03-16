@@ -1,54 +1,50 @@
-import React, { useState, useEffect, memo } from "react";
+import React, { useState } from "react";
 import styles from "./TelemetryWidget.module.scss";
-import { useTelemetryContext } from "@/contexts/TelemetryContext";
 import { useEndpoints } from "@/contexts/EndpointContext";
+import { useHeatpadData } from "@/hooks/science/useScienceTelemetry";
 import ScienceService from "@/services/ScienceService";
 
 const HeatpadWidget = () => {
   const { getEndpointsOfService } = useEndpoints();
-  const { roverStatus } = useTelemetryContext();
-
-  const [isOn, setIsOn] = useState<boolean>(false);
-
-  const scienceData = roverStatus.find((s) => s.data.science_data)?.data
-    ?.science_data;
-
-  useEffect(() => {
-    if (scienceData?.heatpad_status !== undefined) {
-      setIsOn(!!scienceData.heatpad_status);
-    }
-  }, [scienceData]);
+  const heatpadIsOn = useHeatpadData();
+  const [loading, setLoading] = useState(false);
 
   const handleToggle = async () => {
-    const nextState = isOn ? 0 : 1;
+    setLoading(true);
+    const nextState = heatpadIsOn ? 0 : 1;
+
     try {
-      await ScienceService.toggleHeatpad(
+      await ScienceService.setHeatpad(
         window.location.href,
         getEndpointsOfService,
         nextState,
       );
-      // Only update local state if the request succeeds
-      setIsOn(!isOn);
     } catch (error) {
       console.error("Failed to toggle heatpad:", error);
+      alert("Command failed!");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className={styles.HeatpadWidget}>
-      <button
-        onClick={handleToggle}
-        style={{
-          background: isOn ? "#4caf50" : "#f44336",
-          color: "white",
-          padding: "10px 20px",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
-      >
-        {isOn ? "Heatpad is ON" : "Heatpad is OFF"}
-      </button>
+      <div className={styles.Title}>
+        <h3>Heatpad</h3>
+      </div>
+
+      <hr />
+
+      <div className={styles.Inputs} style={{ gridTemplateColumns: "1fr" }}>
+        <button
+          onClick={handleToggle}
+          disabled={loading}
+          className={heatpadIsOn ? styles.active : styles.inactive}
+          style={{ width: "100%" }}
+        >
+          {loading ? "SENDING..." : heatpadIsOn ? "TURN OFF" : "TURN ON"}
+        </button>
+      </div>
     </div>
   );
 };

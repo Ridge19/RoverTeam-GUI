@@ -26,13 +26,12 @@ const ScienceService = {
   async setDrillSpeed(
     currentEndpoint: string,
     getEndpointsOfService: (s: string) => string[],
-    speed: number
+    speed: number,
   ) {
     const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
 
-    const response = await fetch(
-        `${baseUrl}/drill/speed/${speed}`, {
-            method: "POST",
+    const response = await fetch(`${baseUrl}/drill/speed/${speed}`, {
+      method: "POST",
     });
 
     if (!response.ok) throw new Error(`Drill Error: ${response.statusText}`);
@@ -48,7 +47,7 @@ const ScienceService = {
     const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
 
     const response = await fetch(`${baseUrl}/steppers/${motorId}/${speed}`, {
-        method: "POST",
+      method: "POST",
     });
 
     return true;
@@ -68,10 +67,10 @@ const ScienceService = {
     return response.json();
   },
 
-  async toggleHeatpad(
+  async setHeatpad(
     currentEndpoint: string,
     getEndpointsOfService: (s: string) => string[],
-    toggleState: number
+    toggleState: number,
   ) {
     const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
 
@@ -81,22 +80,22 @@ const ScienceService = {
 
     if (!response.ok) throw new Error(`Science Error: ${response.statusText}`);
     return response.json();
-  }
+  },
 
-//   async setInterval(
-//     currentEndpoint: string,
-//     getEndpointsOfService: (s: string) => string[],
-//     interval: number,
-//   ) {
-//     const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
+  //   async setInterval(
+  //     currentEndpoint: string,
+  //     getEndpointsOfService: (s: string) => string[],
+  //     interval: number,
+  //   ) {
+  //     const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
 
-//     const response = await fetch(`${baseUrl}/can/polling/${interval}`, {
-//       method: "POST",
-//     });
+  //     const response = await fetch(`${baseUrl}/can/polling/${interval}`, {
+  //       method: "POST",
+  //     });
 
-//     if (!response.ok) throw new Error(`PDB Error: ${response.statusText}`);
-//     return response.json();
-//   },
+  //     if (!response.ok) throw new Error(`PDB Error: ${response.statusText}`);
+  //     return response.json();
+  //   },
 };
 
 export default ScienceService;
