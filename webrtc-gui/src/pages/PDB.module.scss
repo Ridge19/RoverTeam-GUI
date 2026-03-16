@@ -1,0 +1,152 @@
+.WidgetBase {
+  background-color: #111; // Slightly darker for depth
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #333;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+
+  h3 {
+    margin: 0 0 16px 0;
+    font-size: 1.2rem;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+}
+
+.PdbPage {
+  padding: 2rem;
+  background-color: #0a0a0c;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.Header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px solid #222;
+  padding-bottom: 1rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    font-weight: 900;
+  }
+
+  .StatusLabel {
+    font-family: monospace;
+    font-size: 0.7rem;
+    color: #666;
+    .Nominal {
+      color: #10b981;
+    }
+  }
+}
+
+.StatsContainer {
+  display: flex;
+  gap: 32px;
+  background: #1a1a1c;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: 1px solid #333;
+
+  .StatBlock {
+    p:first-child {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      color: #555;
+      margin: 0;
+    }
+    .Value {
+      font-size: 1.4rem;
+      font-family: monospace;
+      margin: 0;
+      &.Blue {
+        color: #60a5fa;
+      }
+      &.Green {
+        color: #10b981;
+      }
+    }
+  }
+}
+
+.BoardWidget {
+  @extend .WidgetBase;
+  padding: 0; // Tables look better flush
+  overflow: hidden;
+
+  .TitleBar {
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid #333;
+    h3 {
+      margin: 0;
+      color: #60a5fa;
+    }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+
+    th {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px 15px;
+      text-align: left;
+      color: #444;
+      text-transform: uppercase;
+      font-size: 0.65rem;
+    }
+
+    td {
+      padding: 10px 15px;
+      border-bottom: 1px solid #222;
+    }
+  }
+}
+
+.BmsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+
+  .Cell {
+    background: #000;
+    border: 1px solid #333;
+    padding: 8px;
+    border-radius: 4px;
+
+    label {
+      font-size: 0.6rem;
+      color: #555;
+      display: block;
+      font-weight: bold;
+    }
+    span {
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: #ddd;
+    }
+  }
+}
+
+.Footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #111;
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: 1px solid #333;
+}

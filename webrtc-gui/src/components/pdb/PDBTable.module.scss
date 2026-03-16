@@ -1,0 +1,144 @@
+.container {
+  background-color: #111114;
+  border: 1px solid #2d2d30;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.title {
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #10b981;
+  margin-bottom: 1rem;
+}
+
+.grid {
+  display: grid;
+  /* Responsive grid without tailwind classes */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+.cell {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #2d2d30;
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.cellLabel {
+  font-size: 0.6rem;
+  color: #666;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+}
+
+.cellValue {
+  font-size: 0.9rem;
+  font-family: monospace;
+  color: #e2e8f0;
+  margin: 0;
+}
+
+.ChannelRow {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s;
+  font-size: 0.75rem;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  &.Off {
+    opacity: 0.4;
+  }
+
+  td {
+    padding: 10px 15px;
+    font-family: monospace;
+  }
+
+  .ChannelId {
+    font-weight: bold;
+    &.Active {
+      color: #10b981;
+      animation: pulse 2s infinite;
+    }
+    &.Inactive {
+      color: #60a5fa;
+    }
+  }
+}
+
+.Switch {
+  position: relative;
+  display: inline-block;
+  width: 32px;
+  height: 18px;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .Slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #333;
+    transition: 0.4s;
+    border-radius: 34px;
+
+    &:before {
+      position: absolute;
+      content: "";
+      height: 12px;
+      width: 12px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+  }
+
+  input:checked + .Slider {
+    background-color: #10b981;
+  }
+  input:checked + .Slider:before {
+    transform: translateX(14px);
+  }
+  input:disabled + .Slider {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
