@@ -15,9 +15,8 @@ const formatUnit = (val: number | undefined | null, unit: string) => {
 
 const ChannelRow = memo(
   ({ id, metrics, board }: { id: number; metrics: any; board: string }) => {
-    const { voltage = 0, current = 0, power = 0, temp = 0 } = metrics || {};
+    const { voltage = 0, current = 0, power = 0, temp = 0, toggle = false } = metrics || {};
 
-    const [state, setState] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const peaks = usePDBPeaks(current, power, temp);
@@ -28,7 +27,6 @@ const ChannelRow = memo(
       if (!currentEndpoint || loading) return;
 
       setLoading(true);
-      const nextState = !state;
 
       try {
         await PDBService.toggleChannel(
@@ -36,10 +34,8 @@ const ChannelRow = memo(
           getEndpointsOfService,
           board,
           id,
-          nextState,
+          !toggle,
         );
-
-        setState(nextState);
       } catch (err) {
         console.error("Toggle failed", err);
         alert(`Network Error: Could not reach the PDB controller.`);
@@ -49,10 +45,9 @@ const ChannelRow = memo(
     };
 
     const isDrawing = current > 0.01;
-    const rowOpacity = state ? "opacity-100" : "opacity-40";
 
     return (
-      <tr className={`${styles.ChannelRow} ${!state ? styles.Off : ""}`}>
+      <tr className={`${styles.ChannelRow} ${!toggle ? styles.Off : ""}`}>
         <td>
           <span
             className={`${styles.ChannelId} ${isDrawing ? styles.Active : styles.Inactive}`}
@@ -78,7 +73,7 @@ const ChannelRow = memo(
           <label className={styles.Switch}>
             <input
               type="checkbox"
-              checked={state}
+              checked={toggle}
               disabled={loading || !currentEndpoint}
               onChange={handleToggle}
             />

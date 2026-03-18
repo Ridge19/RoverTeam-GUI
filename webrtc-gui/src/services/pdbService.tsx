@@ -99,8 +99,8 @@ const PDBService = {
     interval: number,
   ) {
     const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
-    
-    const response = await fetch(`${baseUrl}/can/polling/${interval}`, {
+
+    const response = await fetch(`${baseUrl}/pdb/can/polling/${interval}`, {
       method: "POST",
     });
 

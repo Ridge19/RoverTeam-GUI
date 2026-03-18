@@ -16,17 +16,14 @@ const PDB = () => {
   const pdbData = usePdbData();
 
   const busVoltage = useMemo(() => {
-    return pdbData.bms?.reduce((a: number, b: number) => a + b, 0) || 0;
+    return pdbData.bms?.metric_data?.reduce((a: number, b: number) => a + b, 0) || 0;
   }, [pdbData.bms]);
 
   return (
     <div className={styles.PdbPage}>
       <header className={styles.Header}>
         <div>
-          <h1>Power Distribution Center</h1>
-          <p className={styles.StatusLabel}>
-            SYSTEM_STATUS: <span className={styles.Nominal}>NOMINAL</span>
-          </p>
+          <h1>Power Distribution Boards</h1>
         </div>
 
         <div className={styles.StatsContainer}>
@@ -39,7 +36,7 @@ const PDB = () => {
           <div className={styles.StatBlock}>
             <p>Battery Cells</p>
             <p className={`${styles.Value} ${styles.Green}`}>
-              {pdbData.bms?.length || 0}
+              {pdbData.bms?.metric_data?.length || 0}
             </p>
           </div>
         </div>
