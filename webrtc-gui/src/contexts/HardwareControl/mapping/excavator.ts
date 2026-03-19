@@ -1,4 +1,4 @@
-// src/mappers/arm.ts
+// src/mappers/excavator.ts
 
 import { GamepadInputMapping } from "../types";
 
@@ -45,12 +45,8 @@ export function mapGamepadToExcavatorInputs(
 ): GamepadInputMapping {
   const targets: Record<string, number> = {};
 
-  
-
-  targets["EXC1"] = applyDeadzone(axes[0] ?? 0) * 70;
-  targets["EXC2"] = applyDeadzone(axes[1] ?? 0) * -1 * 70;
-
-
+  targets["EXC1"] = applyDeadzone(axes[1] ?? 0) * 70;
+  targets["EXC2"] = applyDeadzone(axes[3] ?? 0) * 70;
 
   return targets;
 }

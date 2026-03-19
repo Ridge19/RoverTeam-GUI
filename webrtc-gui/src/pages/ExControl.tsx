@@ -97,11 +97,11 @@ const ExcControl: React.FC = () => {
 
     <div style={{display: "flex", flexDirection: "row", gap: 40}}>
       <div className="flex flex-col gap-2">
-        <ActuatorStatus name="EXC1" status="active" velocity={gamepad.hardwareStates.excavator?.outputs?.["EXC1_velocity"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["EXC1_position"] as number || 0} maxVelocity={20}/>
+        <ActuatorStatus name="EXC1" status="active" velocity={gamepad.hardwareStates.excavator?.outputs?.["EXC1_velocity"] as number || 0} position={gamepad.hardwareStates.excavator?.outputs?.["EXC1_position"] as number || 0} maxVelocity={70}/>
 
       </div>
       <div>
-        <ActuatorStatus name="EXC2" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["EXC2_velocity"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["EXC2_position"] as number || 0} maxVelocity={20}/>
+        <ActuatorStatus name="EXC2" status="active" velocity={gamepad.hardwareStates.excavator?.outputs?.["EXC2_velocity"] as number || 0} position={gamepad.hardwareStates.excavator?.outputs?.["EXC2_position"] as number || 0} maxVelocity={70}/>
         
       </div>
       <div>
