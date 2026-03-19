@@ -37,12 +37,12 @@ const DriveControl: React.FC = () => {
   const { roverStatus } = useTelemetryContext();
   const imuData = roverStatus.find((s) => s.data.imu_data)?.data;
 
-  const { cameras, loading, fetchCameras } = useCameraStreams();
-  const [refreshing, setRefreshing] = useState(false);
-
   const [warningModal, setWarningModal] = useState<boolean>(false);
 
   // Pre-fetch /cameras for all endpoints to ensure IDs are loaded
+  const { cameras, loading, fetchCameras } = useCameraStreams();
+  const [refreshing, setRefreshing] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
 
