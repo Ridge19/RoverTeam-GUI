@@ -16,6 +16,7 @@ import { AircraftHUD } from "@/components/AircraftHUD";
 import { Modal } from "@/components/Modal";
 import { useTelemetryContext } from "@/contexts/TelemetryContext";
 import { SpeedDisplay } from "@/components/SpeedDisplay";
+import CameraViewer from "@/components/CameraViewer";
 
 /*
 {
@@ -210,9 +211,7 @@ const DriveControl: React.FC = () => {
             <div style={{
               flex: 1
             }}>
-              {cameras[0] && <CameraFeed camera={cameras[0]}>
-                <AircraftHUD />
-              </CameraFeed>}
+              <CameraViewer cameras={cameras as any} />
             </div>
 
           </div>

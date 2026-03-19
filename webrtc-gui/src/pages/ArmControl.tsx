@@ -13,6 +13,7 @@ import { ActuatorStatus } from "@/components/ActuatorStatus";
 import { Camera, useCameraStreams } from "@/contexts/CameraStreamsContext";
 import { AxisFunction } from "@/components/AxisFunction";
 import { ButtonFunction } from "@/components/ButtonFunction";
+import CameraViewer from "@/components/CameraViewer";
 
 const ArmControl: React.FC = () => {
 
@@ -63,14 +64,14 @@ const ArmControl: React.FC = () => {
           gap: 20
         }}
     >
-        <TooltipLabel label="J1 (Base)"><AxisFunction size={32} axisIndex={0}/></TooltipLabel>
-        <TooltipLabel label="J2 (Shoulder)"><AxisFunction size={32} axisIndex={1}/></TooltipLabel>
-        <TooltipLabel label="J3 (Elbow)"><AxisFunction size={32} axisIndex={3}/></TooltipLabel>
-        <TooltipLabel label="J4 (Wrist Pitch)"><ButtonFunction size={32} buttonIndex={12}/></TooltipLabel>
-        <TooltipLabel label="J5 (Wrist Yaw)"><AxisFunction size={32} axisIndex={2}/></TooltipLabel>
-        <TooltipLabel label="J6 (Wrist Roll)"><ButtonFunction size={32} buttonIndex={14}/></TooltipLabel>
-        <TooltipLabel label="Gripper Grab"><ButtonTooltip size={32} buttonIndex={7}/></TooltipLabel>
-        <TooltipLabel label="Gripper Release"><ButtonTooltip size={32} buttonIndex={6}/></TooltipLabel>
+        <TooltipLabel label="J1 (Base)"><AxisFunction size={32} axisIndex={0} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
+        <TooltipLabel label="J2 (Shoulder)"><AxisFunction size={32} axisIndex={1} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
+        <TooltipLabel label="J3 (Elbow)"><AxisFunction size={32} axisIndex={3} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
+        <TooltipLabel label="J4 (Wrist Pitch)"><ButtonFunction size={32} buttonIndex={12} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
+        <TooltipLabel label="J5 (Wrist Yaw)"><AxisFunction size={32} axisIndex={2} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
+        <TooltipLabel label="J6 (Wrist Roll)"><ButtonFunction size={32} buttonIndex={14} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
+        <TooltipLabel label="Gripper Grab"><ButtonTooltip size={32} buttonIndex={7} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
+        <TooltipLabel label="Gripper Release"><ButtonTooltip size={32} buttonIndex={6} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
 
     </div>
 
@@ -86,7 +87,7 @@ const ArmControl: React.FC = () => {
         <ActuatorStatus name="J6" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J6_velocity"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J6_position"] as number || 0} maxVelocity={20}/>
       </div>
       <div>
-        {cameras[0] && <CameraFeed camera={cameras[0]}></CameraFeed>}
+        <CameraViewer cameras={cameras as any} />
       </div>
     </div> 
   </div>
