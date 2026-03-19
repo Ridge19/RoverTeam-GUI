@@ -15,7 +15,6 @@ const HeatpadWidget = () => {
 
     try {
       await ScienceService.setHeatpad(
-        '192.168.40.2',
         getEndpointsOfService,
         nextState,
       );

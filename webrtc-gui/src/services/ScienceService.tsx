@@ -6,25 +6,7 @@ const getHttpUrl = (wsUrl: string) => {
 };
 
 const ScienceService = {
-  getApiUrl(
-    telemetryWsUrl: string,
-    getEndpointsOfService: (s: string) => string[],
-  ) {
-    try {
-      const activeHost = new URL(telemetryWsUrl.replace(/^ws/, "http"))
-        .hostname;
-
-      const scienceEndpoints = getEndpointsOfService("science");
-
-      const match = scienceEndpoints.find((url) => url.includes(activeHost));
-
-      return match || `http://${activeHost}:5003`;
-    } catch (e) {
-      return "http://localhost:500";
-    }
-  },
   async setDrillSpeed(
-    currentEndpoint: string,
     getEndpointsOfService: (s: string) => string[],
     speed: number,
   ) {
@@ -39,13 +21,10 @@ const ScienceService = {
   },
 
   async setStepperStep(
-    currentEndpoint: string,
     getEndpointsOfService: (s: string) => string[],
     motorId: number,
     speed: number, // The number of channels on this board
   ) {
-    const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
-
     const response = await fetch(`${getEndpointsOfService('science')[0]}/steppers/${motorId}/${speed}`, {
       method: "POST",
     });
@@ -57,10 +36,8 @@ const ScienceService = {
   },
 
   async estop(
-    currentEndpoint: string,
     getEndpointsOfService: (s: string) => string[],
   ) {
-    const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
 
     const response = await fetch(`${getEndpointsOfService('science')[0]}/science/estop`, {
       method: "POST",
@@ -71,12 +48,9 @@ const ScienceService = {
   },
 
   async setHeatpad(
-    currentEndpoint: string,
     getEndpointsOfService: (s: string) => string[],
     toggleState: number,
   ) {
-    const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
-
     const response = await fetch(`${getEndpointsOfService('science')[0]}/heatpad/${toggleState}`, {
       method: "POST",
     });

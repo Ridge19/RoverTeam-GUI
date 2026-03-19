@@ -67,7 +67,7 @@
     gap: 8px;
     align-items: center;
     margin: 16px;
-
+    
     input {
         background: #333;
         border: 1px solid #444;
@@ -96,15 +96,14 @@
     }
 }
 
+.InputContainer {
+    text-align: center;
+}
 // .OutputContainer {
 //     // width: 17rem;
 //     // display: flex;
 //     // justify-content: flex-start;
 // }
-
-.Steps h4 {
-    text-align: center;
-}
 
 .Invisible {
     opacity: 0;

@@ -16,7 +16,6 @@ const DrillWidget = (handleSentSteps: WidgetProps) => {
 
   const handleDrillSubmit = async (speed: number) => {
     await ScienceService.setDrillSpeed(
-      '192.168.40.2',
       getEndpointsOfService,
       speed,
     );
@@ -38,6 +37,7 @@ const DrillWidget = (handleSentSteps: WidgetProps) => {
               <h4 className={styles.Units}> PWM</h4>
             </div>
           </div>
+          <hr />
           <div className={styles.Inputs}>
             <button onClick={() => handleDrillSubmit(-50)}>-50</button>
             <button onClick={() => handleDrillSubmit(-50)}>50</button>
@@ -46,7 +46,6 @@ const DrillWidget = (handleSentSteps: WidgetProps) => {
             <button onClick={() => handleDrillSubmit(-200)}>-200</button>
             <button onClick={() => handleDrillSubmit(200)}>200</button>
           </div>
-          <hr />
           <h4>Manual input</h4>
           <div className={styles.Inputs}>
             <input
