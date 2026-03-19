@@ -24,7 +24,7 @@ export const ENDPOINTS: EndpointConfig[] = [
       { port: 3001 }, // Cameras
       { port: 5005 }, // Telemetry
       { port: 5001 }, // Drive
-      { port: 5003 }, // Payload Backend (Arm)
+      // { port: 5003 }, // Payload Backend (Arm)
     ],
   },
   {
@@ -36,7 +36,7 @@ export const ENDPOINTS: EndpointConfig[] = [
       { port: 3001 }, // Cameras
       { port: 5005 }, // Telemetry
       { port: 5001 }, // Drive
-      { port: 5003 }, // Payload Backend (Arm)
+      { port: 5003 }, // Payload Backend
     ],
   },
   {
@@ -126,7 +126,7 @@ export function EndpointProvider({ children }: { children: React.ReactNode }) {
   const [selected, setSelected] = useState<EndpointState[]>([]);
   const handlers = useRef<((e: EndpointEvent) => void)[]>([]);
 
-  const emit = (e: EndpointEvent) => setTimeout(()=>handlers.current.forEach(h => h(e)))
+  const emit = (e: EndpointEvent) => setTimeout(() => handlers.current.forEach(h => h(e)))
 
   const onEvent = (handler: (e: EndpointEvent) => void) => {
     handlers.current.push(handler);

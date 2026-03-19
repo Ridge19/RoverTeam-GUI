@@ -6,24 +6,26 @@ import ScienceService from "@/services/ScienceService";
 
 interface WidgetProps {
   augerId: number;
+  handleSentSteps: Function;
 }
 
 const STEPS_MAP: Record<number, number[]> = {
-  1: [130, 260, 1300], // 130 steps per mm
+  1: [20, 50, 100],
   2: [25, 250, 1250], // 25 steps per mm
-  3: [20, 50, 100],
+  3: [130, 260, 1300], // 130 steps per mm
+
 };
 const MM_PER_STEPS_MAP: Record<number, number> = {
-  1: 130,
+  3: 130,
   2: 25,
 };
 const ID_MAP: Record<number, string> = {
-  1: "Auger Stepper",
+  1: "Swivel",
   2: "Microscope Stepper",
-  3: "Microscope Swivel",
+  3: "Extraction Stepper",
 };
 
-const AugerWidget = memo(({ augerId }: WidgetProps) => {
+const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
   const { getEndpointsOfService } = useEndpoints();
 
   const [inputSteps, setInputSteps] = useState<number>(0);
@@ -31,7 +33,7 @@ const AugerWidget = memo(({ augerId }: WidgetProps) => {
 
   const handleStepperSubmit = async (motorId: number, steps: number) => {
     await ScienceService.setStepperStep(
-      window.location.href,
+      '192.168.40.2',
       getEndpointsOfService,
       motorId,
       steps,
@@ -46,6 +48,12 @@ const AugerWidget = memo(({ augerId }: WidgetProps) => {
       </div>
       <div className={styles.Contents}>
         <div className={styles.InputContainer}>
+          <div className={styles.OutputContainer}>
+            <div className={styles.TelemetryDisplay}>
+              <h1>{displaySteps}</h1>
+              <h4 className={styles.Units}> Steps</h4>
+            </div>
+          </div>
           <div className={styles.Inputs}>
             <button onClick={() => handleStepperSubmit(augerId, -STEPS_MAP[augerId][0])}>-{STEPS_MAP[augerId][0]}</button>
             <button onClick={() => handleStepperSubmit(augerId, STEPS_MAP[augerId][0])}>+{STEPS_MAP[augerId][0]}</button>
@@ -54,7 +62,7 @@ const AugerWidget = memo(({ augerId }: WidgetProps) => {
             <button onClick={() => handleStepperSubmit(augerId, -STEPS_MAP[augerId][2])}>-{STEPS_MAP[augerId][2]}</button>
             <button onClick={() => handleStepperSubmit(augerId, STEPS_MAP[augerId][2])}>+{STEPS_MAP[augerId][2]}</button>
           </div>
-          <div className={styles.Steps}>{augerId != 3 && <h4> {MM_PER_STEPS_MAP[augerId]} steps per mm</h4>}</div>
+          <div className={styles.Steps}>{augerId != 1 && <h4> {MM_PER_STEPS_MAP[augerId]} steps per mm</h4>}</div>
           <hr />
           <h4>Manual input</h4>
           <span></span>
@@ -69,13 +77,13 @@ const AugerWidget = memo(({ augerId }: WidgetProps) => {
             </button>
           </div>
         </div>
-        <div className={styles.VerticalRule}></div>
+        {/* <div className={styles.VerticalRule}></div>
         <div className={styles.OutputContainer}>
           <div className={styles.TelemetryDisplay}>
             <h1>{displaySteps}</h1>
             <h4 className={styles.Units}> Steps</h4>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

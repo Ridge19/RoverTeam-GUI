@@ -7,8 +7,9 @@
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     display: flex;
     flex-direction: column;
-
-    h1, h2, h3, h4, h5 { margin: 0 0 16px 0; font-size: 1.2rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+    height: 100%;
+    
+    h1, h2, h3, h4, h5 { margin: 0 0 8px 0; font-size: 1.2rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
     h3 { font-size: 1.2rem }
     h4 { font-size: 1.0rem }
     h5 { font-size: 0.8rem } 
@@ -18,6 +19,24 @@
 
 .AugerWidget, .DrillWidget, .HeatpadWidget {
     @extend .WidgetBase;
+}
+
+.TelemetryDisplay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    h1 {
+        font-size: 5rem;
+        color: #ffffff;
+        vertical-align: middle;
+        margin: 0 0 -20px 0;
+    }
+
+    .Units {
+        margin: 0px 8px;
+        color: #9f9f9f;
+    }
 }
 
 .Title {
@@ -37,10 +56,10 @@
     border-radius: 4px;
 }
 
-.Contents {
-    display: flex;
-    flex-direction: row;
-}
+// .Contents {
+//     display: flex;
+//     flex-direction: row;
+// }
 
 .Inputs {
     display: grid;
@@ -77,23 +96,16 @@
     }
 }
 
+// .OutputContainer {
+//     // width: 17rem;
+//     // display: flex;
+//     // justify-content: flex-start;
+// }
+
 .Steps h4 {
     text-align: center;
 }
 
 .Invisible {
     opacity: 0;
-}
-
-.TelemetryDisplay {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    
-    h1 { font-size: 5rem; color: #ffffff; vertical-align: middle;}
-    .Units {
-        margin: 0px 8px;
-        color: #9f9f9f
-    }
 }

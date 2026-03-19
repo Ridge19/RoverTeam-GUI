@@ -5,14 +5,18 @@ import { useEndpoints } from "@/contexts/EndpointContext";
 import { useDrillData } from "@/hooks/science/useScienceTelemetry"
 import ScienceService from "@/services/ScienceService";
 
-const DrillWidget = () => {
+interface WidgetProps {
+  handleSentSteps: Function;
+}
+
+const DrillWidget = (handleSentSteps: WidgetProps) => {
   const { getEndpointsOfService } = useEndpoints();
 
   const [drillSpeed, setDrillSpeed] = useState<number>(0);
 
   const handleDrillSubmit = async (speed: number) => {
     await ScienceService.setDrillSpeed(
-      window.location.href,
+      '192.168.40.2',
       getEndpointsOfService,
       speed,
     );
@@ -28,6 +32,12 @@ const DrillWidget = () => {
       </div>
       <div className={styles.Contents}>
         <div className={styles.InputContainer}>
+          <div className={styles.OutputContainer}>
+            <div className={styles.TelemetryDisplay}>
+              <h1 className={styles.StepperText}>{displaySpeed}</h1>
+              <h4 className={styles.Units}> PWM</h4>
+            </div>
+          </div>
           <div className={styles.Inputs}>
             <button onClick={() => handleDrillSubmit(-50)}>-50</button>
             <button onClick={() => handleDrillSubmit(-50)}>50</button>
@@ -47,13 +57,13 @@ const DrillWidget = () => {
             <button onClick={() => handleDrillSubmit(drillSpeed)}>Speed</button>
           </div>
         </div>
-        <div className={styles.VerticalRule}></div>
+        {/* <div className={styles.VerticalRule}></div>
         <div className={styles.OutputContainer}>
           <div className={styles.TelemetryDisplay}>
-            <h1>{displaySpeed}</h1>
+            <h1 className={styles.StepperText}>{displaySpeed}</h1>
             <h4 className={styles.Units}> PWM</h4>
           </div>
-        </div>
+        </div> */}
       </div>
     </div >
   );

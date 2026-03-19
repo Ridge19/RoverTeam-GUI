@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useTelemetryContext } from "@/contexts/TelemetryContext";
 
-function useScienceData() {
+export function useScienceData() {
   const { roverStatus } = useTelemetryContext();
 
   return useMemo(() => {
@@ -29,4 +29,10 @@ export function useHeatpadData() {
   const scienceData = useScienceData();
 
   return useMemo(() => !!scienceData?.heatpad_status, [scienceData])
+}
+
+export function useSensorData(sensorId: number) {
+  const scienceData = useScienceData();
+
+  return useMemo(() => scienceData?.sensors[sensorId] ?? 0, [scienceData]);
 }

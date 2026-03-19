@@ -28,12 +28,12 @@ const ScienceService = {
     getEndpointsOfService: (s: string) => string[],
     speed: number,
   ) {
-    const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
 
-    const response = await fetch(`${baseUrl}/drill/speed/${speed}`, {
+    const response = await fetch(`${getEndpointsOfService('science')[0]}/drill/speed/${speed}`, {
       method: "POST",
     });
 
+    console.log("SET DRILL SPEED")
     if (!response.ok) throw new Error(`Drill Error: ${response.statusText}`);
     return response.json();
   },
@@ -46,9 +46,12 @@ const ScienceService = {
   ) {
     const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
 
-    const response = await fetch(`${baseUrl}/steppers/${motorId}/${speed}`, {
+    const response = await fetch(`${getEndpointsOfService('science')[0]}/steppers/${motorId}/${speed}`, {
       method: "POST",
     });
+    if (!response.ok) throw new Error(`Science Error: ${response.statusText}`);
+
+    console.log("SET STEPPER STEP")
 
     return true;
   },
@@ -59,7 +62,7 @@ const ScienceService = {
   ) {
     const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
 
-    const response = await fetch(`${baseUrl}/science/estop`, {
+    const response = await fetch(`${getEndpointsOfService('science')[0]}/science/estop`, {
       method: "POST",
     });
 
@@ -74,10 +77,9 @@ const ScienceService = {
   ) {
     const baseUrl = this.getApiUrl(currentEndpoint, getEndpointsOfService);
 
-    const response = await fetch(`${baseUrl}/heatpad/${toggleState}`, {
+    const response = await fetch(`${getEndpointsOfService('science')[0]}/heatpad/${toggleState}`, {
       method: "POST",
     });
-
     if (!response.ok) throw new Error(`Science Error: ${response.statusText}`);
     return response.json();
   },
