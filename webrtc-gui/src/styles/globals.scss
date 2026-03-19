@@ -1,3 +1,5 @@
+@use "tailwindcss";
+
 /* Camera grid video and button styles */
 .rover-camera video {
   width: 100%;
@@ -244,7 +246,6 @@
   align-items: center;
   justify-content: center;
 }
-@import "tailwindcss";
 
 :root {
   --background: #ffffff;
