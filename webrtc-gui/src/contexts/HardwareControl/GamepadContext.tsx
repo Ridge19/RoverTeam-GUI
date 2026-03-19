@@ -85,6 +85,14 @@ export const GamepadProvider = ({ children }: { children: ReactNode }) => {
             hasControl: false,
             outputs: {},
             error: null,
+            sendEvent: (name: string) => {
+              const socket = controlSockets.current[hw];
+              if (socket?.ws?.readyState === WebSocket.OPEN) {
+                socket.sendEvent(name);
+              } else {
+                console.warn(`Cannot send event, WS not open for ${hw}`);
+              }
+            },
           };
         }
       });
@@ -243,10 +251,19 @@ export const GamepadProvider = ({ children }: { children: ReactNode }) => {
     setHardwareStates((prev) => ({
       ...prev,
       [name]: {
+        ...(prev[name] || {}),
         ws: adapter,
         hasControl: true,
         outputs: {},
         error: null,
+        sendEvent: prev[name]?.sendEvent ?? ((eventName: string) => {
+          const socket = controlSockets.current[name];
+          if (socket?.ws?.readyState === WebSocket.OPEN) {
+            socket.sendEvent(eventName);
+          } else {
+            console.warn(`Cannot send event, WS not open for ${name}`);
+          }
+        }),
       },
     }));
 

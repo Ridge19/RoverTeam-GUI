@@ -16,6 +16,7 @@ import { AircraftHUD } from "@/components/AircraftHUD";
 import { Modal } from "@/components/Modal";
 import { useTelemetryContext } from "@/contexts/TelemetryContext";
 import { SpeedDisplay } from "@/components/SpeedDisplay";
+import CameraViewer from "@/components/CameraViewer";
 
 /*
 {
@@ -37,12 +38,12 @@ const DriveControl: React.FC = () => {
   const { roverStatus } = useTelemetryContext();
   const imuData = roverStatus.find((s) => s.data.imu_data)?.data;
 
-  const { cameras, loading, fetchCameras } = useCameraStreams();
-  const [refreshing, setRefreshing] = useState(false);
-
   const [warningModal, setWarningModal] = useState<boolean>(false);
 
   // Pre-fetch /cameras for all endpoints to ensure IDs are loaded
+  const { cameras, loading, fetchCameras } = useCameraStreams();
+  const [refreshing, setRefreshing] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -92,7 +93,9 @@ const DriveControl: React.FC = () => {
 
             <TooltipLabel label="Clear Errors (Hold)">
               <div className="mr-1">
-                <ButtonHoldTooltip buttonIndex={2} holdDuration={1} onComplete={() => { }} size={50}></ButtonHoldTooltip>
+                <ButtonHoldTooltip buttonIndex={2} holdDuration={1} onComplete={() => {
+                  gamepad.hardwareStates.drive?.sendEvent!("clear_errors")
+                }} size={50} disabled={gamepad.hasControl!=="drive"}></ButtonHoldTooltip>
               </div>
             </TooltipLabel>
 
@@ -100,14 +103,18 @@ const DriveControl: React.FC = () => {
               <div className="mr-1">
                 <ButtonHoldTooltip buttonIndex={9} holdDuration={3} onComplete={() => {
                   setWarningModal(true)
-                }} size={50}></ButtonHoldTooltip>
+                }} size={50} disabled={gamepad.hasControl!=="drive"}></ButtonHoldTooltip>
               </div>
             </TooltipLabel>
 
             <Modal
               open={warningModal}
-              onClose={() => {
+              onClose={(a) => {
                 setWarningModal(false);
+
+                if(a=="Enable Torque Mode"){
+                  gamepad.hardwareStates.drive?.sendEvent!("drive_mode_2")
+                }
               }}
               title="ENABLE TORQUE MODE?"
               actions={["Enable Torque Mode", "Cancel"]}
@@ -155,10 +162,12 @@ const DriveControl: React.FC = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-              }}>LOCKED</div>
+              }}>{gamepad.hardwareStates.drive?.outputs["drive_mode"]==0 ? "UNLOCKED" : "LOCKED"}</div>
               <div style={{ fontSize: 14 }}>
-                <TooltipLabel label="Unlock Differential (Hold)">
-                  <ButtonHoldTooltip buttonIndex={0} holdDuration={0.5} onComplete={() => { }} size={32}></ButtonHoldTooltip>
+                <TooltipLabel label={`${gamepad.hardwareStates.drive?.outputs["drive_mode"]==0 ? "Lock" : "Unlock"} Differential (Hold)`}>
+                  <ButtonHoldTooltip buttonIndex={0} holdDuration={0.5} onComplete={() => {
+                    gamepad.hardwareStates.drive?.sendEvent!(gamepad.hardwareStates.drive?.outputs["drive_mode"]==0 ? "drive_mode_1" : "drive_mode_0")
+                  }} size={32} disabled={gamepad.hasControl!=="drive"}></ButtonHoldTooltip>
                 </TooltipLabel>
               </div>
             </div>
@@ -197,14 +206,12 @@ const DriveControl: React.FC = () => {
               alignItems: "center",
               justifyContent: "center",
             }}>
-              <SpeedDisplay value={imuData?.imu_data?.vel?.fd} />
+              <SpeedDisplay value={gamepad.hardwareStates.drive?.outputs?.["vel_fd"] as number || 0} />
             </div>
             <div style={{
               flex: 1
             }}>
-              {cameras[0] && <CameraFeed camera={cameras[0]}>
-                <AircraftHUD />
-              </CameraFeed>}
+              <CameraViewer cameras={cameras as any} />
             </div>
 
           </div>
@@ -217,13 +224,13 @@ const DriveControl: React.FC = () => {
           }}>
             <>
               <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <AngleView label="PITCH" angle={imuData?.imu_data?.gyro?.p || 0} imageUrl="diagrams/eq-side.png" hasData={!!imuData} simulated={imuData && imuData.imu_data.simulated} />
+                <AngleView label="PITCH" angle={-(gamepad.hardwareStates.drive?.outputs?.["gyro_p"] as number || 0)} imageUrl="diagrams/eq-side.png" hasData={gamepad.hardwareStates.drive?.outputs?.["gyro_p"] !== undefined} simulated={false} />
               </div>
               <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <AngleView label="ROLL" angle={imuData?.imu_data?.gyro?.r || 0} imageUrl="diagrams/eq-back.png" hasData={!!imuData} simulated={imuData && imuData.imu_data.simulated} />
+                <AngleView label="ROLL" angle={gamepad.hardwareStates.drive?.outputs?.["gyro_r"] as number || 0} imageUrl="diagrams/eq-back.png" hasData={gamepad.hardwareStates.drive?.outputs?.["gyro_r"] !== undefined} simulated={false} />
               </div>
               <div style={{ flex: 1, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <AngleView label="YAW" angle={imuData?.imu_data?.gyro?.y || 0} imageUrl="diagrams/eq-top.png" hasData={!!imuData} simulated={imuData && imuData.imu_data.simulated} />
+                <AngleView label="YAW" angle={gamepad.hardwareStates.drive?.outputs?.["gyro_y"] as number || 0} imageUrl="diagrams/eq-top.png" hasData={gamepad.hardwareStates.drive?.outputs?.["gyro_y"] !== undefined} simulated={false} />
               </div>
             </>
           </div>

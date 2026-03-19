@@ -16,6 +16,7 @@ export interface HardwareState {
   hasControl: boolean;
   outputs: OutputPayload;
   error: string | null;
+  sendEvent?: (event: string) => void;
 }
 
 export interface GamepadInputMapping {

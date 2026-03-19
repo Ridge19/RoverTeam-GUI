@@ -8,6 +8,7 @@ interface ButtonHoldTooltipProps {
   size?: number;
   onComplete: () => void;
   style?: React.CSSProperties;
+  disabled?: boolean; // ✅ New prop
 }
 
 export const ButtonHoldTooltip: React.FC<ButtonHoldTooltipProps> = ({
@@ -16,6 +17,7 @@ export const ButtonHoldTooltip: React.FC<ButtonHoldTooltipProps> = ({
   size = 64,
   onComplete,
   style,
+  disabled = false, // default false
 }) => {
   const { pressed } = useGamepad();
   const [progress, setProgress] = useState(0);
@@ -24,17 +26,24 @@ export const ButtonHoldTooltip: React.FC<ButtonHoldTooltipProps> = ({
   const prevPressedRef = useRef<boolean>(true);
 
   useEffect(() => {
+    if (disabled) {
+      setProgress(0);
+      startTimeRef.current = null;
+      prevPressedRef.current = false;
+      return;
+    }
+
     const update = (timestamp: number) => {
       const isPressed = pressed[buttonIndex] ?? false;
       const prevPressed = prevPressedRef.current;
 
-      // Rising edge: button just pressed
+      // Rising edge
       if (isPressed && !prevPressed) {
         startTimeRef.current = timestamp;
         setProgress(0);
       }
 
-      // Falling edge: button released
+      // Falling edge
       if (!isPressed && prevPressed) {
         startTimeRef.current = null;
         setProgress(0);
@@ -47,7 +56,7 @@ export const ButtonHoldTooltip: React.FC<ButtonHoldTooltipProps> = ({
         setProgress(newProgress);
 
         if (newProgress >= 1) {
-          onComplete();
+          onComplete(); // ✅ only fires if not disabled
           startTimeRef.current = null;
           setProgress(0);
         }
@@ -59,7 +68,7 @@ export const ButtonHoldTooltip: React.FC<ButtonHoldTooltipProps> = ({
 
     rafRef.current = requestAnimationFrame(update);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [pressed[buttonIndex]]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pressed[buttonIndex], disabled]); // re-run if disabled changes
 
   // Circle stroke size
   const strokeWidth = 4;
@@ -73,6 +82,8 @@ export const ButtonHoldTooltip: React.FC<ButtonHoldTooltipProps> = ({
         position: "relative",
         width: size,
         height: size,
+        opacity: disabled ? 0.6 : 1, // ✅ greyed out when disabled
+        pointerEvents: disabled ? "none" : "auto", // ✅ prevent interaction
         ...style,
       }}
     >

@@ -74,7 +74,11 @@ const StatusBanner: React.FC<StatusBannerProps> = ({
   const gamepad = useGamepad()
 
   // Check if hardware is available
-  const { ok, error } = gamepad.hardwareControlAvailable?.(controlDevice) ?? { ok: false, error: "Controller must be connected" }
+  const { ok, error } =
+    gamepad.hardwareControlAvailable?.(controlDevice) ?? {
+      ok: false,
+      error: "Controller must be connected",
+    }
 
   // Determine state
   let state: ControlState = "disabled"
@@ -89,6 +93,36 @@ const StatusBanner: React.FC<StatusBannerProps> = ({
     background: stripeBackground(colors.stripeA, colors.stripeB),
   }
 
+  const takeControl = async () => {
+    // 1️⃣ Set hasControl immediately
+    gamepad.setHasControl(controlDevice)
+
+    // 2️⃣ Wait for hardware to be ready
+    const hw = await new Promise<any>((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error("Hardware not ready")), 1000)
+      const interval = setInterval(() => {
+        const hwReady = gamepad.hardwareStates[controlDevice]
+        if (hwReady?.sendEvent) {
+          clearInterval(interval)
+          clearTimeout(timeout)
+          resolve(hwReady)
+        }
+      }, 50)
+    }).catch((e) => {
+      console.warn(e.message)
+      return null
+    })
+
+    // 3️⃣ Send event if ready
+    hw?.sendEvent("control_take")
+  }
+
+  const releaseControl = async () => {
+    const hw = gamepad.hardwareStates[controlDevice]
+    hw?.sendEvent?.("control_release")
+    gamepad.setHasControl("none")
+  }
+
   return (
     <div style={bannerStyle}>
       <div style={labelBase}>
@@ -100,7 +134,7 @@ const StatusBanner: React.FC<StatusBannerProps> = ({
               style={buttonStyle}
               buttonIndex={1}
               holdDuration={1}
-              onComplete={() => gamepad.setHasControl("none")}
+              onComplete={releaseControl} // sends "control_release" then releases
             />
             TO EXIT
           </>
@@ -112,14 +146,12 @@ const StatusBanner: React.FC<StatusBannerProps> = ({
               style={buttonStyle}
               buttonIndex={3}
               holdDuration={1}
-              onComplete={() => gamepad.setHasControl(controlDevice)}
+              onComplete={takeControl} // sends "control_take" then takes control
             />
             TO TAKE CONTROL OF {controlDeviceLabel.toUpperCase()}
           </>
         ) : (
-          <>
-            {(error ?? "Controller must be connected").toUpperCase()}
-          </>
+          <>{(error ?? "Controller must be connected").toUpperCase()}</>
         )}
       </div>
     </div>
