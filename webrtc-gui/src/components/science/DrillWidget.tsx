@@ -30,14 +30,14 @@ const DrillWidget = (handleSentSteps: WidgetProps) => {
         <h5>Id 0</h5>
       </div>
       <div className={styles.Contents}>
-        <div className={styles.InputContainer}>
-          <div className={styles.OutputContainer}>
-            <div className={styles.TelemetryDisplay}>
-              <h1 className={styles.StepperText}>{displaySpeed}</h1>
-              <h4 className={styles.Units}> PWM</h4>
-            </div>
+        <div className={styles.OutputContainer}>
+          <div className={styles.TelemetryDisplay}>
+            <h1 className={styles.StepperText}>{displaySpeed}</h1>
+            <h4 className={styles.Units}> PWM</h4>
           </div>
-          <hr />
+        </div>
+        <hr />
+        <div className={styles.InputContainer}>
           <div className={styles.Inputs}>
             <button onClick={() => handleDrillSubmit(-50)}>-50</button>
             <button onClick={() => handleDrillSubmit(-50)}>50</button>

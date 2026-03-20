@@ -29,19 +29,22 @@ const ScienceControl: React.FC = () => {
   }, [sentSteps])
   return (
     <div style={{ padding: 20 }}>
-      <h2 style={{ color: "#aaa" }}>Telemetry Feed</h2>
+      <h2 style={{ color: "#aaa" }}>Space Resources Control</h2>
 
       <div className={styles.ScienceControl}>
-        <div className={styles.MotorControl}>
-          <AugerWidget augerId={2} handleSentSteps={handleSentSteps} />
-          <AugerWidget augerId={3} handleSentSteps={handleSentSteps} />
-          <DrillWidget handleSentSteps={handleSentSteps} />
-          <AugerWidget augerId={1} handleSentSteps={handleSentSteps} />
-
+        <div className={styles.ControlSidebar}>
+          <div className={styles.MotorControl}>
+            <AugerWidget augerId={2} handleSentSteps={handleSentSteps} />
+            <AugerWidget augerId={3} handleSentSteps={handleSentSteps} />
+            <DrillWidget handleSentSteps={handleSentSteps} />
+            <AugerWidget augerId={1} handleSentSteps={handleSentSteps} />
+          </div>
+          <HeatpadWidget />
         </div>
-        <HeatpadWidget />
-        <MicroscopeCamera />
-        <div style={{ display: 'flex', flexFlow: 'column', width: '100%', height: '1000px', background: '#111', borderRadius: '8px' }}>
+        <div className={styles.MicroscopeContainer}>
+          <MicroscopeCamera />
+        </div>
+        <div className={styles.ModelContainer}>
           <Canvas camera={{ position: [50, 50, 50], fov: 45, zoom: 0.8 }}>
             <Suspense fallback={null}>
               <Stage environment="sunset" intensity={0.5}>
@@ -51,8 +54,8 @@ const ScienceControl: React.FC = () => {
             <OrbitControls />
           </Canvas>
         </div>
-      </div>
-    </div >
+      </div >
+    </div>
   );
 };
 

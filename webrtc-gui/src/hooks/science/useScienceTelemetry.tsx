@@ -34,5 +34,5 @@ export function useHeatpadData() {
 export function useSensorData(sensorId: number) {
   const scienceData = useScienceData();
 
-  return useMemo(() => scienceData?.sensors[sensorId] ?? 0, [scienceData]);
+  return useMemo(() => scienceData?.sensors?.[sensorId] ?? 0, [scienceData, sensorId]);
 }

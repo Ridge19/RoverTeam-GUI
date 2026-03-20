@@ -64,7 +64,6 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
             <button onClick={() => handleStepperSubmit(augerId, STEPS_MAP[augerId][2])}>+{STEPS_MAP[augerId][2]}</button>
           </div>
           <h4>Manual input</h4>
-          <span></span>
           <div className={styles.Inputs}>
             <input
               type="number"

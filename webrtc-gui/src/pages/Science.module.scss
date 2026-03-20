@@ -1,16 +1,41 @@
 .ScienceControl {
-    display: flex;
-    flex-direction: row;
-    // flex-wrap: wrap;
-    gap: 20px;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: min-content min-content 1fr;
+    gap: 24px;
+    align-items: start;
+    height: 100%;
+    padding: 10px;
+}
 
-    .MotorControl {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        align-items: center;
-        margin: 16px;
+.ControlSidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: auto;
+}
+
+.MotorControl {
+    display: grid;
+    grid-template-columns: 1fr 1fr; // Put motors in a 2x2 grid to save vertical space
+    gap: 12px;
+}
+
+.MicroscopeContainer {
+    min-width: 300px;
+    height: auto;
+
+    video, .MicroscopeFeed {
+        width: 100%;
+        height: auto;
+        display: block;
     }
 }
 
+.ModelContainer {
+    background: #222;
+    border-radius: 12px;
+    border: 1px solid #333;
+    height: 80vh; // Give it a fixed viewport height so it's big
+    position: relative;
+    overflow: hidden;
+}

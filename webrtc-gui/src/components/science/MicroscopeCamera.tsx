@@ -2,6 +2,7 @@ import React, { useEffect } from "react"
 import { useCameraStreams } from "@/contexts/CameraStreamsContext";
 import { CameraFeed } from "@/components/CameraFeed";
 import MicroscopeOverlay from "@/components/science/MicroscopeOverlay";
+import styles from "./TelemetryWidget.module.scss"
 
 const MicroscopeCamera = () => {
     const { cameras, loading, fetchCameras } = useCameraStreams();
@@ -22,11 +23,11 @@ const MicroscopeCamera = () => {
         };
     }, [cameras, fetchCameras]);
     return (
-        <>
+        <div className={styles.MicroscopeFeed}>
             {cameras[0] && <CameraFeed camera={cameras[0]}>
                 <MicroscopeOverlay />
             </CameraFeed >}
-        </>
+        </div>
     )
 }
 
