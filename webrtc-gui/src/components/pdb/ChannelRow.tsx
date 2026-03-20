@@ -30,7 +30,6 @@ const ChannelRow = memo(
 
       try {
         await PDBService.toggleChannel(
-          currentEndpoint,
           getEndpointsOfService,
           board,
           id,

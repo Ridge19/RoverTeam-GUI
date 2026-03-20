@@ -17,7 +17,6 @@ const PollingInput = ({ initialInterval }: { initialInterval: number }) => {
       if (!currentEndpoint || loading) return;
 
       await PDBService.setInterval(
-        currentEndpoint,
         getEndpointsOfService,
         newValue,
       );

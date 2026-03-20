@@ -19,7 +19,7 @@ const EstopButton = () => {
 
     setLoading(true);
     try {
-      await PDBService.estop(currentEndpoint, getEndpointsOfService);
+      await PDBService.estop(getEndpointsOfService);
       alert("EMERGENCY STOP COMMAND SENT");
     } catch (err) {
       console.error("E-Stop failed", err);
@@ -36,10 +36,9 @@ const EstopButton = () => {
       className={`
         group relative flex items-center justify-center gap-3
         px-8 py-4 rounded-xl font-black uppercase tracking-tighter transition-all
-        ${
-          loading || !currentEndpoint
-            ? "bg-gray-800 text-gray-600 cursor-not-allowed"
-            : "bg-red-600 hover:bg-red-500 text-white shadow-[0_0_20px_rgba(220,38,38,0.5)] hover:shadow-[0_0_30px_rgba(220,38,38,0.8)] active:scale-95"
+        ${loading || !currentEndpoint
+          ? "bg-gray-800 text-gray-600 cursor-not-allowed"
+          : "bg-red-600 hover:bg-red-500 text-white shadow-[0_0_20px_rgba(220,38,38,0.5)] hover:shadow-[0_0_30px_rgba(220,38,38,0.8)] active:scale-95"
         }
       `}
     >
