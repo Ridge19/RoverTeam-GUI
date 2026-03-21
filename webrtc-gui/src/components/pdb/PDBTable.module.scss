@@ -1,3 +1,85 @@
+.WidgetBase {
+  background-color: #111; // Slightly darker for depth
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #333;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+
+  h3 {
+    margin: 0 0 16px 0;
+    font-size: 1.2rem;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+}
+
+.BoardWidget {
+  @extend .WidgetBase;
+  padding: 0; // Tables look better flush
+  overflow: hidden;
+
+  .TitleBar {
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid #333;
+
+    h3 {
+      margin: 0;
+      color: #60a5fa;
+    }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+
+    th {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px 15px;
+      text-align: left;
+      color: #444;
+      text-transform: uppercase;
+      font-size: 0.65rem;
+    }
+
+    td {
+      padding: 10px 15px;
+      border-bottom: 1px solid #222;
+    }
+  }
+}
+
+.BMSGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+
+  .Cell {
+    background: #000;
+    border: 1px solid #333;
+    padding: 8px;
+    border-radius: 4px;
+
+    label {
+      font-size: 0.6rem;
+      color: #555;
+      display: block;
+      font-weight: bold;
+    }
+
+    span {
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: #ddd;
+    }
+  }
+}
+
 .container {
   background-color: #111114;
   border: 1px solid #2d2d30;
@@ -16,7 +98,6 @@
 
 .grid {
   display: grid;
-  /* Responsive grid without tailwind classes */
   grid-template-columns: repeat(2, 1fr);
   gap: 0.75rem;
 }
@@ -33,7 +114,7 @@
 }
 
 .cell {
-  background: rgba(0, 0, 0, 0.4);
+  background: #222;
   border: 1px solid #2d2d30;
   padding: 0.5rem;
   border-radius: 6px;

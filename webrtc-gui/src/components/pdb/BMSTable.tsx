@@ -20,7 +20,7 @@ const BMSTable = () => {
   return (
     <section className={styles.container}>
       <h3 className={styles.title}>BMS Monitor</h3>
-      <div className={styles.grid}>
+      <div className={styles.BMSGrid}>
         {Array.from({ length: 12 }).map((_, i) => (
           <BatteryCell
             key={i}

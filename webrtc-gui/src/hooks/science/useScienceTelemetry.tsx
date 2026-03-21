@@ -28,7 +28,7 @@ export function useDrillData() {
 export function useHeatpadData() {
   const scienceData = useScienceData();
 
-  return useMemo(() => !!scienceData?.heatpad_status, [scienceData])
+  return useMemo(() => !!scienceData?.temp_state?.[4], [scienceData])
 }
 
 export function useSensorData(sensorId: number) {
