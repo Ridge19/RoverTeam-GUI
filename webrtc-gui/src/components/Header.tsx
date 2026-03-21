@@ -98,9 +98,11 @@ export const Header: React.FC<HeaderProps> = ({
           tabs={[
             { id: "cameras", label: "Cameras" },
             { id: 'drive', label: 'Drive' },
-            { id: "arm", label: "Arm" },
-            { id: "telemetry", label: "Telemetry" },
-            { id: "vitals", label: "System" },
+            { id: 'arm', label: 'Arm' },
+            { id: 'exc', label: 'Excavator' },
+            { id: 'telemetry', label: 'Telemetry' },
+            { id: 'vitals', label: 'System' },
+            { id: 'science', label: 'Science' },
             { id: "pdb", label: "PDB" },
           ]}
           active={activeTab}

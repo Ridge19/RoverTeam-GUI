@@ -52,6 +52,10 @@ export class ControlSocketAdapter {
     }
   }
 
+  sendEvent(name: string) {
+    this.sendInput({ [name]: true });
+  }
+
   close() {
     this.ws?.close();
     this.ws = null;

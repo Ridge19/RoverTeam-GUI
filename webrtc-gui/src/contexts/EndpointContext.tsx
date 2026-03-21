@@ -24,7 +24,7 @@ export interface EndpointConfig {
 export const ENDPOINTS: EndpointConfig[] = [
   {
     name: "Equinox 1",
-    host: "http://Equinox1.local",
+    host: "http://192.168.40.1",
     priority: 1,
     ports: [
       { port: 3001 }, // Cameras
@@ -36,7 +36,7 @@ export const ENDPOINTS: EndpointConfig[] = [
   },
   {
     name: "Equinox 2",
-    host: "http://Equinox2.local",
+    host: "http://192.168.40.2",
     //host: "http://192.168.40.2",
     priority: 1,
     ports: [
@@ -136,8 +136,7 @@ export function EndpointProvider({ children }: { children: React.ReactNode }) {
   const [selected, setSelected] = useState<EndpointState[]>([]);
   const handlers = useRef<((e: EndpointEvent) => void)[]>([]);
 
-  const emit = (e: EndpointEvent) =>
-    setTimeout(() => handlers.current.forEach((h) => h(e)));
+  const emit = (e: EndpointEvent) => setTimeout(() => handlers.current.forEach(h => h(e)))
 
   const onEvent = (handler: (e: EndpointEvent) => void) => {
     handlers.current.push(handler);
