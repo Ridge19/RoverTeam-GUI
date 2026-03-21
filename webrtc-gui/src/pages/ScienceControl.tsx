@@ -7,6 +7,7 @@ import styles from "./Science.module.scss"
 import { Canvas } from "@react-three/fiber";
 import { useGLTF, OrbitControls, Stage } from "@react-three/drei"
 import { ScienceModel } from "@/components/science/ScienceModel"; // Import the component above
+import SpectrometerWidget from "@/components/science/SpectrometerWidget";
 
 function Model() {
   // Ensure this file is at: public/models/SciencePayload.gltf
@@ -29,6 +30,8 @@ const ScienceControl: React.FC = () => {
         <HeatpadWidget />
 
         <MicroscopeCamera />
+
+        <SpectrometerWidget />
 
         <div style={{ width: '100%', height: '400px', background: '#111', borderRadius: '8px' }}>
           <Canvas camera={{ position: [20, 20, 20], fov: 45 }}>
