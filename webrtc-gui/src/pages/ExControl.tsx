@@ -11,6 +11,7 @@ import { StatusBanner } from "@/components/StatusBanner";
 import { TooltipLabel } from "@/components/TooltipLabel";
 import { ActuatorStatus } from "@/components/ActuatorStatus";
 import { Camera, useCameraStreams } from "@/contexts/CameraStreamsContext";
+import CameraViewer from "@/components/CameraViewer";
 
 const ExcControl: React.FC = () => {
 
@@ -66,48 +67,15 @@ const ExcControl: React.FC = () => {
 
     </div>
 
-    <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "center",
-          marginBottom: 20,
-          gap: 20
-        }}
-    >
-      <ButtonTooltip buttonIndex={0}/>
-      <ButtonTooltip buttonIndex={1}/>
-      <ButtonTooltip buttonIndex={2}/>
-      <ButtonTooltip buttonIndex={4}/>
-      <ButtonTooltip buttonIndex={5}/>
-      <ButtonTooltip buttonIndex={6}/>
-      <ButtonTooltip buttonIndex={7}/>
-      <ButtonTooltip buttonIndex={8}/>
-      <ButtonTooltip buttonIndex={9}/>
-      <ButtonTooltip buttonIndex={10}/>
-      <ButtonTooltip buttonIndex={11}/>
-      <ButtonTooltip buttonIndex={12}/>
-      <ButtonTooltip buttonIndex={13}/>
-      <ButtonTooltip buttonIndex={14}/>
-      <ButtonTooltip buttonIndex={15}/>
-
-      <TooltipLabel label="Test Function"><ButtonTooltip size={32} buttonIndex={0}/></TooltipLabel>
-
-    </div>
-
-    <div style={{display: "flex", flexDirection: "row", gap: 40}}>
-      <div className="flex flex-col gap-2">
+    <div style={{display: "flex", flexDirection: "column", gap: 40}}>
+      <div className="flex flex-row gap-2" style={{justifyContent: "center", alignContent: "center", gap: 20}}>
         <ActuatorStatus name="EXC1" status="active" velocity={gamepad.hardwareStates.excavator?.outputs?.["EXC1_velocity"] as number || 0} position={gamepad.hardwareStates.excavator?.outputs?.["EXC1_position"] as number || 0} maxVelocity={70}/>
-
-      </div>
-      <div>
         <ActuatorStatus name="EXC2" status="active" velocity={gamepad.hardwareStates.excavator?.outputs?.["EXC2_velocity"] as number || 0} position={gamepad.hardwareStates.excavator?.outputs?.["EXC2_position"] as number || 0} maxVelocity={70}/>
-        
       </div>
-      <div>
-        <div>{gamepad.hardwareStates.arm?.outputs?.["pitch_pos"]}</div>
-        <div>{gamepad.hardwareStates.arm?.outputs?.["yaw_pos"]}</div>
 
+      <div style={{display: "flex", flexDirection: "row", justifyContent: "center", alignContent: "center", gap: 20}}>
+        <CameraViewer cameras={cameras as any} />
+        <CameraViewer cameras={cameras as any} />
       </div>
     </div> 
   </div>
