@@ -5,6 +5,10 @@
     align-items: start;
     height: 100%;
     padding: 10px;
+
+    @media (max-width: 1200px) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .ControlSidebar {
@@ -20,22 +24,36 @@
     gap: 12px;
 }
 
-.MicroscopeContainer {
+.MiddleColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
     min-width: 300px;
+    width: 100%;
+}
+
+.MicroscopeContainer {
+    width: 100%;
     height: auto;
 
-    video, .MicroscopeFeed {
+    video,
+    .MicroscopeFeed {
         width: 100%;
         height: auto;
         display: block;
     }
 }
 
+.SpectrumContainer {
+    width: 100%;
+}
+
 .ModelContainer {
     background: #222;
     border-radius: 12px;
     border: 1px solid #333;
-    height: 80vh; // Give it a fixed viewport height so it's big
+    height: 55vh; // Made 3D model less significant
+    width: 70%;
     position: relative;
     overflow: hidden;
 }

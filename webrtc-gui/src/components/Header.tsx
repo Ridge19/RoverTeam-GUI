@@ -49,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header
       className="text-gray-100 shadow-md"
-      style={{ background: "#222", flexShrink: 0, height: 110 }}
+      style={{ background: "#222", flexShrink: 0, minHeight: 110 }}
     >
       <EndpointModal
         open={endpointModalOpen}
