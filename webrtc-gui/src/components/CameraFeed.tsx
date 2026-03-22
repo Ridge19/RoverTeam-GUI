@@ -229,7 +229,7 @@ const styles = {
   },
   retryBtn: { background: "#444", color: "#fff", border: "1px solid #666", padding: "5px 15px", cursor: "pointer", borderRadius: 4 },
   footer: { paddingTop: 10, display: "flex", justifyContent: "flex-end" },
-  actionBtn: { color: "#fff", padding: "8px 12px", fontSize: "0.85rem", fontWeight: "bold", transition: "background 0.2s" },
+  actionBtn: { color: "#fff", padding: "8px 12px", fontSize: "0.85rem", fontWeight: "bold", transition: "background 0.2s", margin: "0px 4px" },
   savedOverlay: {
     position: "absolute" as const,
     top: 0,

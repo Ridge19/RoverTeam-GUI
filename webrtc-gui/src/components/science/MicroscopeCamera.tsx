@@ -34,7 +34,15 @@ const MicroscopeCamera = () => {
             {cameras[0] && <CameraFeed camera={cameras[0]}>
                 {overlay && <MicroscopeOverlay />}
             </CameraFeed >}
-            <button onClick={handleToggle}>TOGGLE OVERLAY</button>
+            <div className={styles.VisibilityToggle}>
+                <button onClick={handleToggle}>
+                    {overlay ?
+                        <img src="icons/visibility.svg" />
+                        :
+                        <img src="icons/visibility_off.svg" />
+                    }
+                </button>
+            </div>
         </div >
     )
 }
