@@ -36,3 +36,14 @@ export function useSensorData(sensorId: number) {
 
   return useMemo(() => scienceData?.sensors?.[sensorId] ?? 0, [scienceData, sensorId]);
 }
+
+export function useSpectrometerData(): number[] {
+  const { roverStatus } = useTelemetryContext();
+
+  return useMemo(() => {
+    for (const status of roverStatus) {
+      if (status.data?.spectrometer) return status.data.spectrometer as number[];
+    }
+    return [];
+  }, [roverStatus]);
+}

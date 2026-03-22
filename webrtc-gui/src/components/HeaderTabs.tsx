@@ -38,8 +38,8 @@ const HeaderTabs: React.FC<HeaderTabsProps> = ({ tabs, active, onChange }) => {
 
   return (
     <nav
-      className="flex gap-6 border-b border-gray-700 justify-center"
-      style={{ marginTop: -40, height: 32 }}
+      className="flex flex-wrap gap-x-6 gap-y-2 border-b border-gray-700 justify-center"
+      style={{ marginTop: -40, minHeight: 32 }}
     >
       <ButtonTooltip buttonIndex={LEFT} size={32} disabled={gamepad.hasControl!="none"}></ButtonTooltip>
       {tabs.map((tab) => {

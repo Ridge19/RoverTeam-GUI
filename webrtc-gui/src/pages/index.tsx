@@ -48,14 +48,16 @@ const IndexPage: React.FC = () => {
       color: "#EEE"
     }}>
       <Header activeTab={activeTab} setActiveTab={onChange} />
-      {activeTab === "cameras" && <Cameras />}
-      {activeTab === "drive" && <DriveControl />}
-      {activeTab === "arm" && <ArmControl />}
-      {activeTab === "exc" && <ExcControl />}
-      {activeTab === "telemetry" && <TelemetryConsole />}
-      {activeTab === "vitals" && <SystemVitals />}
-      {activeTab === "science" && <Science />}
-      {activeTab === "pdb" && <PDB />}
+      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", display: "flex", flexDirection: "column" }}>
+        {activeTab === "cameras" && <Cameras />}
+        {activeTab === "drive" && <DriveControl />}
+        {activeTab === "arm" && <ArmControl />}
+        {activeTab === "exc" && <ExcControl />}
+        {activeTab === "telemetry" && <TelemetryConsole />}
+        {activeTab === "vitals" && <SystemVitals />}
+        {activeTab === "science" && <Science />}
+        {activeTab === "pdb" && <PDB />}
+      </div>
     </main>
   </>);
 };

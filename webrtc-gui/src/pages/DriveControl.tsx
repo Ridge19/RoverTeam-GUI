@@ -62,7 +62,8 @@ const DriveControl: React.FC = () => {
 
   return (
     <div style={{
-      height: "calc(100% - 110px)",
+      height: "100%",
+      minHeight: 700,
       padding: 20,
       display: "flex",
       flexDirection: "column",

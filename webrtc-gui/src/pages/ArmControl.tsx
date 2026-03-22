@@ -42,7 +42,8 @@ const ArmControl: React.FC = () => {
   return (
     <div style={{
         padding: 20,
-        maxHeight: "calc(100% - 110px)",       // don't let it grow beyond parent
+        height: "100%",
+        minHeight: 600,
         overflowY: "auto",       // allow vertical scroll if content exceeds height
         flexShrink: 0,           // prevent flexbox from shrinking/stretching it
         display: "flex",
