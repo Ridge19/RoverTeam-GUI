@@ -38,9 +38,7 @@ const ScienceControl: React.FC = () => {
         </div>
         <div className={styles.MiddleColumn}>
           <div className={styles.MicroscopeContainer}>
-            <div>
-              <MicroscopeCamera />
-            </div>
+            <MicroscopeCamera />
             <Spectrometer />
           </div>
         </div>

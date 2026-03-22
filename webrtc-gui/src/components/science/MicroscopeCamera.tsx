@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useCameraStreams } from "@/contexts/CameraStreamsContext";
 import { CameraFeed } from "@/components/CameraFeed";
 import MicroscopeOverlay from "@/components/science/MicroscopeOverlay";
@@ -6,6 +6,13 @@ import styles from "./TelemetryWidget.module.scss"
 
 const MicroscopeCamera = () => {
     const { cameras, loading, fetchCameras } = useCameraStreams();
+    const [overlay, setOverlay] = useState<boolean>(true);
+
+
+    const handleToggle = async () => {
+        const nextState = !overlay;
+        setOverlay(nextState);
+    };
 
     useEffect(() => {
         let cancelled = false;
@@ -25,9 +32,10 @@ const MicroscopeCamera = () => {
     return (
         <div className={styles.MicroscopeFeed}>
             {cameras[0] && <CameraFeed camera={cameras[0]}>
-                <MicroscopeOverlay />
+                {overlay && <MicroscopeOverlay />}
             </CameraFeed >}
-        </div>
+            <button onClick={handleToggle}>TOGGLE OVERLAY</button>
+        </div >
     )
 }
 
