@@ -35,7 +35,7 @@
 .MicroscopeContainer {
     width: 100%;
     height: auto;
-
+    margin-bottom: 8px;
     video,
     .MicroscopeFeed {
         width: 100%;
@@ -44,16 +44,13 @@
     }
 }
 
-.SpectrumContainer {
-    width: 100%;
-}
 
 .ModelContainer {
     background: #222;
     border-radius: 12px;
     border: 1px solid #333;
-    height: 55vh; // Made 3D model less significant
-    width: 70%;
+    height: 80vh; 
+    width: 100%;
     position: relative;
     overflow: hidden;
 }
