@@ -20,13 +20,6 @@ const ScienceControl: React.FC = () => {
       ))
   }
 
-  const scienceData = useScienceData()
-  useEffect(() => {
-    console.log(scienceData)
-  }, [scienceData])
-  useEffect(() => {
-    console.log(sentSteps);
-  }, [sentSteps])
   return (
     <div style={{ padding: 20 }}>
       <h2 style={{ color: "#aaa" }}>Space Resources Control</h2>
