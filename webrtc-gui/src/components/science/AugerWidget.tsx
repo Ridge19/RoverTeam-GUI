@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, useEffect, useRef, memo } from "react";
 import styles from "./TelemetryWidget.module.scss";
 import { useEndpoints } from "@/contexts/EndpointContext";
 import { useStepperData } from "@/hooks/science/useScienceTelemetry";
@@ -28,15 +28,45 @@ const ID_MAP: Record<number, string> = {
 const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
   const { getEndpointsOfService } = useEndpoints();
 
+  const pendingSteps = useStepperData(augerId);
+
+  const [targetPosition, setTargetPosition] = useState<number>(0);
+  const [animatedPosition, setAnimatedPosition] = useState<number>(0);
   const [inputSteps, setInputSteps] = useState<number>(0);
-  const displaySteps = useStepperData(augerId);
+
+  useEffect(() => {
+    if (animatedPosition === targetPosition) return;
+
+    const animationTimeout = setTimeout(() => {
+      const diff = targetPosition - animatedPosition;
+
+      // Move faster if the gap is large, but at least 1 step
+      const stepSize = Math.max(1, Math.abs(Math.floor(diff / 10)));
+
+      setAnimatedPosition((prev) => {
+        if (prev < targetPosition) return Math.min(prev + stepSize, targetPosition);
+        if (prev > targetPosition) return Math.max(prev - stepSize, targetPosition);
+        return prev;
+      });
+    }, 20);
+
+    return () => clearTimeout(animationTimeout);
+  }, [animatedPosition, targetPosition]);
+
 
   const handleStepperSubmit = async (motorId: number, steps: number) => {
+    const currentPos = Math.round(animatedPosition);
+    const newTarget = currentPos + steps;
+
+    setTargetPosition(newTarget);
+
     await ScienceService.setStepperStep(
       getEndpointsOfService,
       motorId,
       steps,
     );
+
+    // if (handleSentSteps) handleSentSteps(steps);
   };
 
   return (
@@ -49,7 +79,7 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
         <div className={styles.InputContainer}>
           <div className={styles.OutputContainer}>
             <div className={styles.TelemetryDisplay}>
-              <h1>{displaySteps}</h1>
+              <h1>{animatedPosition}</h1>
               <h4 className={styles.Units}> Steps</h4>
             </div>
           </div>
