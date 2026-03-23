@@ -35,6 +35,7 @@ const MicroscopeCamera = () => {
                 {overlay && <MicroscopeOverlay />}
             </CameraFeed >}
             <div className={styles.VisibilityToggle}>
+                <p>if you can read this you are STUPID</p>
                 <button onClick={handleToggle}>
                     {overlay ?
                         <img src="icons/visibility.svg" />
