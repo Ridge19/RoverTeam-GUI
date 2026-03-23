@@ -47,7 +47,7 @@ const ArmControl: React.FC = () => {
         overflowY: "auto",       // allow vertical scroll if content exceeds height
         flexShrink: 0,           // prevent flexbox from shrinking/stretching it
         display: "flex",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         alignItems: "center",
         flexDirection: "column",
         gap: 20
