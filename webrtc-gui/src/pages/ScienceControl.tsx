@@ -3,6 +3,7 @@ import DrillWidget from "@/components/science/DrillWidget"
 import AugerWidget from "@/components/science/AugerWidget"
 import HeatpadWidget from "@/components/science/HeatpadWidget"
 import MicroscopeCamera from "@/components/science/MicroscopeCamera"
+import SpectroscopyGraph from "@/components/science/SpectroscopyGraph"
 import styles from "./Science.module.scss"
 import { Canvas } from "@react-three/fiber";
 import { useGLTF, OrbitControls, Stage } from "@react-three/drei"
@@ -23,23 +24,11 @@ const ScienceControl: React.FC = () => {
   const scienceData = useScienceData()
   const spectrometerData = useSpectrometerData()
 
-  // Downsample 288 channels into NUM_BARS display bins by averaging each bin.
-  const NUM_BARS = 40
-  const displayBars: number[] = Array.from({ length: NUM_BARS }, (_, barIdx) => {
-    if (spectrometerData.length === 0) {
-      // Fallback mock while no data has arrived yet
-      const normalized = barIdx / NUM_BARS;
-      const bell = Math.exp(-Math.pow(normalized - 0.5, 2) / 0.05);
-      return (bell * 0.7 + 0.15) * 100;
-    }
-    const chunkSize = spectrometerData.length / NUM_BARS;
-    const start = Math.floor(barIdx * chunkSize);
-    const end = Math.floor((barIdx + 1) * chunkSize);
-    const slice = spectrometerData.slice(start, end);
-    const avg = slice.reduce((a, b) => a + b, 0) / (slice.length || 1);
-    // Normalise: the Arduino uses 12-bit ADC (0-4095)
-    return Math.min(100, (avg / 4095) * 100);
-  });
+  // The 289th element (index 288) is the distance value
+  const spectralChannels = spectrometerData.length >= 289 ? spectrometerData.slice(1, 288) : spectrometerData;
+  const distanceValue = spectrometerData.length >= 289 ? spectrometerData[288] : null;
+
+
   useEffect(() => {
     console.log(sentSteps);
   }, [sentSteps])
@@ -64,19 +53,31 @@ const ScienceControl: React.FC = () => {
             </div>
             {/* <MicroscopeCamera /> */}
           </div>
-          
+
           <div className={styles.SpectrumContainer}>
             <h3 style={{ color: "#aaa", marginTop: 0, marginBottom: 12, fontSize: 16 }}>Light Spectrum{spectrometerData.length === 0 ? " (Waiting…)" : " (Live)"}</h3>
-            <div style={{ width: "100%", height: 220, display: "flex", alignItems: "flex-end", gap: 3, background: "#1a1a1a", padding: 16, borderRadius: 12, border: "1px solid #333" }}>
-              {displayBars.map((height, i) => (
-                <div key={i} style={{ 
-                  flex: 1, 
-                  backgroundColor: `hsl(${(i / NUM_BARS) * 300}, 80%, 60%)`, 
-                  height: `${Math.max(1, height)}%`,
-                  borderRadius: "2px 2px 0 0",
-                  transition: "height 0.15s ease"
-                }} />
-              ))}
+            <SpectroscopyGraph spectralChannels={spectralChannels} isLive={spectrometerData.length > 0} />
+
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              marginTop: 12,
+              padding: "12px 16px",
+              background: "#1a1a1a",
+              borderRadius: 12,
+              border: "1px solid #333"
+            }}>
+              <span style={{ color: "#aaa", fontSize: 14, fontWeight: 500 }}>Distance</span>
+              <span style={{
+                color: distanceValue !== null ? "#4fc3f7" : "#666",
+                fontSize: 22,
+                fontWeight: 700,
+                fontFamily: "monospace",
+                letterSpacing: 1
+              }}>
+                {distanceValue !== null ? `${distanceValue} mm` : "—"}
+              </span>
             </div>
           </div>
         </div>
