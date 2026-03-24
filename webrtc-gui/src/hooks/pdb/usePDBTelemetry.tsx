@@ -1,12 +1,28 @@
-import { useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTelemetryContext } from "@/contexts/TelemetryContext";
 
 export function usePdbData() {
   const { roverStatus } = useTelemetryContext();
 
   return useMemo(() => {
-    const found = roverStatus.find((s) => s.data.pdb_data)?.data.pdb_data;
-    return found || {};
+    // Start with an empty full state
+    const fullPdbState = { buck1: {}, buck2: {}, switch: {}, bms: {} };
+
+    // Iterate through ALL received packets to build the complete current view
+    roverStatus.forEach((packet) => {
+      const data = packet.data?.pdb_data;
+      if (data) {
+        for (const [board, channels] of Object.entries(data)) {
+          // Merge the new channel data into our full state
+          fullPdbState[board] = {
+            ...(fullPdbState[board] || {}),
+            ...(channels as object)
+          };
+        }
+      }
+    });
+
+    return fullPdbState;
   }, [roverStatus]);
 }
 

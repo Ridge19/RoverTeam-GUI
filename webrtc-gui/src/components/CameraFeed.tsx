@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Camera, useCameraStreams, ConnectionStatus } from "@/contexts/CameraStreamsContext";
 import StatusChip, { StatusColor } from "./StatusChip";
 import { CameraIcon, ArrowsPointingOutIcon } from "@heroicons/react/24/solid";
+import { useEndpoints } from "@/contexts/EndpointContext"
 
 interface CameraFeedProps {
   camera: Camera;
@@ -68,52 +69,91 @@ export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
     video.requestVideoFrameCallback(onFrame);
   }, []);
 
+  const { getEndpointsOfService } = useEndpoints();
+
   // --- Screenshot ---
   const captureFrame = useCallback(async () => {
-    const video = videoRef.current;
-    if (!video || video.videoWidth === 0) return;
+    if (status !== "live") return;
 
-    setShowSaved(true);
-    setTimeout(() => setShowSaved(false), 2000);
+    let bgUrl = "";
+    let svgUrl = "";
 
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    const downloadFile = (url: string, suffix: string) => {
+      const link = document.createElement("a");
+      const ts = new Date().toISOString().replace(/[:.]/g, "-");
+      link.href = url;
+      link.download = `camera-${camera.id}-${ts}_${suffix}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    try {
+      setShowSaved(true);
+      setTimeout(() => setShowSaved(false), 2000);
 
-    ctx.drawImage(video, 0, 0);
+      // 1. Fetch High-Quality raw frame from Python Backend
+      const response = await fetch(`${getEndpointsOfService('cameras')}/capture-frame`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ camera_id: camera.id })
+      });
 
-    const svgElement = video.parentElement?.querySelector("svg");
+      if (!response.ok) throw new Error("Backend capture failed");
 
-    if (svgElement) {
-      const svgData = new XMLSerializer().serializeToString(svgElement);
-      const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-      const url = URL.createObjectURL(svgBlob);
+      const rawBlob = await response.blob();
+      bgUrl = URL.createObjectURL(rawBlob);
 
-      // Load it into an Image object
-      const img = new Image();
-      img.src = url;
+      // --- DOWNLOAD 1: THE RAW IMAGE ---
+      // We download the raw blob directly for maximum speed and quality
+      downloadFile(bgUrl, "raw");
 
-      await new Promise((resolve) => { img.onload = resolve; });
+      // 2. Prepare for the Overlay Image
+      const bgImg = new Image();
+      bgImg.src = bgUrl;
+      await new Promise((resolve) => { bgImg.onload = resolve; });
 
-      // Draw the SVG image onto the canvas
-      // Note: The SVG dimensions in the DOM might be different than the video 
-      // resolution, so you may need to scale these coordinates.
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const canvas = document.createElement("canvas");
+      canvas.width = bgImg.width;
+      canvas.height = bgImg.height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
 
-      URL.revokeObjectURL(url);
+      // Draw the raw background onto the canvas
+      ctx.drawImage(bgImg, 0, 0);
+
+      // 3. Capture the SVG Overlay
+      const svgElement = videoRef.current?.parentElement?.querySelector("svg");
+      if (svgElement) {
+        const svgClone = svgElement.cloneNode(true) as SVGElement;
+        svgClone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+        const svgData = new XMLSerializer().serializeToString(svgClone);
+        const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+        svgUrl = URL.createObjectURL(svgBlob);
+
+        const svgImg = new Image();
+        svgImg.src = svgUrl;
+
+        await new Promise((resolve) => { svgImg.onload = resolve; });
+
+        // Draw SVG over the background (scaled to match hardware res)
+        ctx.drawImage(svgImg, 0, 0, canvas.width, canvas.height);
+
+        // --- DOWNLOAD 2: THE OVERLAY IMAGE ---
+        const overlayDataUrl = canvas.toDataURL("image/png");
+        downloadFile(overlayDataUrl, "overlay");
+      }
+
+    } catch (error) {
+      console.error("Capture Error:", error);
+      alert("Failed to capture images.");
+    } finally {
+      // Cleanup memory
+      if (bgUrl) URL.revokeObjectURL(bgUrl);
+      if (svgUrl) URL.revokeObjectURL(svgUrl);
     }
-
-    const dataUrl = canvas.toDataURL("image/png");
-
-    const link = document.createElement("a");
-    const ts = new Date().toISOString().replace(/[:.]/g, "-");
-    link.href = dataUrl;
-    link.download = `camera-${camera.id}-${ts}.png`;
-    link.click();
-  }, [camera]);
+  }, [camera.id, status, getEndpointsOfService]);
 
   // --- Fullscreen ---
   const goFullscreen = useCallback(() => {
@@ -213,7 +253,7 @@ const styles = {
   card: { background: "#222", padding: 10, borderRadius: 8, overflow: "hidden" },
   header: { display: "flex", justifyContent: "space-between", marginBottom: 8, gap: 8 },
   videoWrapper: { position: "relative" as const, paddingTop: "75%", background: "#000", borderRadius: 8, overflow: "hidden" },
-  video: { position: "absolute" as const, top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" as const },
+  video: { position: "absolute" as const, top: 0, left: 0, width: "100%", height: "100%", objectxt: "cover" as const },
   overlay: {
     position: "absolute" as const,
     top: 0,

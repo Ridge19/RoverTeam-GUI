@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import { usePdbData } from "@/hooks/pdb/usePDBTelemetry";
 import BoardTable from "@/components/pdb/BoardTable";
 import BMSTable from "@/components/pdb/BMSTable";
