@@ -8,7 +8,7 @@ import styles from "./Science.module.scss"
 import { Canvas } from "@react-three/fiber";
 import { useGLTF, OrbitControls, Stage } from "@react-three/drei"
 import ScienceModel from "@/components/science/ScienceModel"; // Import the component
-import { useScienceData } from "@/hooks/science/useScienceTelemetry"
+import { useScienceData, useSpectrometerData } from "@/hooks/science/useScienceTelemetry"
 import Spectrometer from "@/components/science/Spectrometer"
 
 const ScienceControl: React.FC = () => {
