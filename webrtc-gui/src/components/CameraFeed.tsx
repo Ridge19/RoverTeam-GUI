@@ -17,10 +17,16 @@ export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
   const lastFpsTimeRef = useRef(performance.now());
   const rafActiveRef = useRef(false);
   const [showSaved, setShowSaved] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
 
   const stream = getStream(camera);
   const status = getStatus(camera);
   const errorMessage = getError(camera);
+
+  const videoStyle = {
+    ...styles.video,
+    transform: isFlipped ? "scaleY(-1)" : "scaleX(1)",
+  };
 
   // Attach stream to video element
   useEffect(() => {
@@ -190,7 +196,7 @@ export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
           </div>
         )}
 
-        <video ref={videoRef} autoPlay playsInline muted style={styles.video} />
+        <video ref={videoRef} autoPlay playsInline muted style={videoStyle} />
 
         <div style={{
           position: "absolute",
@@ -203,6 +209,14 @@ export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
       {/* Footer */}
       <div style={styles.footer}>
         <div style={{ marginLeft: 10, marginRight: "auto", lineHeight: 2 }}>{fps ?? "--"} FPS</div>
+
+        <button
+          onClick={() => setIsFlipped(!isFlipped)}
+          style={styles.actionBtn}
+          title="Flip Camera"
+        >
+          <div style={{ transform: "rotate(90deg)" }}>⇄</div>
+        </button>
 
         <button
           onClick={captureFrame}
