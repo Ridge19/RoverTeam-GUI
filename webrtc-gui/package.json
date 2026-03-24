@@ -18,6 +18,7 @@
     "node": "^25.5.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-hotkeys-hook": "^5.2.4",
     "three": "^0.183.2"
   },
   "devDependencies": {
