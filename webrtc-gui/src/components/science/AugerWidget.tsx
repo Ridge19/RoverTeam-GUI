@@ -21,7 +21,7 @@ const MM_PER_STEPS_MAP: Record<number, number> = {
   2: 25,
 };
 const ID_MAP: Record<number, string> = {
-  1: "Swivel",
+  1: "Microscope Rotation",
   2: "Microscope Stepper",
   3: "Extraction Stepper",
 };
@@ -37,7 +37,7 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useHotkeys('s', () => {
+  useHotkeys('r', () => {
     if (inputRef.current && augerId == 1) {
       inputRef.current.focus();
     }

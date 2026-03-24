@@ -1,16 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import styles from "./TelemetryWidget.module.scss";
 import { useEndpoints } from "@/contexts/EndpointContext";
 import { useHeatpadData, useSensorData } from "@/hooks/science/useScienceTelemetry";
 import ScienceService from "@/services/ScienceService";
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const HeatpadWidget = () => {
   const { getEndpointsOfService } = useEndpoints();
   const heatpadIsOn = useHeatpadData();
   const [loading, setLoading] = useState(false);
 
-
   const temperature = useSensorData(4)
+
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  useHotkeys('h', () => {
+    if (toggleRef.current) {
+      toggleRef.current.click();
+    }
+  });
+
 
   const handleToggle = async () => {
     setLoading(true);
@@ -50,6 +58,7 @@ const HeatpadWidget = () => {
           disabled={loading}
           className={heatpadIsOn ? styles.active : styles.inactive}
           style={{ width: "100%" }}
+          ref={toggleRef}
         >
           {loading ? "SENDING..." : heatpadIsOn ? "TURN OFF" : "TURN ON"}
         </button>
