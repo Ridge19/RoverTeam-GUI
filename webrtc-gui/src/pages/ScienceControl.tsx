@@ -9,7 +9,7 @@ import { Canvas } from "@react-three/fiber";
 import { useGLTF, OrbitControls, Stage } from "@react-three/drei"
 import ScienceModel from "@/components/science/ScienceModel"; // Import the component
 import { useScienceData, useSpectrometerData } from "@/hooks/science/useScienceTelemetry"
-import Spectrometer from "@/components/science/Spectrometer"
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const ScienceControl: React.FC = () => {
   const [sentSteps, setSentSteps] = useState<Array<number>>([]);
@@ -27,6 +27,7 @@ const ScienceControl: React.FC = () => {
   // The 289th element (index 288) is the distance value
   const spectralChannels = spectrometerData.length >= 289 ? spectrometerData.slice(1, 288) : spectrometerData;
   const distanceValue = spectrometerData.length >= 289 ? spectrometerData[288] : null;
+
 
 
   useEffect(() => {

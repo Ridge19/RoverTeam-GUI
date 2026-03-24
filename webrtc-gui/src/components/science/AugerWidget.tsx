@@ -3,6 +3,7 @@ import styles from "./TelemetryWidget.module.scss";
 import { useEndpoints } from "@/contexts/EndpointContext";
 import { useStepperData } from "@/hooks/science/useScienceTelemetry";
 import ScienceService from "@/services/ScienceService";
+import { useHotkeys } from "react-hotkeys-hook"
 
 interface WidgetProps {
   augerId: number;
@@ -33,6 +34,32 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
   const [targetPosition, setTargetPosition] = useState<number>(0);
   const [animatedPosition, setAnimatedPosition] = useState<number>(0);
   const [inputSteps, setInputSteps] = useState<number>(0);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useHotkeys('s', () => {
+    if (inputRef.current && augerId == 1) {
+      inputRef.current.focus();
+    }
+  });
+
+  useHotkeys('e', () => {
+    if (inputRef.current && augerId == 3) {
+      inputRef.current.focus();
+    }
+  });
+
+  useHotkeys('m', () => {
+    if (inputRef.current && augerId == 2) {
+      inputRef.current.focus();
+    }
+  });
+
+  useHotkeys('esc', () => {
+    if (inputRef.current) {
+      inputRef.current.blur()
+    }
+  }, { enableOnFormTags: ['input'] })
 
   useEffect(() => {
     if (animatedPosition === targetPosition) return;
@@ -99,6 +126,7 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
               type="number"
               value={inputSteps}
               onChange={(e) => setInputSteps(Number(e.target.value))}
+              ref={inputRef}
             />
             <button onClick={() => handleStepperSubmit(augerId, inputSteps)}>
               Step

@@ -1,10 +1,10 @@
 
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, useRef, } from "react";
 import styles from "./TelemetryWidget.module.scss";
 import { useEndpoints } from "@/contexts/EndpointContext";
 import { useDrillData } from "@/hooks/science/useScienceTelemetry"
 import ScienceService from "@/services/ScienceService";
-
+import { useHotkeys } from "react-hotkeys-hook"
 interface WidgetProps {
   handleSentSteps: Function;
 }
@@ -22,6 +22,24 @@ const DrillWidget = (handleSentSteps: WidgetProps) => {
   };
 
   const displaySpeed = useDrillData()
+
+
+  const inputRef = useRef(null);
+
+  useHotkeys('d', () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  });
+
+  useHotkeys('esc', () => {
+    if (inputRef.current) {
+      inputRef.current.blur()
+    }
+  }, { enableOnFormTags: ['input'] })
+
+
+
 
   return (
     <div className={styles.DrillWidget}>
@@ -52,6 +70,7 @@ const DrillWidget = (handleSentSteps: WidgetProps) => {
               type="number"
               value={drillSpeed}
               onChange={(e) => setDrillSpeed(Number(e.target.value))}
+              ref={inputRef}
             />
             <button onClick={() => handleDrillSubmit(drillSpeed)}>Speed</button>
           </div>
