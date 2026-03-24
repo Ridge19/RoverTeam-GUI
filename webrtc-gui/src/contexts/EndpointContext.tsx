@@ -36,8 +36,7 @@ export const ENDPOINTS: EndpointConfig[] = [
   },
   {
     name: "Equinox 2",
-    host: "http://192.168.40.2",
-    //host: "http://192.168.40.2",
+    host: "http://192.168.40.2",    //host: "http://192.168.40.2",
     priority: 1,
     ports: [
       { port: 3001 }, // Cameras

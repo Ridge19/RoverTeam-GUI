@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useBoardData } from "@/hooks/pdb/usePDBTelemetry";
 import ChannelRow from "./ChannelRow";
 import styles from "./PDBTable.module.scss";

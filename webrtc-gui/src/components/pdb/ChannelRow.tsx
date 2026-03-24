@@ -1,4 +1,5 @@
 import React, { memo, useState } from "react";
+import { updatePdb } from "@/hooks/pdb/usePDBTelemetry";
 import usePDBPeaks from "@/hooks/pdb/usePDBPeaks";
 import { useTelemetryContext } from "@/contexts/TelemetryContext";
 import { useEndpoints } from "@/contexts/EndpointContext";
@@ -15,6 +16,7 @@ const formatUnit = (val: number | undefined | null, unit: string) => {
 
 const ChannelRow = memo(
   ({ id, metrics, board }: { id: number; metrics: any; board: string }) => {
+    console.log(`DEBUG: Ch${id} metrics:`, metrics);
     const { voltage = 0, current = 0, power = 0, temp = 0, toggle = false } = metrics || {};
 
     const [loading, setLoading] = useState(false);
