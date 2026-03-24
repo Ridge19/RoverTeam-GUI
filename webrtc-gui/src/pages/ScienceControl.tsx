@@ -48,10 +48,7 @@ const ScienceControl: React.FC = () => {
         </div>
         <div className={styles.MiddleColumn}>
           <div className={styles.MicroscopeContainer}>
-            <div style={{ width: "100%", aspectRatio: "4/3", background: "#222", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 12, border: "1px dashed #555" }}>
-              <span style={{ color: "#888" }}>Microscope Camera Placeholder</span>
-            </div>
-            {/* <MicroscopeCamera /> */}
+            <MicroscopeCamera />
           </div>
 
           <div className={styles.SpectrumContainer}>

@@ -170,22 +170,22 @@ const SpectroscopyGraph: React.FC<SpectroscopyGraphProps> = ({
   }, [draw]);
 
   // Resize observer for responsiveness
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+  // useEffect(() => {
+  //   const container = containerRef.current;
+  //   if (!container) return;
 
-    let timeoutId: NodeJS.Timeout;
-    const observer = new ResizeObserver(() => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => draw(), 100);
-    });
+  //   let timeoutId: NodeJS.Timeout;
+  //   const observer = new ResizeObserver(() => {
+  //     clearTimeout(timeoutId);
+  //     timeoutId = setTimeout(() => draw(), 100);
+  //   });
 
-    observer.observe(container);
-    return () => {
-      observer.disconnect();
-      clearTimeout(timeoutId);
-    };
-  }, [draw]);
+  //   observer.observe(container);
+  //   return () => {
+  //     observer.disconnect();
+  //     clearTimeout(timeoutId);
+  //   };
+  // }, [draw]);
 
   return (
     <div

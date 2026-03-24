@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"
 import { useCameraStreams } from "@/contexts/CameraStreamsContext";
-import { CameraFeed } from "@/components/CameraFeed";
+import CameraViewer from "@/components/CameraViewer";
 import MicroscopeOverlay from "@/components/science/MicroscopeOverlay";
 import styles from "./TelemetryWidget.module.scss"
 
@@ -29,11 +29,15 @@ const MicroscopeCamera = () => {
             cancelled = true;
         };
     }, [cameras, fetchCameras]);
+
+    const MicrosopeOverlay = (
+        <MicroscopeOverlay />
+    );
     return (
         <div className={styles.MicroscopeFeed}>
-            {cameras[0] && <CameraFeed camera={cameras[0]}>
+            {cameras[0] && <CameraViewer cameras={cameras as any} overlay={MicrosopeOverlay} >
                 {overlay && <MicroscopeOverlay />}
-            </CameraFeed >}
+            </CameraViewer >}
             <div className={styles.VisibilityToggle}>
                 <p>if you can read this you are STUPID</p>
                 <button onClick={handleToggle}>

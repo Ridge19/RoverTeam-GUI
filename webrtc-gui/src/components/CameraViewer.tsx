@@ -1,7 +1,15 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { CameraFeed } from "./CameraFeed";
+import { PropsWithChildren } from 'react';
 
-export default function CameraViewer({ cameras = [] }) {
+type CameraPropsType = {
+  cameras: [];
+  overlay?: React.ReactNode;
+};
+
+type CameraProps = PropsWithChildren<CameraPropsType>;
+
+export default function CameraViewer({ cameras = [], overlay }: CameraProps) {
   const [index, setIndex] = useState(0);
 
   // No cameras → render nothing
@@ -18,13 +26,13 @@ export default function CameraViewer({ cameras = [] }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "center" }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <CameraFeed camera={cameras[index]} />
+        <CameraFeed camera={cameras[index]}> {overlay} </CameraFeed>
         <div style={{ marginTop: 5, fontFamily: "monospace", display: "flex", flexDirection: "row", gap: 10 }}>
-          <button style={{background: "#444", borderRadius: 5, cursor: "pointer"}} className="pl-2 pr-2" onClick={prev}>⬅</button>
+          <button style={{ background: "#444", borderRadius: 5, cursor: "pointer" }} className="pl-2 pr-2" onClick={prev}>⬅</button>
           <div>{index + 1} / {cameras.length}</div>
-          <button style={{background: "#444", borderRadius: 5, cursor: "pointer"}} className="pl-2 pr-2" onClick={next}>➡</button>
+          <button style={{ background: "#444", borderRadius: 5, cursor: "pointer" }} className="pl-2 pr-2" onClick={next}>➡</button>
         </div>
-      </div>      
+      </div>
     </div>
   );
 }
