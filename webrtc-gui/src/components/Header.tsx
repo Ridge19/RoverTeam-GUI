@@ -3,7 +3,7 @@ import { HeaderTabs } from "./HeaderTabs";
 import { EndpointModal } from "@/components/EndpointModal";
 import { GithubModal } from "./GithubModal";
 import { useEndpoints } from "@/contexts/EndpointContext";
-
+import Timer from "@/components/Timer"
 interface HeaderProps {
   target?: string;
   activeTab: string;
@@ -91,6 +91,8 @@ export const Header: React.FC<HeaderProps> = ({
             src="Equinox Logo.png"
             className="h-[70px] flex-shrink-0 ml-auto"
           />
+          <Timer />
+
         </div>
 
         {/* Tabs row */}

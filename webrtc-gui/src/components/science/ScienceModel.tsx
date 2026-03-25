@@ -11,6 +11,12 @@ interface ScienceModelProps {
   microscopeSwivel?: number;
 }
 
+const mesh = new THREE.MeshStandardMaterial({
+  color: 0xffffff,
+  roughness: 0,
+  metalness: 0.3,
+
+});
 const ScienceModel = ({ drillOffset = 0, microscopeOffset = 0, microscopeSwivel = 0, ...props }: ScienceModelProps) => {
   const { nodes, materials } = useGLTF('/models/SciencePayload.gltf') as any
 

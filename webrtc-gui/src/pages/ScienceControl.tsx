@@ -6,10 +6,9 @@ import MicroscopeCamera from "@/components/science/MicroscopeCamera"
 import SpectroscopyGraph from "@/components/science/SpectroscopyGraph"
 import styles from "./Science.module.scss"
 import { Canvas } from "@react-three/fiber";
-import { useGLTF, OrbitControls, Stage } from "@react-three/drei"
+import { OrbitControls } from "@react-three/drei"
 import ScienceModel from "@/components/science/ScienceModel"; // Import the component
-import { useScienceData, useSpectrometerData } from "@/hooks/science/useScienceTelemetry"
-import { useHotkeys } from 'react-hotkeys-hook'
+import { useSpectrometerData } from "@/hooks/science/useScienceTelemetry"
 
 const ScienceControl: React.FC = () => {
   const [sentSteps, setSentSteps] = useState<number[]>(new Array(6).fill(0));
@@ -30,11 +29,6 @@ const ScienceControl: React.FC = () => {
   const spectralChannels = spectrometerData.length >= 289 ? spectrometerData.slice(1, 288) : spectrometerData;
   const distanceValue = spectrometerData.length >= 289 ? spectrometerData[288] : null;
 
-
-
-  useEffect(() => {
-    console.log(sentSteps);
-  }, [sentSteps])
   return (
     <div style={{ padding: 20 }}>
       <h2 style={{ color: "#aaa" }}>Space Resources Control</h2>
@@ -85,7 +79,7 @@ const ScienceControl: React.FC = () => {
         <div className={styles.ModelContainer}>
           <Canvas camera={{ position: [50, 50, 50], fov: 45, zoom: 3 }}>
             <Suspense fallback={null}>
-              <ScienceModel drillOffset={sentSteps[3] / 1300} microscopeOffset={sentSteps[2] / 250} microscopeSwivel={sentSteps[1]} />
+              <ScienceModel drillOffset={sentSteps[3] / 130} microscopeOffset={sentSteps[2] / (25 * 2)} microscopeSwivel={(sentSteps[1] * 0.1) * (Math.PI / 180)} />
             </Suspense>
             <OrbitControls />
           </Canvas>
