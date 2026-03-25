@@ -8,7 +8,7 @@ import * as THREE from 'three'
 interface ScienceModelProps {
   drillOffset?: number;
   microscopeOffset?: number;
-  microscopeSwivel?: number
+  microscopeSwivel?: number;
 }
 
 const ScienceModel = ({ drillOffset = 0, microscopeOffset = 0, microscopeSwivel = 0, ...props }: ScienceModelProps) => {
@@ -18,44 +18,34 @@ const ScienceModel = ({ drillOffset = 0, microscopeOffset = 0, microscopeSwivel 
   const microscopeStepperGroupRef = useRef<THREE.Group>(null);
   const microscopeSwivelGroupRef = useRef<THREE.Group>(null);
 
-  useFrame((state, delta) => {
+  useFrame(() => {
+    // 1. Drill Vertical Movement
     if (drillStepperGroupRef.current) {
-      // The original Y position was 20.787
-      const targetY = 20.787 + drillOffset;
-
-      // Lerp makes the movement smooth (0.1 is the smoothing factor)
+      const targetY = 20.787 - drillOffset;
       drillStepperGroupRef.current.position.y = THREE.MathUtils.lerp(
         drillStepperGroupRef.current.position.y,
         targetY,
         0.1
       );
     }
-  });
 
-  useFrame((state, delta) => {
+    // 2. Microscope Vertical Movement
     if (microscopeStepperGroupRef.current) {
-      // The original Y position was 20.787
-      const targetY = -1.772 + drillOffset;
-
-      // Lerp makes the movement smooth (0.1 is the smoothing factor)
+      const targetY = -1.772 - microscopeOffset; // Changed from drillOffset
       microscopeStepperGroupRef.current.position.y = THREE.MathUtils.lerp(
         microscopeStepperGroupRef.current.position.y,
         targetY,
         0.1
       );
     }
-  });
 
-
-  useFrame((state, delta) => {
+    // 3. Microscope Swivel (Rotation)
     if (microscopeSwivelGroupRef.current) {
-      // The original Y position was 20.787
-      const targetY = -1.772 + drillOffset;
-
-      // Lerp makes the movement smooth (0.1 is the smoothing factor)
-      microscopeSwivelGroupRef.current.position.y = THREE.MathUtils.lerp(
-        microscopeSwivelGroupRef.current.position.y,
-        targetY,
+      // Swivels usually rotate around Y axis
+      // We lerp the rotation for smoothness
+      microscopeSwivelGroupRef.current.rotation.y = THREE.MathUtils.lerp(
+        microscopeSwivelGroupRef.current.rotation.y,
+        microscopeSwivel, // Changed from drillOffset
         0.1
       );
     }
@@ -65,7 +55,7 @@ const ScienceModel = ({ drillOffset = 0, microscopeOffset = 0, microscopeSwivel 
   return (
     <group {...props} dispose={null}>
       {/* Main offset and scale from your Blender export */}
-      <group position={[2.941, 0.521, 2.574]} scale={0.102}>
+      <group position={[2.941, -3, 1.774]} scale={0.102}>
 
         {/* Main body meshes - using original materials */}
         <mesh geometry={nodes.Cube016.geometry} material={materials['Plastic ']} />

@@ -94,18 +94,20 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
     const animationTimeout = setTimeout(() => {
       const diff = targetPosition - animatedPosition;
 
-      // Move faster if the gap is large, but at least 1 step
       const stepSize = Math.max(1, Math.abs(Math.floor(diff / 10)));
 
       setAnimatedPosition((prev) => {
-        if (prev < targetPosition) return Math.min(prev + stepSize, targetPosition);
-        if (prev > targetPosition) return Math.max(prev - stepSize, targetPosition);
-        return prev;
+        const next = prev < targetPosition
+          ? Math.min(prev + stepSize, targetPosition)
+          : Math.max(prev - stepSize, targetPosition);
+
+        handleSentSteps(augerId, next);
+        return next;
       });
     }, 20);
 
     return () => clearTimeout(animationTimeout);
-  }, [animatedPosition, targetPosition]);
+  }, [animatedPosition, targetPosition, augerId, handleSentSteps]);
 
 
   const handleStepperSubmit = async (motorId: number, steps: number | string) => {
@@ -177,9 +179,10 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
               }}
               ref={inputRef}
             />
-            <button onClick={() => handleStepperSubmit(augerId, inputSteps)}>
-              Step
-            </button>
+            <div className={styles.ButtonGroup}>
+              <button onClick={() => handleStepperSubmit(augerId, inputSteps)}>Step</button>
+              <button onClick={() => setAnimatedPosition(0)}>Set</button>
+            </div>
           </form>
         </div>
       </div>
