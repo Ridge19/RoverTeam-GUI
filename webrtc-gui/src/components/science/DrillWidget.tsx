@@ -12,34 +12,56 @@ interface WidgetProps {
 const DrillWidget = (handleSentSteps: WidgetProps) => {
   const { getEndpointsOfService } = useEndpoints();
 
-  const [drillSpeed, setDrillSpeed] = useState<number>(0);
+  const [drillSpeed, setDrillSpeed] = useState<number | string>(0);
 
-  const handleDrillSubmit = async (speed: number) => {
+  const handleDrillSubmit = async (speed: number | string) => {
+    const speedNum = Number(speed);
     await ScienceService.setDrillSpeed(
       getEndpointsOfService,
-      speed,
+      speedNum,
     );
   };
 
   const displaySpeed = useDrillData()
 
 
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  useHotkeys('d', () => {
+  useHotkeys('d', (event) => {
     if (inputRef.current) {
+      event.preventDefault();
       inputRef.current.focus();
     }
   });
 
-  useHotkeys('esc', () => {
+  useHotkeys('esc', (event) => {
     if (inputRef.current) {
+      event.preventDefault();
       inputRef.current.blur()
     }
   }, { enableOnFormTags: ['input'] })
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    // Allow empty string, single minus sign, or valid integers
+    if (val === "" || val === "-" || /^-?\d*$/.test(val)) {
+      setDrillSpeed(val);
+    }
+  };
 
-
+  useHotkeys('-', (event) => {
+    if (document.activeElement === inputRef.current) {
+      event.preventDefault(); // Stop "-" from being typed twice
+      setDrillSpeed((prev) => {
+        const stringVal = String(prev);
+        if (stringVal.startsWith('-')) {
+          return stringVal.substring(1); // Remove minus
+        } else {
+          return (stringVal === '0' || stringVal === '') ? '-' : '-' + stringVal;
+        }
+      });
+    }
+  }, { enableOnFormTags: ['input'] });
 
   return (
     <div className={styles.DrillWidget}>
@@ -50,8 +72,13 @@ const DrillWidget = (handleSentSteps: WidgetProps) => {
       <div className={styles.Contents}>
         <div className={styles.OutputContainer}>
           <div className={styles.TelemetryDisplay}>
-            <h1 className={styles.StepperText}>{displaySpeed}</h1>
-            <h4 className={styles.Units}> PWM</h4>
+            <div className={styles.Row}>
+              <div className={styles.Column}>
+                <h4>Speed</h4>
+                <h1 className={styles.StepperText}>{displaySpeed}</h1>
+                <h4 className={styles.Units}> PWM</h4>
+              </div>
+            </div>
           </div>
         </div>
         <hr />
@@ -64,16 +91,18 @@ const DrillWidget = (handleSentSteps: WidgetProps) => {
             <button onClick={() => handleDrillSubmit(-200)}>-200</button>
             <button onClick={() => handleDrillSubmit(200)}>200</button>
           </div>
+
           <h4>Manual input</h4>
-          <div className={styles.Inputs}>
+          <form className={styles.Inputs} onSubmit={(event) => { event.preventDefault(); handleDrillSubmit(drillSpeed) }}>
             <input
-              type="number"
+              type="text"
               value={drillSpeed}
-              onChange={(e) => setDrillSpeed(Number(e.target.value))}
+              onChange={handleInputChange}
+              onFocus={(e) => { e.target.select(); }}
               ref={inputRef}
             />
-            <button onClick={() => handleDrillSubmit(drillSpeed)}>Speed</button>
-          </div>
+            <button onClick={(event) => { event.preventDefault(); handleDrillSubmit(drillSpeed) }}>Speed</button>
+          </form>
         </div>
         {/* <div className={styles.VerticalRule}></div>
         <div className={styles.OutputContainer}>

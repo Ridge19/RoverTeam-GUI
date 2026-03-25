@@ -12,16 +12,18 @@ import { useScienceData, useSpectrometerData } from "@/hooks/science/useScienceT
 import { useHotkeys } from 'react-hotkeys-hook'
 
 const ScienceControl: React.FC = () => {
-  const [sentSteps, setSentSteps] = useState<Array<number>>([]);
+  const [sentSteps, setSentSteps] = useState<number[]>(new Array(6).fill(0));
 
-  const handleSentSteps = (motor_idx: number, steps: number) => {
-    setSentSteps((prevSentSteps) =>
-      prevSentSteps.map((value, index) =>
-        index === motor_idx ? steps : value
-      ))
-  }
+  const handleSentSteps = React.useCallback((motor_idx: number, steps: number) => {
+    setSentSteps((prevSentSteps) => {
+      if (prevSentSteps[motor_idx] === steps) return prevSentSteps;
 
-  const scienceData = useScienceData()
+      const nextSteps = [...prevSentSteps];
+      nextSteps[motor_idx] = steps;
+      return nextSteps;
+    });
+  }, []);
+
   const spectrometerData = useSpectrometerData()
 
   // The 289th element (index 288) is the distance value
@@ -51,8 +53,9 @@ const ScienceControl: React.FC = () => {
             <AugerWidget augerId={3} handleSentSteps={handleSentSteps} />
             <DrillWidget handleSentSteps={handleSentSteps} />
             <AugerWidget augerId={1} handleSentSteps={handleSentSteps} />
+            <HeatpadWidget motorId={4} />
+            <HeatpadWidget motorId={5} />
           </div>
-          <HeatpadWidget />
         </div>
         <div className={styles.MiddleColumn}>
           <div className={styles.MicroscopeContainer}>
@@ -100,9 +103,9 @@ const ScienceControl: React.FC = () => {
           </div>
         </div>
         <div className={styles.ModelContainer}>
-          <Canvas camera={{ position: [50, 50, 50], fov: 45, zoom: 0.8 }}>
+          <Canvas camera={{ position: [50, 50, 50], fov: 45, zoom: 3 }}>
             <Suspense fallback={null}>
-              <ScienceModel />
+              <ScienceModel drillOffset={sentSteps[3] / 1300} microscopeOffset={sentSteps[2] / 250} microscopeSwivel={sentSteps[1]} />
             </Suspense>
             <OrbitControls />
           </Canvas>

@@ -52,17 +52,21 @@ const SpectroscopyGraph: React.FC<SpectroscopyGraphProps> = ({
     if (!canvas || !container) return;
 
     const dpr = window.devicePixelRatio || 1;
-    const rect = container.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
+    const width = container.clientWidth;
+    const height = container.clientHeight;
 
     canvas.width = width * dpr;
     canvas.height = height * dpr;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
+
+    if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+    }
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
 
     // Layout constants
