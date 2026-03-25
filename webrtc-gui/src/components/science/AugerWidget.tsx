@@ -113,6 +113,12 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
     return () => clearTimeout(animationTimeout);
   }, [animatedPosition, targetPosition, augerId, handleSentSteps]);
 
+  const displayValue = animatedPosition - displayOffset;
+
+  const handleReset = () => {
+    setDisplayOffset(animatedPosition);
+  };
+
 
   const handleStepperSubmit = async (motorId: number, steps: number | string) => {
     const stepsNum = Number(steps)
@@ -140,7 +146,7 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
             <div className={styles.Row}>
               <div className={styles.Column}>
                 <h4>Position</h4>
-                <h1>{animatedPosition}</h1>
+                <h1>{displayValue}</h1>
                 <h4 className={styles.Units}> Steps</h4>
               </div>
               <div className={styles.VerticalRule} />
@@ -183,7 +189,7 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
             />
             <div className={styles.ButtonGroup}>
               <button onClick={() => handleStepperSubmit(augerId, inputSteps)}>Step</button>
-              <button onClick={() => setAnimatedPosition(0)}>Set</button>
+              <button onClick={handleReset}>Reset</button>
             </div>
           </form>
         </div>
