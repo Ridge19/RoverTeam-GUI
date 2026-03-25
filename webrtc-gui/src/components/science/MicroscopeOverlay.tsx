@@ -31,7 +31,7 @@ const MicroscopeOverlay: React.FC = memo(() => {
             {/* Position relative to the viewBox units (800, 600) */}
             <g transform="translate(20, 600)">
                 <text fill={color} fontSize="2.5rem" fontFamily="monospace" fontWeight="bold">
-                    {`X ${distanceValue ? `${distanceValue.toFixed(1)} mm` : "No Data"}`}
+                    {`X ${distanceValue ? `${(distanceValue * 0.020).toFixed(3)} mm` : "No Data"}`}
                 </text>
                 <line transform="translate(50, -50)" x1="0" y1="5" x2="60" y2="5" stroke={color} strokeWidth="10" />
                 {/* <text x="150" y="0" fill={color} fontSize="2.5rem">mm</text> */}

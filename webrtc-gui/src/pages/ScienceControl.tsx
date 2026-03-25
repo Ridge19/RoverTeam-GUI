@@ -96,7 +96,7 @@ const ScienceControl: React.FC = () => {
                 fontFamily: "monospace",
                 letterSpacing: 1
               }}>
-                {maxSpectrometerRead !== null ? `(${maxWaveLength}nm,${maxSpectrometerRead})` : "(—,—)"}
+                {maxSpectrometerRead !== null ? `(${maxWaveLength - 4}nm,${maxSpectrometerRead})` : "(—,—)"}
               </span>
             </div>
           </div>
