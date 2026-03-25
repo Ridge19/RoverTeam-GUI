@@ -184,9 +184,9 @@ const DriveControl: React.FC = () => {
                 height: "100%",
               }}
             >
-              <div style={{ padding: 20, display: "flex", alignItems: "flex-start", justifyContent: "left" }}><ActuatorStatus name="FL" status="inactive" /></div>
+              <div style={{ padding: 20, display: "flex", alignItems: "flex-start", justifyContent: "left" }}><ActuatorStatus name="FL" status="active" /></div>
               <div style={{ padding: 20, display: "flex", alignItems: "flex-start", justifyContent: "right" }}><ActuatorStatus name="FR" status="active" /></div>
-              <div style={{ padding: 20, display: "flex", alignItems: "flex-end", justifyContent: "left" }}><ActuatorStatus name="RL" status="error" /></div>
+              <div style={{ padding: 20, display: "flex", alignItems: "flex-end", justifyContent: "left" }}><ActuatorStatus name="RL" status="active" /></div>
               <div style={{ padding: 20, display: "flex", alignItems: "flex-end", justifyContent: "right" }}><ActuatorStatus name="RR" status="active" /></div>
             </div>
           </div>
