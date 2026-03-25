@@ -29,6 +29,18 @@ const ScienceControl: React.FC = () => {
   const spectralChannels = spectrometerData.length >= 289 ? spectrometerData.slice(1, 288) : spectrometerData;
   const distanceValue = spectrometerData.length >= 289 ? spectrometerData[288] : null;
 
+  const minSpectrometerValue = 340; // min wavelength
+  const maxSpectrometerValue = 850; // max wavelength
+  const maxSpectrometerRead = Math.max(...spectralChannels);
+  const maxIndex = spectralChannels.indexOf(maxSpectrometerRead);
+  // maxWaveLength is the associated wave length of highest spec return
+  const maxWaveLength = Math.round((maxIndex / 287) * (maxSpectrometerValue - minSpectrometerValue) + minSpectrometerValue);
+
+
+
+  useEffect(() => {
+    console.log(sentSteps);
+  }, [sentSteps])
   return (
     <div style={{ padding: 20 }}>
       <h2 style={{ color: "#aaa" }}>Space Resources Control</h2>
@@ -63,6 +75,7 @@ const ScienceControl: React.FC = () => {
               borderRadius: 12,
               border: "1px solid #333"
             }}>
+              {/* distance label */}
               <span style={{ color: "#aaa", fontSize: 14, fontWeight: 500 }}>Distance</span>
               <span style={{
                 color: distanceValue !== null ? "#4fc3f7" : "#666",
@@ -72,6 +85,18 @@ const ScienceControl: React.FC = () => {
                 letterSpacing: 1
               }}>
                 {distanceValue !== null ? `${distanceValue} mm` : "—"}
+              </span>
+
+              {/* max point coordinate */}
+              <span style={{ color: "#aaa", fontSize: 14, fontWeight: 500 }}>Max Point</span>
+              <span style={{
+                color: distanceValue !== null ? "#4fc3f7" : "#666",
+                fontSize: 22,
+                fontWeight: 700,
+                fontFamily: "monospace",
+                letterSpacing: 1
+              }}>
+                {maxSpectrometerRead !== null ? `(${maxWaveLength}nm,${maxSpectrometerRead})` : "(—,—)"}
               </span>
             </div>
           </div>
