@@ -82,9 +82,7 @@ const ScienceControl: React.FC = () => {
         <div className={styles.ModelContainer}>
           <Canvas camera={{ position: [50, 50, 50], fov: 45, zoom: 0.8 }}>
             <Suspense fallback={null}>
-              <Stage environment="sunset" intensity={0.5}>
-                <ScienceModel />
-              </Stage>
+              <ScienceModel />
             </Suspense>
             <OrbitControls />
           </Canvas>
