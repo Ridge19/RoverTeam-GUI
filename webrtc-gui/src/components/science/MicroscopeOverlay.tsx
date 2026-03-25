@@ -1,13 +1,18 @@
 import React, { memo, useRef, useLayoutEffect, useState } from "react";
 import { useTelemetryContext } from "@/contexts/TelemetryContext";
+import { useSpectrometerData } from "@/hooks/science/useScienceTelemetry"
 
 interface MicroscopeOverlayProps {
     verticalFOV?: number; // degrees of vertical field of view
 }
 
 const MicroscopeOverlay: React.FC = memo(() => {
-    const currentZoom = 15;
     const color = "#00ff88";
+
+
+    const spectrometerData = useSpectrometerData()
+
+    const distanceValue = spectrometerData.length >= 289 ? spectrometerData[288] : null;
 
     return (
         <svg
@@ -26,10 +31,10 @@ const MicroscopeOverlay: React.FC = memo(() => {
             {/* Position relative to the viewBox units (800, 600) */}
             <g transform="translate(20, 600)">
                 <text fill={color} fontSize="2.5rem" fontFamily="monospace" fontWeight="bold">
-                    {`X ${currentZoom.toFixed(1)}`}
+                    {`X ${distanceValue ? `${distanceValue.toFixed(1)} mm` : "No Data"}`}
                 </text>
                 <line transform="translate(50, -50)" x1="0" y1="5" x2="60" y2="5" stroke={color} strokeWidth="10" />
-                <text x="150" y="0" fill={color} fontSize="2.5rem">mm</text>
+                {/* <text x="150" y="0" fill={color} fontSize="2.5rem">mm</text> */}
             </g>
         </svg>
     );

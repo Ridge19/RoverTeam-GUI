@@ -28,13 +28,13 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    min-width: 300px;
+    min-width: 700;
     width: 100%;
 }
 
 .MicroscopeContainer {
-    width: 100%;
-    height: auto;
+    // width: 100%;
+    // height: auto;
 
     video,
     .MicroscopeFeed {

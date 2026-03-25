@@ -5,7 +5,7 @@ interface AircraftHUDProps {
   verticalFOV?: number; // degrees of vertical field of view
 }
 
-export const AircraftHUD: React.FC<AircraftHUDProps> = memo(({
+const AircraftHUD: React.FC<AircraftHUDProps> = memo(({
   verticalFOV = 60,
 }) => {
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -102,3 +102,5 @@ export const AircraftHUD: React.FC<AircraftHUDProps> = memo(({
     </div>
   );
 });
+
+export default AircraftHUD

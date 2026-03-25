@@ -14,6 +14,7 @@ const MicroscopeCamera = () => {
         setOverlay(nextState);
     };
 
+
     useEffect(() => {
         let cancelled = false;
 
@@ -35,7 +36,7 @@ const MicroscopeCamera = () => {
     );
     return (
         <div className={styles.MicroscopeFeed}>
-            {cameras[0] && <CameraViewer cameras={cameras as any} overlay={MicrosopeOverlay} >
+            {cameras[0] && <CameraViewer cameras={cameras as any} overlaySVG={MicrosopeOverlay} >
                 {overlay && <MicroscopeOverlay />}
             </CameraViewer >}
             <div className={styles.VisibilityToggle}>

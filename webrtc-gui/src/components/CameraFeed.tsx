@@ -6,9 +6,16 @@ import { useEndpoints } from "@/contexts/EndpointContext"
 
 interface CameraFeedProps {
   camera: Camera;
+  showOverlay?: boolean;
+  setShowOverlay?: (val: boolean) => void;
 }
 
-export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({ camera, children }) => {
+export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
+  camera,
+  children,
+  showOverlay,
+  setShowOverlay
+}) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const { getStream, getStatus, getError, start } = useCameraStreams();
 
@@ -210,6 +217,16 @@ export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
       <div style={styles.footer}>
         <div style={{ marginLeft: 10, marginRight: "auto", lineHeight: 2 }}>{fps ?? "--"} FPS</div>
 
+        {setShowOverlay &&
+          <button onClick={() => { setShowOverlay(!showOverlay) }}>
+            {showOverlay ?
+              <img src="icons/visibility.svg" />
+              :
+              <img src="icons/visibility_off.svg" />
+            }
+          </button>
+        }
+
         <button
           onClick={() => setIsFlipped(!isFlipped)}
           style={styles.actionBtn}
@@ -264,7 +281,7 @@ function StatusBadge({ status, fps }: { status: ConnectionStatus; fps: number | 
 /* ---------- Styles ---------- */
 
 const styles = {
-  card: { background: "#222", padding: 10, borderRadius: 8, overflow: "hidden" },
+  card: { background: "#222", padding: 10, borderRadius: 8, overflow: "hidden", width: "100%" },
   header: { display: "flex", justifyContent: "space-between", marginBottom: 8, gap: 8 },
   videoWrapper: { position: "relative" as const, paddingTop: "75%", background: "#000", borderRadius: 8, overflow: "hidden" },
   video: { position: "absolute" as const, top: 0, left: 0, width: "100%", height: "100%", objectxt: "cover" as const },

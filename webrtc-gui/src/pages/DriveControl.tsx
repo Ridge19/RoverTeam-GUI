@@ -12,7 +12,7 @@ import { TooltipLabel } from "@/components/TooltipLabel";
 import { ActuatorStatus } from "@/components/ActuatorStatus";
 import { Camera, useCameraStreams } from "@/contexts/CameraStreamsContext";
 import AngleView from "@/components/AngleView";
-import { AircraftHUD } from "@/components/AircraftHUD";
+import AircraftHUD from "@/components/AircraftHUD";
 import { Modal } from "@/components/Modal";
 import { useTelemetryContext } from "@/contexts/TelemetryContext";
 import { SpeedDisplay } from "@/components/SpeedDisplay";
@@ -60,6 +60,9 @@ const DriveControl: React.FC = () => {
     };
   }, [cameras, fetchCameras]);
 
+  const overlaySVG = (
+    <AircraftHUD />
+  )
   return (
     <div style={{
       height: "100%",
@@ -96,7 +99,7 @@ const DriveControl: React.FC = () => {
               <div className="mr-1">
                 <ButtonHoldTooltip buttonIndex={2} holdDuration={1} onComplete={() => {
                   gamepad.hardwareStates.drive?.sendEvent!("clear_errors")
-                }} size={50} disabled={gamepad.hasControl!=="drive"}></ButtonHoldTooltip>
+                }} size={50} disabled={gamepad.hasControl !== "drive"}></ButtonHoldTooltip>
               </div>
             </TooltipLabel>
 
@@ -104,7 +107,7 @@ const DriveControl: React.FC = () => {
               <div className="mr-1">
                 <ButtonHoldTooltip buttonIndex={9} holdDuration={3} onComplete={() => {
                   setWarningModal(true)
-                }} size={50} disabled={gamepad.hasControl!=="drive"}></ButtonHoldTooltip>
+                }} size={50} disabled={gamepad.hasControl !== "drive"}></ButtonHoldTooltip>
               </div>
             </TooltipLabel>
 
@@ -113,7 +116,7 @@ const DriveControl: React.FC = () => {
               onClose={(a) => {
                 setWarningModal(false);
 
-                if(a=="Enable Torque Mode"){
+                if (a == "Enable Torque Mode") {
                   gamepad.hardwareStates.drive?.sendEvent!("drive_mode_2")
                 }
               }}
@@ -163,12 +166,12 @@ const DriveControl: React.FC = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-              }}>{gamepad.hardwareStates.drive?.outputs["drive_mode"]==0 ? "UNLOCKED" : "LOCKED"}</div>
+              }}>{gamepad.hardwareStates.drive?.outputs["drive_mode"] == 0 ? "UNLOCKED" : "LOCKED"}</div>
               <div style={{ fontSize: 14 }}>
-                <TooltipLabel label={`${gamepad.hardwareStates.drive?.outputs["drive_mode"]==0 ? "Lock" : "Unlock"} Differential (Hold)`}>
+                <TooltipLabel label={`${gamepad.hardwareStates.drive?.outputs["drive_mode"] == 0 ? "Lock" : "Unlock"} Differential (Hold)`}>
                   <ButtonHoldTooltip buttonIndex={0} holdDuration={0.5} onComplete={() => {
-                    gamepad.hardwareStates.drive?.sendEvent!(gamepad.hardwareStates.drive?.outputs["drive_mode"]==0 ? "drive_mode_1" : "drive_mode_0")
-                  }} size={32} disabled={gamepad.hasControl!=="drive"}></ButtonHoldTooltip>
+                    gamepad.hardwareStates.drive?.sendEvent!(gamepad.hardwareStates.drive?.outputs["drive_mode"] == 0 ? "drive_mode_1" : "drive_mode_0")
+                  }} size={32} disabled={gamepad.hasControl !== "drive"}></ButtonHoldTooltip>
                 </TooltipLabel>
               </div>
             </div>
@@ -212,7 +215,7 @@ const DriveControl: React.FC = () => {
             <div style={{
               flex: 1
             }}>
-              <CameraViewer cameras={cameras as any} />
+              <CameraViewer cameras={cameras as any} overlaySVG={overlaySVG} />
             </div>
 
           </div>
