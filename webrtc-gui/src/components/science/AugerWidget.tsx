@@ -33,33 +33,60 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
 
   const [targetPosition, setTargetPosition] = useState<number>(0);
   const [animatedPosition, setAnimatedPosition] = useState<number>(0);
-  const [inputSteps, setInputSteps] = useState<number>(0);
+  const [inputSteps, setInputSteps] = useState<number | string>(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useHotkeys('r', () => {
+  useHotkeys('r', (event) => {
     if (inputRef.current && augerId == 1) {
+      event.preventDefault();
       inputRef.current.focus();
+      inputRef.current.select();
     }
   });
 
-  useHotkeys('e', () => {
+  useHotkeys('e', (event) => {
     if (inputRef.current && augerId == 3) {
+      event.preventDefault();
       inputRef.current.focus();
+      inputRef.current.select();
     }
   });
 
-  useHotkeys('m', () => {
+  useHotkeys('m', (event) => {
     if (inputRef.current && augerId == 2) {
+      event.preventDefault();
       inputRef.current.focus();
+      inputRef.current.select();
     }
   });
 
-  useHotkeys('esc', () => {
-    if (inputRef.current) {
-      inputRef.current.blur()
+  useHotkeys('esc', (event) => {
+    event.preventDefault();
+    if (document.activeElement === inputRef.current) {
+      if (inputRef.current) {
+        inputRef.current.blur()
+      }
     }
   }, { enableOnFormTags: ['input'] })
+
+  useHotkeys('-', (event) => {
+    if (document.activeElement === inputRef.current) {
+      event.preventDefault(); // Stop the "-" from appearing at the cursor position
+
+      setInputSteps((prev) => {
+        const stringVal = String(prev);
+
+        if (stringVal.startsWith('-')) {
+          return stringVal.substring(1); // Remove minus
+        } else {
+          // If value is 0 or empty, just make it a minus sign
+          return (stringVal === '0' || stringVal === '') ? '-' : '-' + stringVal;
+        }
+      });
+    }
+  }, { enableOnFormTags: ['input'] })
+
 
   useEffect(() => {
     if (animatedPosition === targetPosition) return;
@@ -81,16 +108,17 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
   }, [animatedPosition, targetPosition]);
 
 
-  const handleStepperSubmit = async (motorId: number, steps: number) => {
+  const handleStepperSubmit = async (motorId: number, steps: number | string) => {
+    const stepsNum = Number(steps)
     const currentPos = Math.round(animatedPosition);
-    const newTarget = currentPos + steps;
+    const newTarget = currentPos + stepsNum;
 
     setTargetPosition(newTarget);
 
     await ScienceService.setStepperStep(
       getEndpointsOfService,
       motorId,
-      steps,
+      stepsNum,
     );
 
     // if (handleSentSteps) handleSentSteps(steps);
@@ -121,20 +149,32 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
             <button onClick={() => handleStepperSubmit(augerId, STEPS_MAP[augerId][2])}>+{STEPS_MAP[augerId][2]}</button>
           </div>
           <h4>Manual input</h4>
-          <div className={styles.Inputs}>
+          <form className={styles.Inputs} onSubmit={(event) => { event.preventDefault(); handleStepperSubmit(augerId, inputSteps) }}>
             <input
-              type="number"
+              type="text"
               value={inputSteps}
-              onChange={(e) => setInputSteps(Number(e.target.value))}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (inputSteps == 0 || inputSteps == "0") {
+                  setInputSteps(val);
+                }
+                if (/^-?\d*$/.test(val)) {
+                  setInputSteps(val);
+                }
+              }}
+              onFocus={(e) => {
+                // setInputSteps(0);
+                e.target.select();
+              }}
               ref={inputRef}
             />
             <button onClick={() => handleStepperSubmit(augerId, inputSteps)}>
               Step
             </button>
-          </div>
+          </form>
         </div>
       </div>
-    </div>
+    </div >
   );
 });
 
