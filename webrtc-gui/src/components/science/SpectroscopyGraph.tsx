@@ -10,24 +10,33 @@ const WAVELENGTH_MAX = 850;
 const TICK_INTERVAL = 100; // nm between axis ticks
 
 const SENSOR_BASELINE = 498;
+const SPECTROMETER_MAX = 2930; // Known peak return of the spectrometer
 
 /**
  * Isolates actual brightness signals by subtracting the sensor's baseline (dark current).
- * Clamps noise below the baseline to 0, then normalizes the peaks.
+ * Clamps noise below the baseline to 0, then normalizes to the spectrometer's absolute maximum capacity.
  * 
  * @param values Raw spectrometer array data
  * @param baseline The average resting value of the sensor (498)
- * @param exponent 1.0 is linear (true physical brightness). < 1.0 boosts smaller peaks.
+ * @param absoluteMax The absolute highest value the spectrometer returns (1530)
+ * @param exponent 1.0 is linear (true physical brightness). < 1.0 boosts smaller peaks visually.
  */
-function scaleSignal(values: number[], baseline: number = SENSOR_BASELINE, exponent = 0.8): number[] {
-  // 1. Subtract the baseline to isolate the actual photon signal
-  const signals = values.map((v) => Math.max(0, v - baseline));
+function scaleSignal(
+  values: number[],
+  baseline: number = SENSOR_BASELINE,
+  absoluteMax: number = SPECTROMETER_MAX,
+  exponent = 1.0
+): number[] {
+  // 1. Calculate the maximum possible isolated photon signal
+  const maxSignal = absoluteMax - baseline;
 
-  // 2. Find the highest peak in the pure signal
-  const maxSignal = Math.max(...signals, 1); // fallback to 1 to prevent division by zero
-
-  // 3. Normalize to 0.0 - 1.0 range, applying an optional subtle curve
-  return signals.map((s) => Math.pow(s / maxSignal, exponent));
+  // 2. Subtract the baseline to isolate the signal and normalize to 0.0 - 1.0 range
+  return values.map((v) => {
+    const signal = Math.max(0, v - baseline);
+    // Cap at 1.0 in case of minor noise exceeding the theoretical max
+    const normalized = Math.min(signal / maxSignal, 1.0);
+    return Math.pow(normalized, exponent);
+  });
 }
 
 const SpectroscopyGraph: React.FC<SpectroscopyGraphProps> = ({
@@ -57,7 +66,7 @@ const SpectroscopyGraph: React.FC<SpectroscopyGraphProps> = ({
     ctx.scale(dpr, dpr);
 
     // Layout constants
-    const MARGIN_LEFT = 48;
+    const MARGIN_LEFT = 48; // Wide enough for 4-digit numbers (e.g. 1530)
     const MARGIN_RIGHT = 16;
     const MARGIN_TOP = 12;
     const MARGIN_BOTTOM = 36;
@@ -71,13 +80,14 @@ const SpectroscopyGraph: React.FC<SpectroscopyGraphProps> = ({
     // --- Prepare data ---
     let data: number[];
     if (spectralChannels.length === 0) {
-      // Demo / mock data: generated with the realistic 498 baseline in mind
+      // Demo / mock data generated to realistically fit within the 1530 max limit
       data = Array.from({ length: 288 }, (_, i) => {
         const t = i / 287;
-        const p1 = Math.exp(-Math.pow((t - 0.2) / 0.04, 2)) * 3000;
-        const p2 = Math.exp(-Math.pow((t - 0.45) / 0.06, 2)) * 2000;
-        const p3 = Math.exp(-Math.pow((t - 0.7) / 0.03, 2)) * 3500;
-        const p4 = Math.exp(-Math.pow((t - 0.85) / 0.05, 2)) * 1500;
+        // Adjusted multipliers so the highest peak combined with baseline doesn't exceed ~1530
+        const p1 = Math.exp(-Math.pow((t - 0.2) / 0.04, 2)) * 600;
+        const p2 = Math.exp(-Math.pow((t - 0.45) / 0.06, 2)) * 300;
+        const p3 = Math.exp(-Math.pow((t - 0.7) / 0.03, 2)) * 950;
+        const p4 = Math.exp(-Math.pow((t - 0.85) / 0.05, 2)) * 250;
 
         // Add peaks to baseline, plus some +/- random baseline noise
         const baselineNoise = (Math.random() - 0.5) * 50;
@@ -87,8 +97,8 @@ const SpectroscopyGraph: React.FC<SpectroscopyGraphProps> = ({
       data = [...spectralChannels];
     }
 
-    // Apply the new baseline-aware scaling
-    const scaledData = scaleSignal(data, SENSOR_BASELINE);
+    // Apply the fixed-scale scaling (0.0 = baseline, 1.0 = 1530)
+    const scaledData = scaleSignal(data, SENSOR_BASELINE, SPECTROMETER_MAX);
     const numPoints = scaledData.length;
 
     // --- Draw grid lines ---
@@ -153,39 +163,22 @@ const SpectroscopyGraph: React.FC<SpectroscopyGraphProps> = ({
     ctx.textAlign = "right";
     ctx.fillText("nm", MARGIN_LEFT + plotW + 14, MARGIN_TOP + plotH + 8);
 
-    // --- Y-axis labels (relative intensity %) ---
+    // --- Y-axis labels (Raw Spectrometer Return) ---
     ctx.fillStyle = "#888";
     ctx.font = "11px monospace";
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
     for (let i = 0; i <= 4; i++) {
-      const val = Math.round((i / 4) * 100);
+      // Calculate true brightness value mapping 0-4 ticks from BASELINE (498) to MAX (1530)
+      const val = Math.round(SENSOR_BASELINE + (i / 4) * (SPECTROMETER_MAX - SENSOR_BASELINE));
       const y = MARGIN_TOP + plotH - (plotH * i) / 4;
-      ctx.fillText(`${val}%`, MARGIN_LEFT - 6, y);
+      ctx.fillText(`${val}`, MARGIN_LEFT - 6, y);
     }
   }, [spectralChannels]);
 
   useEffect(() => {
     draw();
   }, [draw]);
-
-  // Resize observer for responsiveness
-  // useEffect(() => {
-  //   const container = containerRef.current;
-  //   if (!container) return;
-
-  //   let timeoutId: NodeJS.Timeout;
-  //   const observer = new ResizeObserver(() => {
-  //     clearTimeout(timeoutId);
-  //     timeoutId = setTimeout(() => draw(), 100);
-  //   });
-
-  //   observer.observe(container);
-  //   return () => {
-  //     observer.disconnect();
-  //     clearTimeout(timeoutId);
-  //   };
-  // }, [draw]);
 
   return (
     <div
