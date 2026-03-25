@@ -45,8 +45,8 @@ export function mapGamepadToDriveInputs(
 ): GamepadInputMapping {
   const targets: Record<string, number> = {};
 
-  targets["drive_x"] = -applyDeadzone(axes[2] ?? 0);
-  targets["drive_y"] = applyDeadzone(axes[3] ?? 0);
+  targets["drive_l"] = applyDeadzone(axes[1] ?? 0);
+  targets["drive_r"] = applyDeadzone(axes[3] ?? 0);
 
   targets["drive_multiplier"] = -200;
 

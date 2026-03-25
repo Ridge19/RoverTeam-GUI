@@ -26,6 +26,12 @@ const ID_MAP: Record<number, string> = {
   3: "Extraction Stepper",
 };
 
+const MOTOR_SPEED_MS: Record<number, number> = {
+  1: 8, // Swivel (e.g., 500us pulse * 2 + overhead)
+  2: 6, // Gantry
+  3: 10, // Auger (usually slower/higher torque)
+};
+
 const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
   const { getEndpointsOfService } = useEndpoints();
 
@@ -34,6 +40,7 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
   const [targetPosition, setTargetPosition] = useState<number>(0);
   const [animatedPosition, setAnimatedPosition] = useState<number>(0);
   const [inputSteps, setInputSteps] = useState<number | string>(0);
+  const [displayOffset, setDisplayOffset] = useState<number>(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -91,20 +98,17 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
   useEffect(() => {
     if (animatedPosition === targetPosition) return;
 
+    const frameDelay = MOTOR_SPEED_MS[augerId] || 8;
+
     const animationTimeout = setTimeout(() => {
-      const diff = targetPosition - animatedPosition;
-
-      const stepSize = Math.max(1, Math.abs(Math.floor(diff / 10)));
-
       setAnimatedPosition((prev) => {
-        const next = prev < targetPosition
-          ? Math.min(prev + stepSize, targetPosition)
-          : Math.max(prev - stepSize, targetPosition);
+        const next = prev < targetPosition ? prev + 1 : prev - 1;
 
         handleSentSteps(augerId, next);
+
         return next;
       });
-    }, 20);
+    }, frameDelay);
 
     return () => clearTimeout(animationTimeout);
   }, [animatedPosition, targetPosition, augerId, handleSentSteps]);
@@ -122,8 +126,6 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
       motorId,
       stepsNum,
     );
-
-    // if (handleSentSteps) handleSentSteps(steps);
   };
 
   return (

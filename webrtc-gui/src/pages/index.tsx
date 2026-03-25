@@ -9,7 +9,7 @@ import { useGamepad } from "@/contexts/HardwareControl/useGamepad";
 import SplashScreen from "@/components/SplashScreen";
 import { useEndpoints } from "@/contexts/EndpointContext";
 import DriveControl from "./DriveControl";
-import PDB from "./PDB";
+// import PDB from "./PDB";
 import Science from "./ScienceControl";
 
 const IndexPage: React.FC = () => {
@@ -56,7 +56,7 @@ const IndexPage: React.FC = () => {
         {activeTab === "telemetry" && <TelemetryConsole />}
         {activeTab === "vitals" && <SystemVitals />}
         {activeTab === "science" && <Science />}
-        {activeTab === "pdb" && <PDB />}
+        {/* {activeTab === "pdb" && <PDB />} */}
       </div>
     </main>
   </>);

@@ -17,6 +17,7 @@ import { Modal } from "@/components/Modal";
 import { useTelemetryContext } from "@/contexts/TelemetryContext";
 import { SpeedDisplay } from "@/components/SpeedDisplay";
 import CameraViewer from "@/components/CameraViewer";
+import { AxisFunction } from "@/components/AxisFunction";
 
 /*
 {
@@ -89,12 +90,9 @@ const DriveControl: React.FC = () => {
             justifyContent: "center",
             gap: 10
           }}>
-            <TooltipLabel label="Drive Control">
-              <div className="mr-1">
-                <AxisTooltip xAxisIndex={2} yAxisIndex={3} label="R" size={60}></AxisTooltip>
-              </div>
-            </TooltipLabel>
-
+            <TooltipLabel label="Drive Left"><AxisFunction size={48} axisIndex={1} disabled={gamepad.hasControl != "drive"} /></TooltipLabel>
+            <TooltipLabel label="Drive Right"><AxisFunction size={48} axisIndex={3} disabled={gamepad.hasControl != "drive"} /></TooltipLabel>
+            
             <TooltipLabel label="Clear Errors (Hold)">
               <div className="mr-1">
                 <ButtonHoldTooltip buttonIndex={2} holdDuration={1} onComplete={() => {
@@ -186,9 +184,9 @@ const DriveControl: React.FC = () => {
                 height: "100%",
               }}
             >
-              <div style={{ padding: 20, display: "flex", alignItems: "flex-start", justifyContent: "left" }}><ActuatorStatus name="FL" status="inactive" /></div>
+              <div style={{ padding: 20, display: "flex", alignItems: "flex-start", justifyContent: "left" }}><ActuatorStatus name="FL" status="active" /></div>
               <div style={{ padding: 20, display: "flex", alignItems: "flex-start", justifyContent: "right" }}><ActuatorStatus name="FR" status="active" /></div>
-              <div style={{ padding: 20, display: "flex", alignItems: "flex-end", justifyContent: "left" }}><ActuatorStatus name="RL" status="error" /></div>
+              <div style={{ padding: 20, display: "flex", alignItems: "flex-end", justifyContent: "left" }}><ActuatorStatus name="RL" status="active" /></div>
               <div style={{ padding: 20, display: "flex", alignItems: "flex-end", justifyContent: "right" }}><ActuatorStatus name="RR" status="active" /></div>
             </div>
           </div>
