@@ -72,8 +72,13 @@ const DrillWidget = (handleSentSteps: WidgetProps) => {
       <div className={styles.Contents}>
         <div className={styles.OutputContainer}>
           <div className={styles.TelemetryDisplay}>
-            <h1 className={styles.StepperText}>{displaySpeed}</h1>
-            <h4 className={styles.Units}> PWM</h4>
+            <div className={styles.Row}>
+              <div className={styles.Column}>
+                <h4>Speed</h4>
+                <h1 className={styles.StepperText}>{displaySpeed}</h1>
+                <h4 className={styles.Units}> PWM</h4>
+              </div>
+            </div>
           </div>
         </div>
         <hr />

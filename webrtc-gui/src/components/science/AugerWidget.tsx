@@ -131,11 +131,20 @@ const AugerWidget = memo(({ augerId, handleSentSteps }: WidgetProps) => {
         <h5>Id {augerId}</h5>
       </div>
       <div className={styles.Contents}>
-        <div className={styles.InputContainer}>
-          <div className={styles.OutputContainer}>
-            <div className={styles.TelemetryDisplay}>
-              <h1>{animatedPosition}</h1>
-              <h4 className={styles.Units}> Steps</h4>
+        <div className={styles.OutputContainer}>
+          <div className={styles.TelemetryDisplay}>
+            <div className={styles.Row}>
+              <div className={styles.Column}>
+                <h4>Position</h4>
+                <h1>{animatedPosition}</h1>
+                <h4 className={styles.Units}> Steps</h4>
+              </div>
+              <div className={styles.VerticalRule} />
+              <div className={styles.Column}>
+                <h4>Pending</h4>
+                <h1>{pendingSteps}</h1>
+                <h4 className={styles.Units}> Steps</h4>
+              </div>
             </div>
           </div>
           <hr />

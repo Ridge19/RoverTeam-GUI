@@ -44,8 +44,9 @@ const ScienceControl: React.FC = () => {
             <AugerWidget augerId={3} handleSentSteps={handleSentSteps} />
             <DrillWidget handleSentSteps={handleSentSteps} />
             <AugerWidget augerId={1} handleSentSteps={handleSentSteps} />
+            <HeatpadWidget motorId={4} />
+            <HeatpadWidget motorId={5} />
           </div>
-          <HeatpadWidget />
         </div>
         <div className={styles.MiddleColumn}>
           <div className={styles.MicroscopeContainer}>
