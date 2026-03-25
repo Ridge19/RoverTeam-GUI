@@ -4,10 +4,10 @@ import { Temporal } from '@js-temporal/polyfill';
 const Timer = () => {
   // 1. Define your sequence of dates (ISO format strings)
   const targetDates = useMemo(() => [
+    '2026-03-26T08:50:00',
+    '2026-03-26T09:00:00',
     '2026-03-26T09:15:00',
-    '2026-03-26T10:00:00',
-    // '2026-03-27T12:00:00',
-    // '2026-03-01T00:00:00'
+    '2026-03-26T10:05:00',
   ], []);
 
   const [currentIndex, setCurrentIndex] = useState(0);
