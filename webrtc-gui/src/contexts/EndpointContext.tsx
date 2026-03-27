@@ -29,9 +29,9 @@ export const ENDPOINTS: EndpointConfig[] = [
     ports: [
       { port: 3001 }, // Cameras
       { port: 5005 }, // Telemetry
-      { port: 5001 }, // Drive
-      { port: 5003 }, // Payload Backend (Arm)
-      { port: 5000 }, // PDB
+      // { port: 5001 }, // Drive
+      // { port: 5003 }, // Payload Backend (Arm)
+      // { port: 5000 }, // PDB
     ],
   },
   {
@@ -41,9 +41,9 @@ export const ENDPOINTS: EndpointConfig[] = [
     ports: [
       { port: 3001 }, // Cameras
       { port: 5005 }, // Telemetry
-      { port: 5001 }, // Drive
-      { port: 5003 }, // Payload Backend (Arm)
-      { port: 5000 }, // PDB
+      // { port: 5001 }, // Drive
+      // { port: 5003 }, // Payload Backend (Arm)
+      // { port: 5000 }, // PDB
     ],
   },
   {
@@ -63,11 +63,11 @@ export const ENDPOINTS: EndpointConfig[] = [
     host: "http://localhost",
     priority: 2,
     ports: [
-      { port: 3001 }, // Cameras
-      { port: 5005 }, // Telemetry
-      { port: 5001 }, // Drive
-      { port: 5003 }, // Payload Backend (Arm)
-      { port: 5000 }, // PDB
+      // { port: 3001 }, // Cameras
+      // { port: 5005 }, // Telemetry
+      // { port: 5001 }, // Drive
+      // { port: 5003 }, // Payload Backend (Arm)
+      // { port: 5000 }, // PDB
     ],
   },
 ];

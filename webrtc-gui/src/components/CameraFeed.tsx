@@ -106,7 +106,7 @@ export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
       setTimeout(() => setShowSaved(false), 2000);
 
       // 1. Fetch High-Quality raw frame from Python Backend
-      const response = await fetch(`${getEndpointsOfService('cameras')}/capture-frame`, {
+      const response = await fetch(`${getEndpointsOfService('cameras')[0]}/capture-frame`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ camera_id: camera.id })
@@ -168,6 +168,26 @@ export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
     }
   }, [camera.id, status, getEndpointsOfService]);
 
+  const terminateCamera = useCallback(async () => {
+    try {
+      const baseUrl = getEndpointsOfService('cameras')[0];
+      await fetch(`${baseUrl}/terminate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ camera_id: camera.id })
+      });
+    } catch (error) {
+      console.error("Failed to terminate camera:", error);
+    }
+  }, [camera.id, getEndpointsOfService]);
+
+  // Add this useEffect to call termination on unmount
+  useEffect(() => {
+    return () => {
+      terminateCamera();
+    };
+  }, [terminateCamera]);
+
   // --- Fullscreen ---
   const goFullscreen = useCallback(() => {
     videoRef.current?.requestFullscreen();
@@ -217,6 +237,14 @@ export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
       <div style={styles.footer}>
         <div style={{ marginLeft: 10, marginRight: "auto", lineHeight: 2 }}>{fps ?? "--"} FPS</div>
 
+        <button
+          onClick={() => terminateCamera()}
+          style={styles.actionBtn}
+          title="Terminate Camera"
+        >
+          WSG
+        </button>
+
         {setShowOverlay &&
           <button onClick={() => { setShowOverlay(!showOverlay) }}>
             {showOverlay ?
@@ -261,7 +289,7 @@ export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
       </div>
 
       {showSaved && <div style={styles.savedOverlay}>Saved!</div>}
-    </div>
+    </div >
   );
 };
 
