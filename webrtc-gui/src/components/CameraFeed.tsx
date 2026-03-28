@@ -105,13 +105,26 @@ export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
       setShowSaved(true);
       setTimeout(() => setShowSaved(false), 2000);
 
-      // 1. Fetch High-Quality raw frame from Python Backend
-      const response = await fetch(`${getEndpointsOfService('cameras')[0]}/capture-frame`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ camera_id: camera.id })
-      });
+      const endpoints = getEndpointsOfService('cameras');
+      let response: Response | null = null;
 
+      for (const baseUrl of endpoints) {
+        try {
+          const res = await fetch(`${baseUrl}/capture-frame`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ camera_id: camera.id })
+          });
+          if (res.ok) {
+            response = res;
+            break; // Found the right server, stop looking
+          }
+        } catch (e) {
+          // Ignore network errors on wrong endpoints and keep looping
+        }
+      }
+
+      if (!response) throw new Error("Backend capture failed on all endpoints");
       if (!response.ok) throw new Error("Backend capture failed");
 
       const rawBlob = await response.blob();
@@ -170,23 +183,35 @@ export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
 
   const terminateCamera = useCallback(async () => {
     try {
-      const baseUrl = getEndpointsOfService('cameras')[0];
-      await fetch(`${baseUrl}/terminate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ camera_id: camera.id })
-      });
+      const endpoints = getEndpointsOfService('cameras');
+      if (!endpoints || endpoints.length === 0) return;
+
+      await Promise.allSettled(
+        endpoints.map((baseUrl) =>
+          fetch(`${baseUrl}/terminate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ camera_id: camera.id })
+          })
+        )
+      );
     } catch (error) {
       console.error("Failed to terminate camera:", error);
     }
   }, [camera.id, getEndpointsOfService]);
 
-  // Add this useEffect to call termination on unmount
+  const terminateCameraRef = useRef(terminateCamera);
+
+  useEffect(() => {
+    terminateCameraRef.current = terminateCamera;
+  }, [terminateCamera]);
+
   useEffect(() => {
     return () => {
-      terminateCamera();
+      terminateCameraRef.current();
     };
-  }, [terminateCamera]);
+  }, []);
+
 
   // --- Fullscreen ---
   const goFullscreen = useCallback(() => {
@@ -242,7 +267,7 @@ export const CameraFeed: React.FC<React.PropsWithChildren<CameraFeedProps>> = ({
           style={styles.actionBtn}
           title="Terminate Camera"
         >
-          WSG
+          KILL
         </button>
 
         {setShowOverlay &&
