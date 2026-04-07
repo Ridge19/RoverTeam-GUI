@@ -1,11 +1,12 @@
 import React, { useEffect, useState, CSSProperties } from "react";
-import { useGamepad } from "@/contexts/GamepadContext";
+import { useGamepad } from "@/contexts/HardwareControl/useGamepad";
 
 interface AxisTooltipProps {
   xAxisIndex: number;       // index of horizontal axis
   yAxisIndex: number;       // index of vertical axis
   size?: number;            // outer circle size
   style?: CSSProperties;    // optional custom styles
+  label?: string;          // optional label to display inside the tooltip
 }
 
 export const AxisTooltip: React.FC<AxisTooltipProps> = ({
@@ -13,6 +14,7 @@ export const AxisTooltip: React.FC<AxisTooltipProps> = ({
   yAxisIndex,
   size = 90,
   style = {},
+  label = "",
 }) => {
   const { axes } = useGamepad();
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -67,7 +69,9 @@ export const AxisTooltip: React.FC<AxisTooltipProps> = ({
 
   return (
     <div style={outerStyle}>
-      <div style={innerStyle}></div>
+      <div style={innerStyle}>
+        {label && <span>{label}</span>}
+      </div>
     </div>
   );
 };

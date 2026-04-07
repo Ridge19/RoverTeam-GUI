@@ -1,35 +1,43 @@
-import React, { useState } from "react";
-import { useCameraList } from "@/hooks/useCameraList";
+import React, { useEffect, useState } from "react";
 import { useRoverUrl } from "@/hooks/useRoverUrl";
 import { CameraFeed } from "@/components/CameraFeed";
 import { CAMERA_GRID } from "@/layout/cameraLayout";
 import { ControllerVisual } from "@/components/ControllerVisual";
 import { AxisTooltip } from "@/components/AxisTooltip";
 import { ButtonTooltip } from "@/components/ButtonTooltip";
+import { ButtonHoldTooltip } from "@/components/ButtonHoldTooltip";
+import { useGamepad } from "@/contexts/HardwareControl/useGamepad";
+import { StatusBanner } from "@/components/StatusBanner";
+import { TooltipLabel } from "@/components/TooltipLabel";
+import { ActuatorStatus } from "@/components/ActuatorStatus";
+import { Camera, useCameraStreams } from "@/contexts/CameraStreamsContext";
+import { AxisFunction } from "@/components/AxisFunction";
+import { ButtonFunction } from "@/components/ButtonFunction";
+import CameraViewer from "@/components/CameraViewer";
 
 const ArmControl: React.FC = () => {
-  const { cameras, loading, error } = useCameraList();
-  const Roverurl = useRoverUrl();
 
-  const columnWidth = `400px`;
+  const gamepad = useGamepad();
 
-  // Hard-coded actuator degrees for demo (replace with real state later)
-  const [actuators] = useState([
-    { name: "J1", degree: 0 },
-    { name: "J2", degree: 0 },
-    { name: "J3", degree: 0 },
-    { name: "J4", degree: 0 },
-    { name: "J5", degree: 0 },
-    { name: "J6", degree: 0 },
-  ]);
+  // Pre-fetch /cameras for all endpoints to ensure IDs are loaded
+  const { cameras, loading, fetchCameras } = useCameraStreams();
+  const [refreshing, setRefreshing] = useState(false);
 
-  // Single camera (index 0)
-  const cameraToShow = cameras.length > 0 ? cameras[0] : null;
+  useEffect(() => {
+    let cancelled = false;
 
-  const c1 = "#ff3636AA"
-  const c2 = "#e3e3e3AA"
-  const c3 = "#000000"
-  const c4 = "#FFFFFF"
+    const loadCameras = async () => {
+      for (const cam of cameras) {
+        await fetchCameras(cam.endpoint.replace(`:${cam.port}`, ""), cam.port);
+      }
+    };
+
+    loadCameras();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cameras, fetchCameras]);
 
   return (
     <div style={{
@@ -40,42 +48,11 @@ const ArmControl: React.FC = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        flexDirection: "column"
+        flexDirection: "column",
+        gap: 20
     }}>
 
-      <div style={{
-        width: "calc(100% + 40px)",
-        margin: -20,
-        marginBottom: 20,
-        height: 50,
-        background: `repeating-linear-gradient(
-          -45deg,
-          ${c1} 0px,
-          ${c1} 20px,
-          ${c2} 20px,
-          ${c2} 40px
-        )`,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
-      }}>
-        <div style={{
-          backgroundColor: c3,
-          color: c4,
-          fontWeight: "bold",
-          padding: 5,
-          paddingRight: 10,
-          paddingLeft: 10,
-          fontFamily: "monospace",
-          fontSize: 20
-        }}>
-          ARM IS UNDER YOUR CONTROL
-        </div>
-      </div>
-
-
-        Hello world! this is a controller input test :)
-      
+      <StatusBanner controlDevice="arm" controlDeviceLabel="Arm"/>          
 
       {/* Camera view */}
       <div
@@ -87,43 +64,33 @@ const ArmControl: React.FC = () => {
           gap: 20
         }}
     >
-      <AxisTooltip xAxisIndex={0} yAxisIndex={1} style={{marginRight: 30}}/>
-      <AxisTooltip xAxisIndex={2} yAxisIndex={3} style={{marginRight: 30}}/>
+        <TooltipLabel label="J1 (Base)"><AxisFunction size={32} axisIndex={0} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
+        <TooltipLabel label="J2 (Shoulder)"><AxisFunction size={32} axisIndex={1} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
+        <TooltipLabel label="J3 (Elbow)"><AxisFunction size={32} axisIndex={3} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
+        <TooltipLabel label="J4 (Wrist Pitch)"><ButtonFunction size={32} buttonIndex={12} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
+        <TooltipLabel label="J5 (Wrist Yaw)"><AxisFunction size={32} axisIndex={2} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
+        <TooltipLabel label="J6 (Wrist Roll)"><ButtonFunction size={32} buttonIndex={14} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
+        <TooltipLabel label="Gripper Grab"><ButtonTooltip size={32} buttonIndex={7} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
+        <TooltipLabel label="Gripper Release"><ButtonTooltip size={32} buttonIndex={6} disabled={gamepad.hasControl!="arm"}/></TooltipLabel>
 
     </div>
 
-    <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "center",
-          marginBottom: 20,
-          gap: 20
-        }}
-    >
-      <ButtonTooltip buttonIndex={0}/>
-      <ButtonTooltip buttonIndex={1}/>
-      <ButtonTooltip buttonIndex={2}/>
-      <ButtonTooltip buttonIndex={3}/>
-      <ButtonTooltip buttonIndex={4}/>
-      <ButtonTooltip buttonIndex={5}/>
-      <ButtonTooltip buttonIndex={6}/>
-      <ButtonTooltip buttonIndex={7}/>
-      <ButtonTooltip buttonIndex={8}/>
-      <ButtonTooltip buttonIndex={9}/>
-      <ButtonTooltip buttonIndex={10}/>
-      <ButtonTooltip buttonIndex={11}/>
-      <ButtonTooltip buttonIndex={12}/>
-      <ButtonTooltip buttonIndex={13}/>
-      <ButtonTooltip buttonIndex={14}/>
-      <ButtonTooltip buttonIndex={15}/>
-      <ButtonTooltip buttonIndex={16}/>
-
-    </div>
-  
+    <div style={{display: "flex", flexDirection: "row", gap: 40}}>
+      <div className="flex flex-col gap-2">
+        <ActuatorStatus name="J1" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J1_velocity"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J1_position"] as number || 0} maxVelocity={20}/>
+        <ActuatorStatus name="J2" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J2_velocity"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J2_position"] as number || 0} maxVelocity={20}/>
+        <ActuatorStatus name="J3" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J3_velocity"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J3_position"] as number || 0} maxVelocity={20}/>
+      </div>
+      <div className="flex flex-col gap-2">
+        <ActuatorStatus name="J4" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J4_velocity"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J4_position"] as number || 0} maxVelocity={20}/>
+        <ActuatorStatus name="J5" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J5_velocity"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J5_position"] as number || 0} maxVelocity={20}/>
+        <ActuatorStatus name="J6" status="active" velocity={gamepad.hardwareStates.arm?.outputs?.["J6_velocity"] as number || 0} position={gamepad.hardwareStates.arm?.outputs?.["J6_position"] as number || 0} maxVelocity={20}/>
+      </div>
+      <div>
+        <CameraViewer cameras={cameras as any} />
+      </div>
+    </div> 
   </div>
-
-      
   );
 };
 

@@ -1,20 +1,20 @@
-import { TelemetryProvider } from "@/contexts/TelementryContext";
-import { useRoverUrl } from "@/hooks/useRoverUrl";
+import { TelemetryProvider } from "@/contexts/TelemetryContext";
 import { CameraStreamsProvider } from "@/providers/CameraStreamsProvider";
-import { GamepadProvider } from "@/contexts/GamepadContext"
-import "@/styles/globals.css";
+import { GamepadProvider } from "@/contexts/HardwareControl/GamepadContext"
+import "@/styles/globals.scss";
 import type { AppProps } from "next/app";
+import { EndpointProvider } from "@/contexts/EndpointContext";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const baseUrl = useRoverUrl()
-  
-  return (
-    <CameraStreamsProvider baseUrl={baseUrl}>
-      <TelemetryProvider>
-        <GamepadProvider>
-          <Component {...pageProps} />
-        </GamepadProvider>
-      </TelemetryProvider>
-    </CameraStreamsProvider>
+return (
+    <EndpointProvider>
+      <CameraStreamsProvider>
+        <TelemetryProvider>
+          <GamepadProvider>
+            <Component {...pageProps} />
+          </GamepadProvider>
+        </TelemetryProvider>
+      </CameraStreamsProvider>
+    </EndpointProvider>
   );
 }

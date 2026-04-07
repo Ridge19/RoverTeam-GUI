@@ -1,9 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import StatusChip from './StatusChip';
-import { useRoverWatchdog } from '@/hooks/useRoverWatchdog';
+import React, { useMemo, useState, useEffect } from 'react';
 import { HeaderTabs } from './HeaderTabs';
-import { useRoverUrl } from '@/hooks/useRoverUrl';
-import { useGamepad } from '@/hooks/useGamepad';
+import { EndpointModal } from "@/components/EndpointModal";
+import { GithubModal } from './GithubModal';
+import { useEndpoints } from "@/contexts/EndpointContext";
 
 interface HeaderProps {
   target?: string;
@@ -12,55 +11,69 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ target, activeTab, setActiveTab }) => {
-  const roverWatchdog = useRoverWatchdog();
+  const [endpointModalOpen, setEndpointModalOpen] = useState(false);
+  const [githubModalOpen, setGithubModalOpen] = useState(false);
+  const { endpoints } = useEndpoints();
+  const [gitData, setGitData] = useState<any>({});
+
+  // Fetch Git info from server API
+  useEffect(() => {
+    fetch("/api/git")
+      .then(res => res.json())
+      .then(data => {
+        setGitData(data)
+      })
+      .catch(() => setGitData({error: "Bad fetch"}));
+  }, []);
+
+  // Compute port & endpoint counts
+  const { portCount, endpointCount } = useMemo(() => {
+    const activeEndpoints = endpoints.filter(ep =>
+      ep.ports.some(p => p.status === "online")
+    );
+    const ports = activeEndpoints.reduce(
+      (sum, ep) => sum + ep.ports.filter(p => p.status === "online").length,
+      0
+    );
+    return { portCount: ports, endpointCount: activeEndpoints.length };
+  }, [endpoints]);
+
+  const statusColor = portCount === 0 && endpointCount === 0 ? "error" : "success";
+  const statusLabel = `${portCount} port${portCount === 1 ? "" : "s"}, ${endpointCount} endpoint${endpointCount === 1 ? "" : "s"}`;
 
   return (
-    <header
-      className="text-gray-100 shadow-md"
-      style={{
-        background: '#222',
-        flexShrink: 0, // ensure header doesn't shrink in a flex column
-        height: 110
-      }}
-    >
+    <header className="text-gray-100 shadow-md" style={{ background: '#222', flexShrink: 0, height: 110 }}>
+      <EndpointModal open={endpointModalOpen} onClose={() => setEndpointModalOpen(false)} />
+      <GithubModal data={gitData} open={githubModalOpen} onClose={()=>setGithubModalOpen(false)} />
       <div className="mx-auto px-4 py-4 flex flex-col gap-6">
-
         {/* Top row */}
-        <div className="flex items-center gap-8">
-          {/* Logo */}
-          <img src="Equinox Logo.png" className="h-[70px] flex-shrink-0" />
+        <div className="relative flex items-center">
+          {/* Logo (left) */}
+          <img src="Team Logo.png" className="h-[70px] flex-shrink-0" />
 
-          {/* Title */}
-          <div>
-            <h1 className="text-3xl font-extrabold">RMIT Rover Team</h1>
-            <p className="text-gray-400 mt-1">Equinox Control Centre</p>
+          {(gitData.available) && //&& gitData.branch!=="main"
+          <div className="cursor-pointer text-xs text-center -mt-3 ml-5 -mt-15" style={{color: "#777"}} onClick={()=>setGithubModalOpen(true)}>
+              {gitData.branch} @ {gitData.shortCommit}
+          </div>}
+
+          {/* Title (centered absolutely) */}
+          <div className="absolute left-1/2 transform -translate-x-1/2">
+            <h1 onClick={()=>setEndpointModalOpen(true)} className="text-3xl font-extrabold text-center cursor-pointer" style={{transform: "translateY(-18px)"}}>Command & Control Centre</h1>
           </div>
 
-          {/* Status */}
-          <div className="ml-auto flex items-center gap-3">
-            <span className="text-xs text-gray-400">
-              {useRoverUrl()?.replace('http://', '')}
-            </span>
-            <StatusChip
-              color={
-                roverWatchdog.status === 'connected'
-                  ? 'success'
-                  : roverWatchdog.status === 'connecting'
-                  ? 'warning'
-                  : 'error'
-              }
-              label={roverWatchdog.status}
-            />
-          </div>
+          <img src="Equinox Logo.png" className="h-[70px] flex-shrink-0 ml-auto" />
         </div>
 
         {/* Tabs row */}
         <HeaderTabs
           tabs={[
             { id: 'cameras', label: 'Cameras' },
+            { id: 'drive', label: 'Drive' },
             { id: 'arm', label: 'Arm' },
+            { id: 'exc', label: 'Excavator'},
             { id: 'telemetry', label: 'Telemetry' },
             { id: 'vitals', label: 'System' },
+            { id: 'science', label: 'Science'},
           ]}
           active={activeTab}
           onChange={setActiveTab}

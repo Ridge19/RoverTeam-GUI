@@ -1,22 +1,31 @@
-import { createContext, useContext } from "react";
-import { Camera } from "@/hooks/useCameraList";
+import React, { createContext, useContext } from "react";
+
+/* ------------------- TYPES ------------------- */
 
 export type ConnectionStatus = "idle" | "connecting" | "live" | "failed";
 
-export interface CameraStreamsContextValue {
-  getStream(id: string): MediaStream | null;
-  getStatus(id: string): ConnectionStatus;
-  getError(id: string): string | null;
-
-  start(camera: Camera): void;
-  stop(id: string): void;
+export interface Camera {
+  id: string;          // from /cameras
+  label: string;       // from /cameras
+  endpoint: string;    // full endpoint URL including port, e.g. http://rover.local:3001
+  port: number;
 }
 
-export const CameraStreamsContext =
-  createContext<CameraStreamsContextValue | null>(null);
+export interface CameraStreamsContextType {
+  cameras: Camera[];
+  loading: boolean;
+  fetchCameras: (endpointId: string, port: number) => Promise<Camera[]>;
+  start: (camera: Camera) => void;
+  stop: (camera: Camera) => void;
+  getStream: (camera: Camera) => MediaStream | null;
+  getStatus: (camera: Camera) => ConnectionStatus;
+  getError: (camera: Camera) => string | null;
+}
 
-export function useCameraStreams() {
+export const CameraStreamsContext = createContext<CameraStreamsContextType | null>(null);
+
+export const useCameraStreams = () => {
   const ctx = useContext(CameraStreamsContext);
-  if (!ctx) throw new Error("useCameraStreams must be used inside provider");
+  if (!ctx) throw new Error("useCameraStreams must be used within CameraStreamsProvider");
   return ctx;
-}
+};
